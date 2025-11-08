@@ -75,24 +75,41 @@ export const authOptions: NextAuthOptions = {
     // JWT callback to add custom fields to the token
     async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
-        token.email = user.email;
-        token.avatar = user.image;
-        token.plan = "Free";
-        token.usageCount = 0;
-        token.usageLimit = 3;
+        // Fetch user data from database
+        const dbUser = await prisma.users.findUnique({
+          where: { email: user.email },
+        });
+        if (dbUser) {
+          token.email = dbUser.email;
+          token.avatar = dbUser.avatar;
+          token.plan = dbUser.plan;
+          token.usageCount = dbUser.usageCount;
+          token.usageLimit = dbUser.usageLimit;
+        } else {
+          token.plan = "Free";
+          token.usageCount = 0;
+          token.usageLimit = 3;
+        }
       }
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
-      session.user.email = token.email;
-      session.user.avatar = token.avatar;
-      session.user.plan = token.plan;
-      session.user.usageCount = token.usageCount;
-      session.user.usageLimit = token.usageLimit;
+      // Fetch fresh user data from database
+      const dbUser = await prisma.users.findUnique({
+        where: { email: token.email },
+      });
+      if (dbUser) {
+        session.user.email = dbUser.email;
+        session.user.avatar = dbUser.avatar;
+        session.user.plan = dbUser.plan;
+        session.user.usageCount = dbUser.usageCount;
+        session.user.usageLimit = dbUser.usageLimit;
+      }
       return session;
     },
   },
   pages: {
     signIn: "/",
+    signOut: "/",
   },
 };

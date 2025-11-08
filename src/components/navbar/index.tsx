@@ -1,9 +1,17 @@
 "use client";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Menu, Sparkles, X } from "lucide-react";
+import { Menu, Sparkles, X, User, CreditCard, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import Link from "next/link";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -78,13 +86,43 @@ const Navbar = () => {
             >
               Pricing
             </button>
-            <Button
-              variant="hero"
-              className="w-full font-semibold"
-              onClick={handleSubmit}
-            >
-              {session?.user ? "Launch App" : "Sign In"}
-            </Button>
+            {session?.user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span>Profile</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex items-center space-x-2">
+                      <User className="h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/billing" className="flex items-center space-x-2">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Billing</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="hero"
+                className="w-full font-semibold"
+                onClick={handleSubmit}
+              >
+                Sign In
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -121,9 +159,23 @@ const Navbar = () => {
             >
               Pricing
             </button>
-            <Button variant="hero" className="w-full" onClick={handleSubmit}>
-              {session?.user ? "Launch App" : "Sign In"}
-            </Button>
+            {session?.user ? (
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/profile">Profile</Link>
+                </Button>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/billing">Billing</Link>
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => signOut()}>
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button variant="hero" className="w-full" onClick={handleSubmit}>
+                Sign In
+              </Button>
+            )}
           </div>
         </motion.div>
       </div>

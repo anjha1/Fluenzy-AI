@@ -62,7 +62,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   await prisma.users.update({
     where: { id: userId },
     data: {
-      plan: 'Paid',
+      plan: 'Pro',
       usageLimit: 999999, // Unlimited
       stripeCustomerId: session.customer as string,
     },
@@ -79,6 +79,18 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
       userId,
       stripeSubscriptionId: subscription.id,
       stripeCustomerId: subscription.customer as string,
+      status: subscription.status,
+      currentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
+    },
+  });
+
+  // Update user plan and renewal date
+  await prisma.users.update({
+    where: { id: userId },
+    data: {
+      plan: 'Pro',
+      usageLimit: 999999,
+      renewalDate: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
     },
   });
 }
@@ -87,22 +99,33 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const userId = subscription.metadata?.userId;
   if (!userId) return;
 
+  // Update subscription record
+  await prisma.subscriptions.updateMany({
+    where: { stripeSubscriptionId: subscription.id },
+    data: {
+      status: subscription.status,
+      currentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
+    },
+  });
+
   if (subscription.status === 'active') {
     // Update user to Pro plan
     await prisma.users.update({
       where: { id: userId },
       data: {
-        plan: 'Paid',
+        plan: 'Pro',
         usageLimit: 999999, // Unlimited
+        renewalDate: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
       },
     });
-  } else if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
+  } else if (subscription.status === 'canceled' || subscription.status === 'unpaid' || subscription.status === 'past_due') {
     // Downgrade user to Free plan
     await prisma.users.update({
       where: { id: userId },
       data: {
         plan: 'Free',
         usageLimit: 3,
+        renewalDate: null,
       },
     });
   }
@@ -118,6 +141,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     data: {
       plan: 'Free',
       usageLimit: 3,
+      renewalDate: null,
     },
   });
 
