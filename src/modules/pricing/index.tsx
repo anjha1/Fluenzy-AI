@@ -3,11 +3,14 @@ import { Check, Crown, Star, Zap } from "lucide-react";
 import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const plans = [
   {
     name: "Free",
-    price: "$0",
+    price: "₹0",
     period: "forever",
     description: "Perfect for trying out Pixora AI",
     features: [
@@ -23,7 +26,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "$19",
+    price: "₹150",
     period: "per month",
     description: "Unlimited power for professionals",
     features: [
@@ -42,10 +45,30 @@ const plans = [
 ];
 
 const Pricing = () => {
-  const scrollToEditor = () => {
-    const element = document.getElementById("editor");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+  const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  const handleButtonClick = (planName: string) => {
+    if (pathname === "/pricing") {
+      // On pricing page
+      if (planName === "Pro") {
+        router.push("/billing");
+      } else {
+        // Start Free - redirect to home or sign in
+        if (session?.user) {
+          router.push("/");
+        } else {
+          // Sign in logic, but since it's client, maybe just redirect to home
+          router.push("/");
+        }
+      }
+    } else {
+      // On home page - scroll to editor
+      const element = document.getElementById("editor");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
     }
   };
 
@@ -156,7 +179,7 @@ const Pricing = () => {
                 <Button
                   variant={plan.popular ? "hero" : "secondary"}
                   className="w-full font-semibold"
-                  onClick={scrollToEditor}
+                  onClick={() => handleButtonClick(plan.name)}
                 >
                   {plan.cta}
                 </Button>

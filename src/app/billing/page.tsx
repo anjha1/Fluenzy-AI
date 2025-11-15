@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import UpgradeButton from "@/components/upgrade-button";
 
 export default async function BillingPage() {
   const session = await getServerSession(authOptions);
@@ -48,11 +49,7 @@ export default async function BillingPage() {
                   {user.plan}
                 </Badge>
               </div>
-              {user.plan === "Free" && (
-                <Button asChild>
-                  <Link href="/api/create-checkout-session">Upgrade to Pro</Link>
-                </Button>
-              )}
+              {user.plan === "Free" && <UpgradeButton />}
             </div>
 
             {subscription && (

@@ -138,7 +138,7 @@ const PaymentModal = ({
                 <p className="text-sm text-muted-foreground">Pro Plan</p>
                 <div className="flex items-center justify-center space-x-2">
                   <span className="text-3xl font-bold text-foreground">
-                    $19
+                    ₹150
                   </span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
