@@ -77,18 +77,44 @@ const Navbar = () => {
 
           {/* Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => scrollToSection("features")}
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Features
-            </button>
-            <button
-              onClick={() => scrollToSection("pricing")}
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Pricing
-            </button>
+            {session?.user && (
+              <Link
+                href="/"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Home
+              </Link>
+            )}
+            {session?.user ? (
+              <Link
+                href="/features"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Features
+              </Link>
+            ) : (
+              <button
+                onClick={() => scrollToSection("features")}
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Features
+              </button>
+            )}
+            {session?.user ? (
+              <Link
+                href="/pricing"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Pricing
+              </Link>
+            ) : (
+              <button
+                onClick={() => scrollToSection("pricing")}
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Pricing
+              </button>
+            )}
             {session?.user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -150,18 +176,44 @@ const Navbar = () => {
           className="md:hidden overflow-hidden"
         >
           <div className="py-4 space-y-4">
-            <button
-              onClick={() => scrollToSection("features")}
-              className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Features
-            </button>
-            <button
-              onClick={() => scrollToSection("pricing")}
-              className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Pricing
-            </button>
+            {session?.user && (
+              <Link
+                href="/"
+                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Home
+              </Link>
+            )}
+            {session?.user ? (
+              <Link
+                href="/features"
+                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Features
+              </Link>
+            ) : (
+              <button
+                onClick={() => scrollToSection("features")}
+                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Features
+              </button>
+            )}
+            {session?.user ? (
+              <Link
+                href="/pricing"
+                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Pricing
+              </Link>
+            ) : (
+              <button
+                onClick={() => scrollToSection("pricing")}
+                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Pricing
+              </button>
+            )}
             {session?.user ? (
               <div className="space-y-2">
                 <Button variant="outline" className="w-full" asChild>
