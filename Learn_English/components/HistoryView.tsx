@@ -1,67 +1,40 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import {
   Calendar, History, ChevronRight, FileText, CheckCircle2, X, MessageSquare, Mic2, ThumbsUp, TrendingUp, ShieldCheck, XCircle, AlertCircle, ArrowRight, Clock, Zap, Users, User
 } from 'lucide-react';
 import { UserProfile, SessionRecord, ModuleType, QAPair } from '../types';
 
 const SessionDetailModal = ({ session, user, onClose }: { session: SessionRecord, user: UserProfile, onClose: () => void }) => {
   
-  const handleDownloadPDF = () => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: session.id })
+      });
 
-    const reportHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>AceVoice Audit Archive - ${session.id}</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-            @page { size: A4; margin: 15mm; }
-            body { font-family: 'Inter', sans-serif; color: #0f172a; margin: 0; padding: 20px; font-size: 10pt; line-height: 1.6; }
-            .header { border-bottom: 3px solid #0f172a; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
-            .title { font-size: 22pt; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; }
-            .meta { font-size: 8pt; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; }
-            .section { margin-bottom: 40px; page-break-inside: avoid; }
-            .section-title { font-size: 14pt; font-weight: 900; background: #f8fafc; padding: 10px 15px; border-left: 6px solid #0f172a; margin-bottom: 20px; text-transform: uppercase; }
-            .turn { margin-bottom: 20px; padding: 15px; border-radius: 8px; border: 1px solid #f1f5f9; }
-            .label { font-size: 7pt; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; display: block; }
-            .label.user { color: #2563eb; }
-            .label.ai { color: #64748b; }
-            .bubble { padding: 10px; border-radius: 6px; }
-            .bubble.user { background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe; font-weight: 600; }
-            .bubble.ai { background: #f8fafc; color: #334155; }
-            .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 7pt; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 10px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div>
-              <div class="title">AceVoice Audit</div>
-              <div class="meta">SESSION ID: ${session.id} | USER: ${user.name}</div>
-            </div>
-            <div class="meta" style="text-align: right;">DATE: ${session.date}<br/>SCORE: ${session.score}%</div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">1. Professional Transcript Archive</div>
-            ${session.transcript.map((turn, i) => `
-              <div class="turn">
-                <span class="label ${turn.speaker.includes('You') ? 'user' : 'ai'}">${turn.speaker}</span>
-                <div class="bubble ${turn.speaker.includes('You') ? 'user' : 'ai'}">"${turn.text}"</div>
-              </div>
-            `).join('')}
-          </div>
-
-          <div class="footer">ACEVOICE AI | CONFIDENTIAL ARCHIVE</div>
-          <script>window.onload = () => { setTimeout(() => { window.print(); window.close(); }, 500); };</script>
-        </body>
-      </html>
-    `;
-    printWindow.document.write(reportHtml);
-    printWindow.document.close();
+      if (response.ok) {
+        const html = await response.text();
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(html);
+          printWindow.document.close();
+          // Wait for content to load then print
+          printWindow.onload = () => {
+            setTimeout(() => {
+              printWindow.print();
+            }, 500);
+          };
+        }
+      } else {
+        console.error('Failed to generate PDF');
+      }
+    } catch (error) {
+      console.error('PDF download error:', error);
+    }
   };
 
   return (
@@ -131,9 +104,44 @@ const SessionDetailModal = ({ session, user, onClose }: { session: SessionRecord
 };
 
 const HistoryView: React.FC<{ user: UserProfile }> = ({ user }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [selectedSession, setSelectedSession] = useState<SessionRecord | null>(null);
-  const filteredHistory = user.history;
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const response = await fetch('/api/sessions');
+        if (response.ok) {
+          const data = await response.json();
+          setSessions(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch sessions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, []);
+
+  const fetchSessionDetails = async (sessionId: string) => {
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedSession(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch session details:', error);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-20">Loading sessions...</div>;
+  }
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500 pb-20">
@@ -143,18 +151,18 @@ const HistoryView: React.FC<{ user: UserProfile }> = ({ user }) => {
         <p className="text-slate-500 text-lg font-medium">Revisit exact transcripts and performance audits.</p>
       </div>
       <div className="grid grid-cols-1 gap-6">
-        {filteredHistory.map((record) => (
-          <div key={record.id} onClick={() => setSelectedSession(record)} className="group bg-white border p-10 rounded-[3.5rem] shadow-sm hover:shadow-2xl transition-all cursor-pointer flex flex-col md:flex-row items-center gap-10">
-            <div className={`w-24 h-24 rounded-[2.5rem] flex items-center justify-center text-white shadow-xl ${record.type === ModuleType.GD_DISCUSSION ? 'bg-purple-600' : 'bg-blue-600'}`}><History size={36} /></div>
+        {sessions.map((record) => (
+          <div key={record.sessionId} onClick={() => fetchSessionDetails(record.sessionId)} className="group bg-white border p-10 rounded-[3.5rem] shadow-sm hover:shadow-2xl transition-all cursor-pointer flex flex-col md:flex-row items-center gap-10">
+            <div className={`w-24 h-24 rounded-[2.5rem] flex items-center justify-center text-white shadow-xl bg-blue-600`}><History size={36} /></div>
             <div className="flex-1 space-y-3">
-               <h3 className="text-3xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">{record.topic}</h3>
+               <h3 className="text-3xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">{record.module} - {record.targetCompany || 'General'}</h3>
                <div className="flex gap-4">
-                  <span className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100"><Calendar size={12}/> {record.date}</span>
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${record.resultStatus === 'Selected' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>{record.resultStatus}</span>
+                  <span className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100"><Calendar size={12}/> {new Date(record.createdAt).toLocaleDateString()}</span>
+                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${record.status === 'PASS' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>{record.status}</span>
                </div>
             </div>
             <div className="flex items-center gap-12 shrink-0">
-               <div className="text-center"><p className="text-5xl font-black text-slate-900 tracking-tighter">{record.score}%</p><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Audit Score</p></div>
+               <div className="text-center"><p className="text-5xl font-black text-slate-900 tracking-tighter">{Math.round((record.aggregateScore || 0) * 10)}%</p><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-1">Audit Score</p></div>
                <div className="w-16 h-16 rounded-full border-2 border-slate-100 flex items-center justify-center text-slate-300 group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all"><ChevronRight size={32} /></div>
             </div>
           </div>

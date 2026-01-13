@@ -145,7 +145,7 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
   const sessionRef = useRef<any>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const cleanup = useCallback((saveResults = false) => {
+  const cleanup = useCallback(async (saveResults = false) => {
     if (sessionRef.current) { sessionRef.current.close(); sessionRef.current = null; }
     if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
     sourcesRef.current.forEach(s => { try { s.stop(); } catch(e) {} });
@@ -156,76 +156,71 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
 
     if (saveResults) {
       const endTime = new Date();
-      const mockScore = Math.floor(Math.random() * 25) + 70;
 
-      const isEnglishLearning = type === ModuleType.ENGLISH_LEARNING;
-      const isConversationPractice = type === ModuleType.CONVERSATION_PRACTICE;
+      // Evaluate each answer
+      const evaluatedTranscripts = [];
+      for (const qa of transcriptHistory.current) {
+        try {
+          const evaluation = await fetch('/api/evaluate-answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: qa.question,
+              answer: qa.answer,
+              module: type,
+              context: sessionMeta
+            })
+          }).then(r => r.json());
 
-      const transcript: QAPair[] = [];
-      transcriptHistory.current.forEach(qa => {
-        transcript.push({
-          speaker: isEnglishLearning ? 'English Tutor' : isConversationPractice ? 'Conversation Partner' : 'Interviewer',
-          text: qa.question,
-          timestamp: qa.timestamp
+          evaluatedTranscripts.push({
+            aiPrompt: qa.question,
+            userAnswer: qa.answer,
+            aiFeedback: evaluation.aiFeedback || 'Good response',
+            idealAnswer: evaluation.idealAnswer || qa.answer,
+            scores: evaluation.scores,
+            perQuestionScore: evaluation.perQuestionScore
+          });
+        } catch (error) {
+          console.error('Evaluation error:', error);
+          evaluatedTranscripts.push({
+            aiPrompt: qa.question,
+            userAnswer: qa.answer,
+            aiFeedback: 'Response recorded',
+            idealAnswer: qa.answer,
+            scores: { clarity: 7, relevance: 7, grammar: 7, confidence: 7, technicalAccuracy: 7 },
+            perQuestionScore: 7
+          });
+        }
+      }
+
+      // Calculate aggregate score
+      const totalScore = evaluatedTranscripts.reduce((sum, t) => sum + (t.perQuestionScore || 0), 0);
+      const aggregateScore = evaluatedTranscripts.length > 0 ? totalScore / evaluatedTranscripts.length : 0;
+      const status = aggregateScore >= 6 ? 'PASS' : 'FAIL';
+
+      // Save to database
+      try {
+        await fetch('/api/sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            module: type,
+            targetCompany: sessionMeta?.company,
+            role: sessionMeta?.role,
+            startTime: startTimeRef.current.toISOString(),
+            endTime: endTime.toISOString(),
+            transcripts: evaluatedTranscripts,
+            aggregateScore,
+            status
+          })
         });
-        transcript.push({
-          speaker: isEnglishLearning ? 'Student (You)' : isConversationPractice ? 'You' : 'Candidate (You)',
-          text: qa.answer,
-          timestamp: qa.timestamp
-        });
-      });
+      } catch (error) {
+        console.error('Session save error:', error);
+      }
 
-      const newSession: SessionRecord = {
-        id: `s_${Date.now()}`,
-        date: new Date().toLocaleDateString(),
-        startTime: startTimeRef.current.toLocaleTimeString(),
-        endTime: endTime.toLocaleTimeString(),
-        durationMinutes: Math.round((endTime.getTime() - startTimeRef.current.getTime()) / 60000) || 5,
-        type: (type as ModuleType) || ModuleType.ENGLISH_LEARNING,
-        topic: topic,
-        score: mockScore,
-        feedback: isEnglishLearning
-          ? `English lesson completed: ${sessionMeta?.lessonTitle || 'General Practice'}. Great progress in speaking skills!`
-          : isConversationPractice
-          ? `Daily conversation practice completed. Improved fluency and natural speaking skills!`
-          : `Audit complete for ${sessionMeta?.company || 'MNC'}. Strong reasoning alignment.`,
-        company: (isEnglishLearning || isConversationPractice) ? undefined : sessionMeta?.company,
-        role: (isEnglishLearning || isConversationPractice) ? undefined : sessionMeta?.role,
-        resumeUsed: (isEnglishLearning || isConversationPractice) ? false : !!sessionMeta?.resumeText,
-        resultStatus: mockScore > 80 ? 'Selected' : 'Borderline',
-        readinessLevel: isEnglishLearning || isConversationPractice
-          ? (mockScore > 80 ? 'Fluent Speaker' : 'Needs Practice')
-          : (mockScore > 80 ? 'Interview Ready' : 'Needs Practice'),
-        transcript: transcript,
-        strengths: isEnglishLearning || isConversationPractice
-          ? ["Pronunciation Improvement", "Grammar Accuracy", "Fluency", "Natural Conversation"]
-          : ["Persona Alignment", "Tone Consistency"],
-        weaknesses: isEnglishLearning || isConversationPractice
-          ? ["Vocabulary Expansion Needed"]
-          : ["Filler word usage"],
-        mistakes: [],
-        skillScores: isEnglishLearning || isConversationPractice
-          ? {
-              communication: mockScore,
-              confidence: Math.floor(Math.random() * 20) + 70,
-              clarity: Math.floor(Math.random() * 20) + 70,
-              hrReadiness: 0, // Not applicable
-              companyFit: 0, // Not applicable
-              content: Math.floor(Math.random() * 20) + 70
-            }
-          : { communication: 80, confidence: 85, clarity: 75, hrReadiness: 82, companyFit: 88, content: 90 },
-        analytics: { totalSpeakingTime: "8m", avgAnswerLength: "45s", pauseTime: "10s", responseSpeed: "Optimal", talkingBalance: "Good" },
-        actionPlan: isEnglishLearning || isConversationPractice
-          ? ["Practice more conversations", "Review grammar rules", "Listen to native speakers"]
-          : ["Review resume deep-dives"]
-      };
-
-      const updatedUser: UserProfile = JSON.parse(JSON.stringify(user));
-      updatedUser.history = [newSession, ...updatedUser.history];
-      onSessionEnd(updatedUser);
       setIsFinished(true);
     }
-  }, [type, user, onSessionEnd, sessionMeta, topic]);
+  }, [type, sessionMeta]);
 
   const startSession = async () => {
     setIsConnecting(true);

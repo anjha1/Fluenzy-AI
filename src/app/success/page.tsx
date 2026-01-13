@@ -67,6 +67,13 @@ export default async function SuccessPage({
         usageLimit: 999999, // Unlimited
         renewalDate: renewalDate,
         stripeCustomerId: stripeSession.customer as string,
+        // Reset training module usage counters for Pro users
+        englishUsage: 0,
+        dailyUsage: 0,
+        hrUsage: 0,
+        technicalUsage: 0,
+        companyUsage: 0,
+        mockUsage: 0,
       },
     });
   }

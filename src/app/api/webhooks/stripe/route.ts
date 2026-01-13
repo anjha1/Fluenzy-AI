@@ -65,6 +65,13 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       plan: 'Pro',
       usageLimit: 999999, // Unlimited
       stripeCustomerId: session.customer as string,
+      // Reset training module usage counters for Pro users
+      englishUsage: 0,
+      dailyUsage: 0,
+      hrUsage: 0,
+      technicalUsage: 0,
+      companyUsage: 0,
+      mockUsage: 0,
     },
   });
 }
@@ -91,6 +98,13 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
       plan: 'Pro',
       usageLimit: 999999,
       renewalDate: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
+      // Reset training module usage counters for Pro users
+      englishUsage: 0,
+      dailyUsage: 0,
+      hrUsage: 0,
+      technicalUsage: 0,
+      companyUsage: 0,
+      mockUsage: 0,
     },
   });
 }
@@ -116,6 +130,13 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         plan: 'Pro',
         usageLimit: 999999, // Unlimited
         renewalDate: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
+        // Reset training module usage counters for Pro users
+        englishUsage: 0,
+        dailyUsage: 0,
+        hrUsage: 0,
+        technicalUsage: 0,
+        companyUsage: 0,
+        mockUsage: 0,
       },
     });
   } else if (subscription.status === 'canceled' || subscription.status === 'unpaid' || subscription.status === 'past_due') {

@@ -18,6 +18,23 @@ import { ModuleType } from '../types';
 const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdvanced, canUse, remaining, isLocked }: any) => {
   const router = useRouter();
 
+  const handleUpgrade = async () => {
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        console.error('Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+    }
+  };
+
   const handleStart = () => {
     if (isLocked) return;
 
@@ -65,7 +82,7 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
       <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-6">{description}</p>
 
       <div className="flex items-center justify-between">
-        <div className={`font-bold text-sm md:text-base ${isLocked ? 'text-red-400' : 'text-purple-400 group-hover:text-purple-300'} transition-colors`}>
+        <div className={`font-bold text-sm md:text-base ${isLocked ? 'text-red-400 cursor-pointer hover:text-red-300' : 'text-purple-400 group-hover:text-purple-300'} transition-colors`} onClick={isLocked ? handleUpgrade : undefined}>
           {isLocked ? 'Free limit reached. Upgrade to continue.' : 'Start Training'}
           {!isLocked && <ArrowRight size={16} className="ml-2 inline group-hover:translate-x-1 transition-transform" />}
         </div>

@@ -101,12 +101,20 @@ const Navbar = () => {
               </button>
             )}
             {session?.user && (
-              <Link
-                href="/train"
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Train Now
-              </Link>
+              <>
+                <Link
+                  href="/train"
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Train Now
+                </Link>
+                <Link
+                  href="/history"
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  History
+                </Link>
+              </>
             )}
             {session?.user ? (
               <Link
@@ -208,12 +216,20 @@ const Navbar = () => {
               </button>
             )}
             {session?.user && (
-              <Link
-                href="/train"
-                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Train Now
-              </Link>
+              <>
+                <Link
+                  href="/train"
+                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Train Now
+                </Link>
+                <Link
+                  href="/history"
+                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  History
+                </Link>
+              </>
             )}
             {session?.user ? (
               <Link
