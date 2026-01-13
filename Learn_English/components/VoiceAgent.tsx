@@ -236,10 +236,13 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
       streamRef.current = stream;
 
       const isEnglishLearning = type === ModuleType.ENGLISH_LEARNING;
+      const isHRInterview = type === ModuleType.HR_INTERVIEW;
       const instruction = `
         ${SYSTEM_INSTRUCTIONS[type as ModuleType] || 'Senior Interview Coach.'}
         ${isEnglishLearning
           ? `CONTEXT: Lesson Topic: ${sessionMeta?.lessonTitle || 'General English Practice'}, User Proficiency Level: ${user.proficiency}. Focus on teaching English skills, not conducting interviews.`
+          : isHRInterview
+          ? `CONTEXT: HR Lesson Topic: ${sessionMeta?.lessonTitle || 'General HR Interview Practice'}. Focus on HR interview coaching, behavioral questions, and professional communication skills. Do not ask technical or coding questions.`
           : `CONTEXT: Role: ${sessionMeta?.role || user.jobRole}, Company: ${sessionMeta?.company || 'Top MNC'}, Resume: ${sessionMeta?.resumeText || 'General Profile'}.
         Use your thinking budget to analyze resume projects and company requirements before every question.`
         }
