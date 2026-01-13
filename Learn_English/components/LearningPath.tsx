@@ -28,7 +28,7 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
       } else if (type === ModuleType.GD_DISCUSSION) {
         router.push('/train/gd');
       } else if (type === ModuleType.CONVERSATION_PRACTICE) {
-        router.push('/train/daily');
+        router.push(`/train/session/${type}`);
       } else if (type === ModuleType.TECH_INTERVIEW) {
         router.push('/train/technical');
       } else {

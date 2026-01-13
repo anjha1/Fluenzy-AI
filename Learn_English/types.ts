@@ -84,7 +84,7 @@ export interface SessionRecord {
   gdRole?: GDRole;
   resumeUsed: boolean;
   resultStatus: 'Selected' | 'Rejected' | 'Borderline';
-  readinessLevel: 'Interview Ready' | 'Needs Practice';
+  readinessLevel: 'Interview Ready' | 'Needs Practice' | 'Fluent Speaker';
   transcript: QAPair[]; // Stores exact conversation
   qaPairs?: InterviewQA[]; // Added qaPairs for structured interview analysis
   strengths: string[];

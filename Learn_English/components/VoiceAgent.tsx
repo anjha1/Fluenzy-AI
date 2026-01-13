@@ -123,17 +123,20 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
     difficulty: searchParams.get('difficulty') ? decodeURIComponent(searchParams.get('difficulty')!) : undefined,
     roundType: searchParams.get('roundType') ? decodeURIComponent(searchParams.get('roundType')!) : undefined,
     resumeText: searchParams.get('resumeText') ? decodeURIComponent(searchParams.get('resumeText')!) : undefined,
-    isCompanyWise: searchParams.get('isCompanyWise') === 'true'
+    isCompanyWise: searchParams.get('isCompanyWise') === 'true',
+    focus: searchParams.get('focus') ? decodeURIComponent(searchParams.get('focus')!) : undefined,
+    level: searchParams.get('level') ? decodeURIComponent(searchParams.get('level')!) : undefined
   };
   const currentQA = useRef({ question: '', answer: '' });
   const transcriptHistory = useRef<InterviewQA[]>([]);
   const startTimeRef = useRef(new Date());
 
   const topic = useMemo(() => {
-    return sessionMeta?.isCompanyWise 
-      ? `${sessionMeta.company} - ${sessionMeta.role} (${sessionMeta.roundType})` 
+    if (type === ModuleType.CONVERSATION_PRACTICE) return 'Daily Conversation';
+    return sessionMeta?.isCompanyWise
+      ? `${sessionMeta.company} - ${sessionMeta.role} (${sessionMeta.roundType})`
       : (sessionMeta?.lessonTitle || 'General Session');
-  }, [sessionMeta]);
+  }, [sessionMeta, type]);
 
   const inputAudioContextRef = useRef<AudioContext | null>(null);
   const outputAudioContextRef = useRef<AudioContext | null>(null);
@@ -156,16 +159,17 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
       const mockScore = Math.floor(Math.random() * 25) + 70;
 
       const isEnglishLearning = type === ModuleType.ENGLISH_LEARNING;
+      const isConversationPractice = type === ModuleType.CONVERSATION_PRACTICE;
 
       const transcript: QAPair[] = [];
       transcriptHistory.current.forEach(qa => {
         transcript.push({
-          speaker: isEnglishLearning ? 'English Tutor' : 'Interviewer',
+          speaker: isEnglishLearning ? 'English Tutor' : isConversationPractice ? 'Conversation Partner' : 'Interviewer',
           text: qa.question,
           timestamp: qa.timestamp
         });
         transcript.push({
-          speaker: isEnglishLearning ? 'Student (You)' : 'Candidate (You)',
+          speaker: isEnglishLearning ? 'Student (You)' : isConversationPractice ? 'You' : 'Candidate (You)',
           text: qa.answer,
           timestamp: qa.timestamp
         });
@@ -182,23 +186,25 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
         score: mockScore,
         feedback: isEnglishLearning
           ? `English lesson completed: ${sessionMeta?.lessonTitle || 'General Practice'}. Great progress in speaking skills!`
+          : isConversationPractice
+          ? `Daily conversation practice completed. Improved fluency and natural speaking skills!`
           : `Audit complete for ${sessionMeta?.company || 'MNC'}. Strong reasoning alignment.`,
-        company: isEnglishLearning ? undefined : sessionMeta?.company,
-        role: isEnglishLearning ? undefined : sessionMeta?.role,
-        resumeUsed: isEnglishLearning ? false : !!sessionMeta?.resumeText,
+        company: (isEnglishLearning || isConversationPractice) ? undefined : sessionMeta?.company,
+        role: (isEnglishLearning || isConversationPractice) ? undefined : sessionMeta?.role,
+        resumeUsed: (isEnglishLearning || isConversationPractice) ? false : !!sessionMeta?.resumeText,
         resultStatus: mockScore > 80 ? 'Selected' : 'Borderline',
-        readinessLevel: isEnglishLearning
-          ? (mockScore > 80 ? 'Interview Ready' : 'Needs Practice')
+        readinessLevel: isEnglishLearning || isConversationPractice
+          ? (mockScore > 80 ? 'Fluent Speaker' : 'Needs Practice')
           : (mockScore > 80 ? 'Interview Ready' : 'Needs Practice'),
         transcript: transcript,
-        strengths: isEnglishLearning
-          ? ["Pronunciation Improvement", "Grammar Accuracy", "Fluency"]
+        strengths: isEnglishLearning || isConversationPractice
+          ? ["Pronunciation Improvement", "Grammar Accuracy", "Fluency", "Natural Conversation"]
           : ["Persona Alignment", "Tone Consistency"],
-        weaknesses: isEnglishLearning
+        weaknesses: isEnglishLearning || isConversationPractice
           ? ["Vocabulary Expansion Needed"]
           : ["Filler word usage"],
         mistakes: [],
-        skillScores: isEnglishLearning
+        skillScores: isEnglishLearning || isConversationPractice
           ? {
               communication: mockScore,
               confidence: Math.floor(Math.random() * 20) + 70,
@@ -209,8 +215,8 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
             }
           : { communication: 80, confidence: 85, clarity: 75, hrReadiness: 82, companyFit: 88, content: 90 },
         analytics: { totalSpeakingTime: "8m", avgAnswerLength: "45s", pauseTime: "10s", responseSpeed: "Optimal", talkingBalance: "Good" },
-        actionPlan: isEnglishLearning
-          ? ["Practice more sentences", "Review grammar rules", "Listen to native speakers"]
+        actionPlan: isEnglishLearning || isConversationPractice
+          ? ["Practice more conversations", "Review grammar rules", "Listen to native speakers"]
           : ["Review resume deep-dives"]
       };
 
@@ -237,12 +243,15 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
 
       const isEnglishLearning = type === ModuleType.ENGLISH_LEARNING;
       const isHRInterview = type === ModuleType.HR_INTERVIEW;
+      const isConversationPractice = type === ModuleType.CONVERSATION_PRACTICE;
       const instruction = `
         ${SYSTEM_INSTRUCTIONS[type as ModuleType] || 'Senior Interview Coach.'}
         ${isEnglishLearning
           ? `CONTEXT: Lesson Topic: ${sessionMeta?.lessonTitle || 'General English Practice'}, User Proficiency Level: ${user.proficiency}. Focus on teaching English skills, not conducting interviews.`
           : isHRInterview
           ? `CONTEXT: HR Lesson Topic: ${sessionMeta?.lessonTitle || 'General HR Interview Practice'}. Focus on HR interview coaching, behavioral questions, and professional communication skills. Do not ask technical or coding questions.`
+          : isConversationPractice
+          ? `CONTEXT: Daily conversation practice. Engage in natural English speaking practice with topics like office small talk, daily life, and casual professional chats. User Proficiency Level: ${user.proficiency}. Be a friendly conversation partner, not an interviewer.`
           : `CONTEXT: Role: ${sessionMeta?.role || user.jobRole}, Company: ${sessionMeta?.company || 'Top MNC'}, Resume: ${sessionMeta?.resumeText || 'General Profile'}.
         Use your thinking budget to analyze resume projects and company requirements before every question.`
         }

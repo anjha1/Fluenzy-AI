@@ -24,7 +24,7 @@ const TechnicalMastery: React.FC = () => {
 
   const startSession = () => {
     try {
-      router.push('/train/session/TECH_INTERVIEW');
+      router.push(`/train/session/TECH_INTERVIEW?focus=${selectedFocus}&level=${selectedLevel}`);
     } catch (error) {
       console.error('Navigation error:', error);
       window.location.href = '/train';
