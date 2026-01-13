@@ -5,9 +5,10 @@ import prisma from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
+    const { sessionId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,7 +24,7 @@ export async function GET(
 
     const sessionData = await (prisma as any).session.findFirst({
       where: {
-        sessionId: params.sessionId,
+        sessionId: sessionId,
         userId: user.id
       },
       include: {
