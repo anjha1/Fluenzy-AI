@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import GDAgent from '../../../Learn_English/components/GDAgent';
 import CompanyHRDashboard from '../../../Learn_English/components/CompanyHRDashboard';
 import LearningPath from '../../../Learn_English/components/LearningPath';
+import TechnicalMastery from '../../../Learn_English/components/TechnicalMastery';
 import { UserProfile } from '../../../Learn_English/types';
 import { INITIAL_USER } from '../../../Learn_English/constants';
 
@@ -43,7 +44,7 @@ const LearnEnglishWrapper: React.FC<LearnEnglishWrapperProps> = ({ mode }) => {
     case 'gd':
       return <GDAgent user={user} onSessionEnd={() => {}} />;
     case 'technical':
-      return <GDAgent user={user} onSessionEnd={() => {}} />;
+      return <TechnicalMastery />;
     case 'company':
       return <CompanyHRDashboard />;
     case 'mock':

@@ -307,43 +307,50 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
   // Setup Steps UI
   if (step < 6) {
     return (
-      <div className="max-w-4xl mx-auto py-8 space-y-8 animate-in fade-in duration-500">
-        <div className="flex items-center justify-between">
+      <div className="bg-slate-900/30 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden min-h-[600px] flex flex-col">
+        <div className="flex items-center justify-between p-6 md:p-8 border-b border-slate-700/50">
           <button
-            onClick={() => step > 1 ? prevStep() : router.push('/train')}
-            className="flex items-center gap-2 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors"
+            onClick={() => {
+              try {
+                step > 1 ? prevStep() : router.push('/train');
+              } catch (error) {
+                console.error('Navigation error:', error);
+                window.location.href = '/train';
+              }
+            }}
+            className="flex items-center gap-2 text-slate-400 font-bold text-sm md:text-base hover:text-slate-300 transition-colors p-2 md:p-0"
           >
             <ArrowLeft size={16} />
             {step > 1 ? 'Previous Step' : 'Back to Modules'}
           </button>
-          <div className="flex gap-2">
+          <div className="flex gap-1 md:gap-2">
             {[1, 2, 3, 4, 5].map(s => (
-              <div key={s} className={`h-1.5 w-12 rounded-full transition-all ${step >= s ? 'bg-purple-600' : 'bg-slate-100'}`}></div>
+              <div key={s} className={`h-1.5 w-8 md:w-12 rounded-full transition-all ${step >= s ? 'bg-purple-500' : 'bg-slate-600'}`}></div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl overflow-hidden min-h-[500px] flex flex-col">
+        <div className="flex-1 p-6 md:p-12">
           {/* Step 1: Discussion Size */}
           {step === 1 && (
-            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+            <div className="space-y-8 md:space-y-10 flex-1 animate-in slide-in-from-right-4 duration-500 ease-out">
               <div className="text-center space-y-2">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Discussion Size</h2>
-                <p className="text-slate-500 font-medium">How many participants should join this GD session?</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Discussion Size</h2>
+                <p className="text-slate-300 font-medium">How many participants should join this GD session?</p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-lg mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 max-w-4xl mx-auto">
                 {[3, 4, 5, 6, 8].map(size => (
                   <button
                     key={size}
                     onClick={() => { setParticipants(size); nextStep(); }}
-                    className={`p-8 rounded-3xl border-2 transition-all flex flex-col items-center justify-center gap-4 hover:shadow-lg ${
-                      participants === size ? 'border-purple-600 bg-purple-50' : 'border-slate-50 bg-white hover:border-slate-200'
+                    className={`p-4 md:p-8 rounded-3xl border-2 transition-all flex flex-col items-center justify-center gap-2 md:gap-4 hover:shadow-lg touch-manipulation ${
+                      participants === size ? 'border-purple-500 bg-purple-900/30' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm'
                     }`}
                   >
-                    <Users size={32} className={participants === size ? 'text-purple-600' : 'text-slate-400'} />
-                    <span className="font-bold text-slate-700">{size} People</span>
-                    <span className="text-xs text-slate-500">Includes You + {size - 1} AI Agents + 1 HR Moderator</span>
+                    <Users size={24} className={`md:w-8 md:h-8 ${participants === size ? 'text-purple-400' : 'text-slate-400'}`} />
+                    <span className="font-bold text-white text-sm md:text-base">{size} People</span>
+                    <span className="text-xs text-slate-300 text-center">Includes You + {size - 1} AI Agents + 1 HR Moderator</span>
                   </button>
                 ))}
               </div>
@@ -352,19 +359,19 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
 
           {/* Step 2: Environment */}
           {step === 2 && (
-            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+            <div className="space-y-8 md:space-y-10 flex-1 animate-in slide-in-from-right-4 duration-500 ease-out">
               <div className="text-center space-y-2">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Environment Setup</h2>
-                <p className="text-slate-500 font-medium">Configure the GD environment and intensity.</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Environment Setup</h2>
+                <p className="text-slate-300 font-medium">Configure the GD environment and intensity.</p>
               </div>
 
-              <div className="space-y-8 max-w-lg mx-auto">
+              <div className="space-y-6 md:space-y-8 max-w-lg mx-auto">
                 <div className="space-y-3">
                   <label className="text-sm font-black uppercase text-slate-400 tracking-widest px-2">Target Company</label>
                   <select
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    className="w-full bg-slate-50 border-0 rounded-2xl px-6 py-4 font-bold text-slate-800 focus:ring-2 focus:ring-purple-600 transition-all outline-none"
+                    className="w-full bg-slate-800/50 border border-slate-600 rounded-2xl px-6 py-4 font-bold text-white focus:ring-2 focus:ring-purple-500 transition-all outline-none backdrop-blur-sm"
                   >
                     <option>Google</option>
                     <option>Amazon</option>
@@ -376,13 +383,13 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
 
                 <div className="space-y-3">
                   <label className="text-sm font-black uppercase text-slate-400 tracking-widest px-2">Intensity Level</label>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-3 gap-3 md:gap-4">
                     {['Calm', 'Moderate', 'Aggressive'].map(lvl => (
                       <button
                         key={lvl}
                         onClick={() => setIntensity(lvl)}
-                        className={`py-4 rounded-2xl font-bold transition-all border-2 ${
-                          intensity === lvl ? 'border-purple-600 bg-purple-600 text-white shadow-lg' : 'border-slate-100 bg-slate-50 text-slate-600'
+                        className={`py-3 md:py-4 rounded-2xl font-bold transition-all border-2 touch-manipulation ${
+                          intensity === lvl ? 'border-purple-500 bg-purple-600 text-white shadow-lg' : 'border-slate-600 bg-slate-800/50 text-slate-300 backdrop-blur-sm'
                         }`}
                       >
                         {lvl}
@@ -392,8 +399,8 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                 </div>
               </div>
 
-              <div className="flex justify-center pt-8">
-                <button onClick={nextStep} className="bg-slate-900 text-white px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-slate-800 transition-all">
+              <div className="flex justify-center pt-6 md:pt-8">
+                <button onClick={nextStep} className="bg-slate-800 text-white px-8 md:px-12 py-3 md:py-4 rounded-2xl font-black uppercase tracking-widest text-xs md:text-sm flex items-center gap-2 hover:bg-slate-700 transition-all touch-manipulation">
                   Topic Config <ChevronRight size={16} />
                 </button>
               </div>
@@ -402,13 +409,13 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
 
           {/* Step 3: Topic Configuration */}
           {step === 3 && (
-            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+            <div className="space-y-8 md:space-y-10 flex-1 animate-in slide-in-from-right-4 duration-500 ease-out">
               <div className="text-center space-y-2">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Topic Configuration</h2>
-                <p className="text-slate-500 font-medium">Choose how the GD topic should be generated.</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Topic Configuration</h2>
+                <p className="text-slate-300 font-medium">Choose how the GD topic should be generated.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-4xl mx-auto">
                 {[
                   { id: 'Company-Based', icon: Building2, desc: 'Topics relevant to the selected company' },
                   { id: 'Random-Based', icon: Target, desc: 'Random contemporary topics' },
@@ -417,16 +424,16 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                   <button
                     key={t.id}
                     onClick={() => { setTopicMode(t.id); nextStep(); }}
-                    className={`p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-4 transition-all ${
-                      topicMode === t.id ? 'border-purple-600 bg-purple-50 shadow-md' : 'border-slate-50 bg-white hover:border-slate-100'
+                    className={`p-4 md:p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-3 md:gap-4 transition-all touch-manipulation ${
+                      topicMode === t.id ? 'border-purple-500 bg-purple-900/30' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm'
                     }`}
                   >
-                    <div className={`p-3 rounded-2xl ${topicMode === t.id ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                    <div className={`p-3 rounded-2xl ${topicMode === t.id ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-400'}`}>
                       <t.icon size={24} />
                     </div>
                     <div>
-                      <p className="font-black text-slate-900 uppercase tracking-widest text-[10px] mb-1">{t.id}</p>
-                      <p className="text-xs text-slate-500 font-medium">{t.desc}</p>
+                      <p className="font-black text-white uppercase tracking-widest text-[10px] mb-1">{t.id}</p>
+                      <p className="text-xs text-slate-300 font-medium">{t.desc}</p>
                     </div>
                   </button>
                 ))}
@@ -436,13 +443,13 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
 
           {/* Step 4: Role Selection */}
           {step === 4 && (
-            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+            <div className="space-y-8 md:space-y-10 flex-1 animate-in slide-in-from-right-4 duration-500 ease-out">
               <div className="text-center space-y-2">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Role Selection</h2>
-                <p className="text-slate-500 font-medium">Choose your role in the group discussion.</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Role Selection</h2>
+                <p className="text-slate-300 font-medium">Choose your role in the group discussion.</p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
                 {[
                   { id: GDRole.INITIATOR, icon: Crown, desc: 'Start discussions, set agenda' },
                   { id: GDRole.INFO_PROVIDER, icon: Lightbulb, desc: 'Provide facts and data' },
@@ -455,16 +462,16 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                   <button
                     key={r.id}
                     onClick={() => { setSelectedRole(r.id); nextStep(); }}
-                    className={`p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-4 transition-all ${
-                      selectedRole === r.id ? 'border-purple-600 bg-purple-50 shadow-md' : 'border-slate-50 bg-white hover:border-slate-100'
+                    className={`p-4 md:p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-3 md:gap-4 transition-all touch-manipulation ${
+                      selectedRole === r.id ? 'border-purple-500 bg-purple-900/30' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm'
                     }`}
                   >
-                    <div className={`p-3 rounded-2xl ${selectedRole === r.id ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                    <div className={`p-3 rounded-2xl ${selectedRole === r.id ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-400'}`}>
                       <r.icon size={24} />
                     </div>
                     <div>
-                      <p className="font-black text-slate-900 uppercase tracking-widest text-[10px] mb-1">{r.id.replace('_', ' ')}</p>
-                      <p className="text-xs text-slate-500 font-medium">{r.desc}</p>
+                      <p className="font-black text-white uppercase tracking-widest text-[10px] mb-1">{r.id.replace('_', ' ')}</p>
+                      <p className="text-xs text-slate-300 font-medium">{r.desc}</p>
                     </div>
                   </button>
                 ))}
@@ -474,34 +481,34 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
 
           {/* Step 5: Mission Briefing */}
           {step === 5 && (
-            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+            <div className="space-y-8 md:space-y-10 flex-1 animate-in slide-in-from-right-4 duration-500 ease-out">
               <div className="text-center space-y-2">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Mission Briefing</h2>
-                <p className="text-slate-500 font-medium">Review your GD configuration and prepare for launch.</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Mission Briefing</h2>
+                <p className="text-slate-300 font-medium">Review your GD configuration and prepare for launch.</p>
               </div>
 
               <div className="max-w-2xl mx-auto space-y-6">
-                <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
+                <div className="bg-slate-800/50 p-6 md:p-8 rounded-3xl border border-slate-600 space-y-6 backdrop-blur-sm">
+                  <div className="grid grid-cols-2 gap-4 md:gap-6">
                     <div>
                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Target Company</p>
-                      <p className="font-bold text-slate-900">{company}</p>
+                      <p className="font-bold text-white">{company}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Intensity</p>
-                      <p className="font-bold text-slate-900">{intensity}</p>
+                      <p className="font-bold text-white">{intensity}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Participants</p>
-                      <p className="font-bold text-slate-900">{participants}</p>
+                      <p className="font-bold text-white">{participants}</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Your Role</p>
-                      <p className="font-bold text-slate-900">{selectedRole.replace('_', ' ')}</p>
+                      <p className="font-bold text-white">{selectedRole.replace('_', ' ')}</p>
                     </div>
                   </div>
-                  <div className="bg-white p-4 rounded-2xl">
-                    <p className="text-sm text-slate-700 font-medium">
+                  <div className="bg-slate-900/50 p-4 rounded-2xl border border-slate-700">
+                    <p className="text-sm text-slate-300 font-medium">
                       HR Manager will start the session. You must speak ONLY in English. Jump in during pauses or interject politely.
                     </p>
                   </div>
@@ -509,8 +516,14 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
 
                 <div className="flex justify-center pt-6">
                   <button
-                    onClick={launchGDRoom}
-                    className="bg-purple-600 text-white px-20 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-purple-200 hover:bg-purple-700 transition-all transform hover:scale-105"
+                    onClick={() => {
+                      try {
+                        launchGDRoom();
+                      } catch (error) {
+                        console.error('Launch error:', error);
+                      }
+                    }}
+                    className="bg-purple-600 text-white px-12 md:px-20 py-4 md:py-5 rounded-3xl font-black uppercase tracking-[0.2em] text-xs md:text-sm shadow-2xl shadow-purple-500/25 hover:bg-purple-700 transition-all transform hover:scale-105 touch-manipulation"
                   >
                     Launch GD Room
                   </button>
@@ -526,23 +539,23 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
   // GD Room UI (Step 6)
   if (evaluation) {
     return (
-      <div className="min-h-screen bg-slate-950 p-12 overflow-y-auto animate-in fade-in duration-500 text-white">
-        <div className="max-w-6xl mx-auto space-y-12 pb-24">
+      <div className="bg-slate-900/30 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden min-h-[600px] flex flex-col">
+        <div className="p-6 md:p-8 space-y-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-5xl font-black tracking-tighter text-white">Performance Scoreboard</h1>
+              <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white">Performance Scoreboard</h1>
               <p className="text-slate-400 font-bold mt-2 uppercase tracking-widest flex items-center gap-2">
                 <ShieldCheck size={18} className="text-emerald-500" /> Neural GD Analysis Complete
               </p>
             </div>
-            <button onClick={() => cleanup(true)} className="bg-white text-slate-900 px-10 py-4 rounded-full font-black uppercase tracking-widest text-[11px] shadow-2xl hover:scale-105 transition-all">Save to Archive</button>
+            <button onClick={() => cleanup(true)} className="bg-white text-slate-900 px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-sm shadow-2xl hover:scale-105 transition-all touch-manipulation">Save to Archive</button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {evaluation.map((ev, i) => (
-              <div key={i} className={`p-8 rounded-[3rem] border transition-all ${ev.isUser ? 'bg-purple-600 border-purple-400 shadow-[0_0_50px_rgba(147,51,234,0.3)]' : 'bg-slate-900 border-white/5 shadow-xl'}`}>
+              <div key={i} className={`p-6 rounded-3xl border transition-all ${ev.isUser ? 'bg-purple-600 border-purple-400 shadow-[0_0_50px_rgba(147,51,234,0.3)]' : 'bg-slate-800/50 border-slate-600 backdrop-blur-sm shadow-xl'}`}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg ${ev.isUser ? 'bg-white text-purple-600' : 'bg-slate-800 text-slate-400'}`}>
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg ${ev.isUser ? 'bg-white text-purple-600' : 'bg-slate-700 text-slate-400'}`}>
                     {ev.name[0]}
                   </div>
                   <div>
@@ -570,7 +583,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                   ))}
                 </div>
 
-                <div className={`p-4 rounded-2xl text-[11px] font-bold leading-relaxed ${ev.isUser ? 'bg-purple-700/50 text-purple-100' : 'bg-white/5 text-slate-400 italic'}`}>
+                <div className={`p-4 rounded-2xl text-[11px] font-bold leading-relaxed ${ev.isUser ? 'bg-purple-700/50 text-purple-100' : 'bg-slate-900/50 text-slate-400 border border-slate-700'}`}>
                   "{ev.feedback}"
                 </div>
               </div>
@@ -582,7 +595,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
   }
 
   return (
-    <div className="min-h-[85vh] flex flex-col bg-slate-950 rounded-[4rem] border border-white/5 shadow-2xl overflow-hidden relative text-white">
+    <div className="bg-slate-900/30 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden min-h-[600px] flex flex-col relative text-white">
       {/* Header */}
       <div className="px-10 py-6 flex items-center justify-between border-b border-white/5 z-50 bg-slate-900/50 backdrop-blur-xl">
         <div className="flex items-center gap-5">
@@ -600,7 +613,14 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
               {micEnabled ? <Mic2 size={14} /> : <MicOff size={14} />} {micEnabled ? 'MIC READY' : 'MUTED'}
             </button>
           )}
-          <button onClick={() => router.back()} className="p-3 hover:bg-white/10 rounded-2xl transition-all"><X size={24} /></button>
+          <button onClick={() => {
+            try {
+              router.back();
+            } catch (error) {
+              console.error('Navigation error:', error);
+              window.location.href = '/train';
+            }
+          }} className="p-3 hover:bg-white/10 rounded-2xl transition-all"><X size={24} /></button>
         </div>
       </div>
 
