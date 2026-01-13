@@ -18,46 +18,54 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
   const router = useRouter();
 
   const handleStart = () => {
-    if (type === ModuleType.ENGLISH_LEARNING) {
-      router.push('/train/english');
-    } else if (type === ModuleType.HR_INTERVIEW) {
-      router.push('/train/hr');
-    } else if (type === ModuleType.COMPANY_WISE_HR) {
-      router.push('/train/company');
-    } else if (type === ModuleType.GD_DISCUSSION) {
-      router.push('/train/gd');
-    } else if (type === ModuleType.CONVERSATION_PRACTICE) {
-      router.push('/train/daily');
-    } else if (type === ModuleType.TECH_INTERVIEW) {
-      router.push('/train/technical');
-    } else if (type === ModuleType.FULL_MOCK) {
-      router.push('/train/mock');
-    } else {
-      router.push(`/train/session/${type}`);
+    try {
+      if (type === ModuleType.ENGLISH_LEARNING) {
+        router.push('/train/english');
+      } else if (type === ModuleType.HR_INTERVIEW) {
+        router.push('/train/hr');
+      } else if (type === ModuleType.COMPANY_WISE_HR) {
+        router.push('/train/company');
+      } else if (type === ModuleType.GD_DISCUSSION) {
+        router.push('/train/gd');
+      } else if (type === ModuleType.CONVERSATION_PRACTICE) {
+        router.push('/train/daily');
+      } else if (type === ModuleType.TECH_INTERVIEW) {
+        router.push('/train/technical');
+      } else {
+        router.push(`/train/session/${type}`);
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback navigation
+      window.location.href = '/train';
     }
   };
 
   return (
-    <div 
+    <div
       onClick={handleStart}
-      className={`group relative bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both ${delay}`}
+      className={`group relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-slate-700/50 shadow-xl hover:shadow-2xl hover:shadow-purple-500/10 hover:border-purple-500/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer animate-in fade-in slide-in-from-bottom-4 fill-mode-both ${delay}`}
     >
-      <div className={`w-16 h-16 rounded-2xl ${color} bg-opacity-10 text-${color.split('-')[1]}-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-        <Icon size={32} />
+      <div className="relative mb-6">
+        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
+          <Icon size={32} className="text-white" />
+        </div>
+        <div className={`absolute -inset-2 bg-gradient-to-br ${color} opacity-30 blur-xl rounded-2xl group-hover:opacity-50 transition-opacity duration-300`} />
       </div>
-      <h3 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+
+      <h3 className="text-xl md:text-2xl font-black text-white mb-3 flex items-center gap-2">
         {title}
-        {isAdvanced && <ShieldCheck size={18} className="text-blue-500" />}
+        {isAdvanced && <ShieldCheck size={20} className="text-blue-400" />}
       </h3>
-      <p className="text-slate-500 text-sm leading-relaxed mb-6">{description}</p>
-      
-      <div className="flex items-center text-blue-600 font-bold text-sm">
+      <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-6">{description}</p>
+
+      <div className="flex items-center text-purple-400 font-bold text-sm md:text-base group-hover:text-purple-300 transition-colors">
         Start Training
         <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
       </div>
 
-      <div className="absolute top-6 right-8">
-        <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md tracking-widest ${isAdvanced ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}`}>
+      <div className="absolute top-4 md:top-6 right-4 md:right-6">
+        <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-widest shadow-sm ${isAdvanced ? 'bg-blue-900/50 text-blue-300 border border-blue-700/50' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'}`}>
           {isAdvanced ? 'Advanced' : 'Available'}
         </span>
       </div>
@@ -117,24 +125,16 @@ const LearningPath: React.FC = () => {
       delay: 'delay-400',
       isAdvanced: true
     },
-    {
-      type: ModuleType.FULL_MOCK,
-      title: 'Full Mock Session',
-      description: 'End-to-end simulation covering HR, Technical, and Communication assessments.',
-      icon: Briefcase,
-      color: 'bg-blue-600',
-      delay: 'delay-500'
-    },
   ];
 
   return (
-    <div className="space-y-8 pb-12">
-      <div>
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Select Training Module</h1>
-        <p className="text-slate-500 mt-2 text-lg">Choose where you want to focus today. Your AI coach is ready.</p>
+    <div className="space-y-8 md:space-y-12 pb-12">
+      <div className="text-center">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight">Select Training Module</h1>
+        <p className="text-slate-300 mt-4 text-base md:text-lg">Choose where you want to focus today. Your AI coach is ready.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {modules.map((m) => (
           <ModuleCard key={m.type} {...m} />
         ))}

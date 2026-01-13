@@ -1,4 +1,6 @@
 
+"use client";
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
@@ -68,7 +70,7 @@ const CompanyHRDashboard: React.FC = () => {
     <div className="max-w-4xl mx-auto py-8 space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <button
-          onClick={() => step > 1 ? prevStep() : router.push('/train/learning')}
+          onClick={() => step > 1 ? prevStep() : router.push('/train')}
           className="flex items-center gap-2 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors"
         >
           <ArrowLeft size={16} />
