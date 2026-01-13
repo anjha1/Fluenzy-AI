@@ -1,9 +1,10 @@
+"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GoogleGenAI, Modality, Type } from '@google/genai';
-import { 
-  X, Sparkles, Zap, ArrowRight, Mic2, MicOff, Users, ShieldCheck, AlertCircle, Volume2, Activity, Play, Trophy, BarChart3, Star, CheckCircle2, History
+import {
+  X, Sparkles, Zap, ArrowRight, Mic2, MicOff, Users, ShieldCheck, AlertCircle, Volume2, Activity, Play, Trophy, BarChart3, Star, CheckCircle2, History, ArrowLeft, Building2, Target, MessageSquare, UserCheck, Crown, Lightbulb, HandHeart, TrendingUp, ChevronRight
 } from 'lucide-react';
 import { UserProfile, ModuleType, SessionRecord, QAPair, GDRole } from '../types';
 
@@ -14,7 +15,7 @@ const VOICE_MAP: Record<string, string> = {
   "Priya": "Kore",        // Soft, Professional Female
   "Riya": "Zephyr",       // Sharp, Analytical Female
   "Arjun": "Fenrir",      // Assertive, Bold Male
-  "Sneha": "Kore",        // Gentle, Supportive Female
+  "Sneha": "Kore",        // Gentle, Cooperative Female
   "Rahul": "Puck",        // Friendly, Conversational Male
   "Kavya": "Zephyr"       // Youthful Female
 };
@@ -85,6 +86,7 @@ interface EvaluationResult {
 const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => void }> = ({ user, onSessionEnd }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [step, setStep] = useState(1);
   const [isActive, setIsActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [micEnabled, setMicEnabled] = useState(true);
@@ -93,15 +95,22 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
   const [activeSpeaker, setActiveSpeaker] = useState<string>('');
   const [evaluation, setEvaluation] = useState<EvaluationResult[] | null>(null);
 
-  const sessionMeta: any = {
-    size: searchParams.get('size') ? parseInt(searchParams.get('size')!) : 5,
-    lessonTitle: searchParams.get('lessonTitle') ? decodeURIComponent(searchParams.get('lessonTitle')!) : undefined,
-    company: searchParams.get('company') ? decodeURIComponent(searchParams.get('company')!) : undefined,
-    role: searchParams.get('role') ? decodeURIComponent(searchParams.get('role')!) : undefined
+  // Setup states
+  const [participants, setParticipants] = useState(5);
+  const [company, setCompany] = useState('Google');
+  const [intensity, setIntensity] = useState('Moderate');
+  const [topicMode, setTopicMode] = useState('Company-Based');
+  const [selectedRole, setSelectedRole] = useState<GDRole>(GDRole.INITIATOR);
+
+  const sessionMeta = {
+    size: participants,
+    lessonTitle: topicMode,
+    company,
+    role: selectedRole
   };
-  const teamSize = sessionMeta?.size || 5;
-  const dynamicAI = ALL_AI_PERSONAS.slice(1, teamSize);
-  const allParticipants = [ALL_AI_PERSONAS[0], ...dynamicAI, { name: user.name, role: sessionMeta?.role || 'Candidate', isUser: true }];
+
+  const dynamicAI = ALL_AI_PERSONAS.slice(1, participants);
+  const allParticipants = [ALL_AI_PERSONAS[0], ...dynamicAI, { name: user.name, role: selectedRole, isUser: true }];
 
   const transcriptRef = useRef<QAPair[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -111,14 +120,14 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
   const performEvaluation = async () => {
     setIsProcessing(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
       const prompt = `
         Evaluate the following Group Discussion transcript. Provide role-based analysis for EVERY participant (AI and User).
         Transcript: ${JSON.stringify(transcriptRef.current)}
-        
+
         Participants & Roles:
         ${allParticipants.map(p => `${p.name} as ${p.role}`).join('\n')}
-        
+
         Evaluation Metrics: Leadership, Logic, Interjection, Role Execution (0-100).
         Output strictly as a JSON array of objects.
       `;
@@ -157,7 +166,6 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
       setEvaluation(evalData);
     } catch (e) {
       console.error("Evaluation Error:", e);
-      // Fallback if AI fails evaluation
       cleanup(true);
     } finally {
       setIsProcessing(false);
@@ -180,11 +188,11 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
         endTime: endTime.toLocaleTimeString(),
         durationMinutes: 15,
         type: ModuleType.GD_DISCUSSION,
-        topic: sessionMeta?.lessonTitle || "GD Discussion",
+        topic: sessionMeta.lessonTitle || "GD Discussion",
         score: mockScore,
         feedback: "Multi-persona GD session complete. Full role-based evaluation synced.",
-        company: sessionMeta?.company,
-        role: sessionMeta?.role,
+        company: sessionMeta.company,
+        role: sessionMeta.role,
         resumeUsed: false,
         resultStatus: mockScore > 80 ? 'Selected' : 'Borderline',
         readinessLevel: mockScore > 75 ? 'Interview Ready' : 'Needs Practice',
@@ -222,7 +230,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
 
   const speakPersona = async (name: string, text: string) => {
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
       const voiceName = VOICE_MAP[name] || "Puck";
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash-preview-tts",
@@ -246,7 +254,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
     setIsProcessing(true);
     setError(null);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
       const systemInstruction = `
         ROLE: GD Orchestrator. FAST RESPONSE MODE.
         Participants: ${allParticipants.map(p => `${p.name} as ${p.role}`).join(', ')}.
@@ -254,10 +262,10 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
         GOAL: Generate next 1-2 interjections in JSON format. Respond to User if provided.
       `;
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview', // Switched to Flash for speed
+        model: 'gemini-3-flash-preview',
         contents: [{ role: 'user', parts: [{ text: userInputText || "Moderator starts the discussion with the topic: Digital Ethics in 2025." }] }],
-        config: { 
-          systemInstruction, 
+        config: {
+          systemInstruction,
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.ARRAY,
@@ -285,64 +293,290 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
 
   useEffect(() => {
     if (isFinished) {
-      router.push('/history');
+      router.push('/train');
     }
   }, [isFinished, router]);
 
-  // --- Evaluation Screen ---
+  const nextStep = () => setStep(s => s + 1);
+  const prevStep = () => setStep(s => s - 1);
+
+  const launchGDRoom = () => {
+    setStep(6); // Launch the GD room
+  };
+
+  // Setup Steps UI
+  if (step < 6) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 space-y-8 animate-in fade-in duration-500">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => step > 1 ? prevStep() : router.push('/train')}
+            className="flex items-center gap-2 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors"
+          >
+            <ArrowLeft size={16} />
+            {step > 1 ? 'Previous Step' : 'Back to Modules'}
+          </button>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map(s => (
+              <div key={s} className={`h-1.5 w-12 rounded-full transition-all ${step >= s ? 'bg-purple-600' : 'bg-slate-100'}`}></div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl overflow-hidden min-h-[500px] flex flex-col">
+          {/* Step 1: Discussion Size */}
+          {step === 1 && (
+            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Discussion Size</h2>
+                <p className="text-slate-500 font-medium">How many participants should join this GD session?</p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-lg mx-auto">
+                {[3, 4, 5, 6, 8].map(size => (
+                  <button
+                    key={size}
+                    onClick={() => { setParticipants(size); nextStep(); }}
+                    className={`p-8 rounded-3xl border-2 transition-all flex flex-col items-center justify-center gap-4 hover:shadow-lg ${
+                      participants === size ? 'border-purple-600 bg-purple-50' : 'border-slate-50 bg-white hover:border-slate-200'
+                    }`}
+                  >
+                    <Users size={32} className={participants === size ? 'text-purple-600' : 'text-slate-400'} />
+                    <span className="font-bold text-slate-700">{size} People</span>
+                    <span className="text-xs text-slate-500">Includes You + {size - 1} AI Agents + 1 HR Moderator</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Environment */}
+          {step === 2 && (
+            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Environment Setup</h2>
+                <p className="text-slate-500 font-medium">Configure the GD environment and intensity.</p>
+              </div>
+
+              <div className="space-y-8 max-w-lg mx-auto">
+                <div className="space-y-3">
+                  <label className="text-sm font-black uppercase text-slate-400 tracking-widest px-2">Target Company</label>
+                  <select
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    className="w-full bg-slate-50 border-0 rounded-2xl px-6 py-4 font-bold text-slate-800 focus:ring-2 focus:ring-purple-600 transition-all outline-none"
+                  >
+                    <option>Google</option>
+                    <option>Amazon</option>
+                    <option>Microsoft</option>
+                    <option>Meta</option>
+                    <option>Apple</option>
+                  </select>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-sm font-black uppercase text-slate-400 tracking-widest px-2">Intensity Level</label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {['Calm', 'Moderate', 'Aggressive'].map(lvl => (
+                      <button
+                        key={lvl}
+                        onClick={() => setIntensity(lvl)}
+                        className={`py-4 rounded-2xl font-bold transition-all border-2 ${
+                          intensity === lvl ? 'border-purple-600 bg-purple-600 text-white shadow-lg' : 'border-slate-100 bg-slate-50 text-slate-600'
+                        }`}
+                      >
+                        {lvl}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center pt-8">
+                <button onClick={nextStep} className="bg-slate-900 text-white px-12 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-slate-800 transition-all">
+                  Topic Config <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Topic Configuration */}
+          {step === 3 && (
+            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Topic Configuration</h2>
+                <p className="text-slate-500 font-medium">Choose how the GD topic should be generated.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                {[
+                  { id: 'Company-Based', icon: Building2, desc: 'Topics relevant to the selected company' },
+                  { id: 'Random-Based', icon: Target, desc: 'Random contemporary topics' },
+                  { id: 'Custom-Based', icon: MessageSquare, desc: 'Custom topic input' }
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => { setTopicMode(t.id); nextStep(); }}
+                    className={`p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-4 transition-all ${
+                      topicMode === t.id ? 'border-purple-600 bg-purple-50 shadow-md' : 'border-slate-50 bg-white hover:border-slate-100'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-2xl ${topicMode === t.id ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                      <t.icon size={24} />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900 uppercase tracking-widest text-[10px] mb-1">{t.id}</p>
+                      <p className="text-xs text-slate-500 font-medium">{t.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Role Selection */}
+          {step === 4 && (
+            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Role Selection</h2>
+                <p className="text-slate-500 font-medium">Choose your role in the group discussion.</p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                {[
+                  { id: GDRole.INITIATOR, icon: Crown, desc: 'Start discussions, set agenda' },
+                  { id: GDRole.INFO_PROVIDER, icon: Lightbulb, desc: 'Provide facts and data' },
+                  { id: GDRole.ANALYZER, icon: TrendingUp, desc: 'Analyze and evaluate ideas' },
+                  { id: GDRole.MODERATOR, icon: ShieldCheck, desc: 'Facilitate and manage flow' },
+                  { id: GDRole.SUPPORTER, icon: HandHeart, desc: 'Support and encourage others' },
+                  { id: GDRole.CHALLENGER, icon: Zap, desc: 'Challenge ideas constructively' },
+                  { id: GDRole.CONCLUDER, icon: CheckCircle2, desc: 'Summarize and conclude' }
+                ].map(r => (
+                  <button
+                    key={r.id}
+                    onClick={() => { setSelectedRole(r.id); nextStep(); }}
+                    className={`p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-4 transition-all ${
+                      selectedRole === r.id ? 'border-purple-600 bg-purple-50 shadow-md' : 'border-slate-50 bg-white hover:border-slate-100'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-2xl ${selectedRole === r.id ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                      <r.icon size={24} />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900 uppercase tracking-widest text-[10px] mb-1">{r.id.replace('_', ' ')}</p>
+                      <p className="text-xs text-slate-500 font-medium">{r.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: Mission Briefing */}
+          {step === 5 && (
+            <div className="p-12 space-y-10 flex-1 animate-in slide-in-from-right-4 duration-300">
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Mission Briefing</h2>
+                <p className="text-slate-500 font-medium">Review your GD configuration and prepare for launch.</p>
+              </div>
+
+              <div className="max-w-2xl mx-auto space-y-6">
+                <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 space-y-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Target Company</p>
+                      <p className="font-bold text-slate-900">{company}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Intensity</p>
+                      <p className="font-bold text-slate-900">{intensity}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Participants</p>
+                      <p className="font-bold text-slate-900">{participants}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Your Role</p>
+                      <p className="font-bold text-slate-900">{selectedRole.replace('_', ' ')}</p>
+                    </div>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl">
+                    <p className="text-sm text-slate-700 font-medium">
+                      HR Manager will start the session. You must speak ONLY in English. Jump in during pauses or interject politely.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-center pt-6">
+                  <button
+                    onClick={launchGDRoom}
+                    className="bg-purple-600 text-white px-20 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-purple-200 hover:bg-purple-700 transition-all transform hover:scale-105"
+                  >
+                    Launch GD Room
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // GD Room UI (Step 6)
   if (evaluation) {
     return (
       <div className="min-h-screen bg-slate-950 p-12 overflow-y-auto animate-in fade-in duration-500 text-white">
-         <div className="max-w-6xl mx-auto space-y-12 pb-24">
-            <div className="flex items-center justify-between">
-               <div>
-                  <h1 className="text-5xl font-black tracking-tighter text-white">Performance Scoreboard</h1>
-                  <p className="text-slate-400 font-bold mt-2 uppercase tracking-widest flex items-center gap-2">
-                     <ShieldCheck size={18} className="text-emerald-500" /> Neural GD Analysis Complete
-                  </p>
-               </div>
-               <button onClick={() => cleanup(true)} className="bg-white text-slate-900 px-10 py-4 rounded-full font-black uppercase tracking-widest text-[11px] shadow-2xl hover:scale-105 transition-all">Save to Archive</button>
+        <div className="max-w-6xl mx-auto space-y-12 pb-24">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-5xl font-black tracking-tighter text-white">Performance Scoreboard</h1>
+              <p className="text-slate-400 font-bold mt-2 uppercase tracking-widest flex items-center gap-2">
+                <ShieldCheck size={18} className="text-emerald-500" /> Neural GD Analysis Complete
+              </p>
             </div>
+            <button onClick={() => cleanup(true)} className="bg-white text-slate-900 px-10 py-4 rounded-full font-black uppercase tracking-widest text-[11px] shadow-2xl hover:scale-105 transition-all">Save to Archive</button>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {evaluation.map((ev, i) => (
-                 <div key={i} className={`p-8 rounded-[3rem] border transition-all ${ev.isUser ? 'bg-purple-600 border-purple-400 shadow-[0_0_50px_rgba(147,51,234,0.3)]' : 'bg-slate-900 border-white/5 shadow-xl'}`}>
-                    <div className="flex items-center gap-4 mb-6">
-                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg ${ev.isUser ? 'bg-white text-purple-600' : 'bg-slate-800 text-slate-400'}`}>
-                          {ev.name[0]}
-                       </div>
-                       <div>
-                          <p className="font-black text-white uppercase tracking-tight text-lg">{ev.isUser ? `${ev.name} (You)` : ev.name}</p>
-                          <p className={`text-[10px] font-black uppercase tracking-widest ${ev.isUser ? 'text-purple-200' : 'text-slate-500'}`}>{ev.role}</p>
-                       </div>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {evaluation.map((ev, i) => (
+              <div key={i} className={`p-8 rounded-[3rem] border transition-all ${ev.isUser ? 'bg-purple-600 border-purple-400 shadow-[0_0_50px_rgba(147,51,234,0.3)]' : 'bg-slate-900 border-white/5 shadow-xl'}`}>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg ${ev.isUser ? 'bg-white text-purple-600' : 'bg-slate-800 text-slate-400'}`}>
+                    {ev.name[0]}
+                  </div>
+                  <div>
+                    <p className="font-black text-white uppercase tracking-tight text-lg">{ev.isUser ? `${ev.name} (You)` : ev.name}</p>
+                    <p className={`text-[10px] font-black uppercase tracking-widest ${ev.isUser ? 'text-purple-200' : 'text-slate-500'}`}>{ev.role}</p>
+                  </div>
+                </div>
 
-                    <div className="space-y-4 mb-8">
-                       {[
-                         { label: 'Leadership', val: ev.scores.leadership, icon: Star },
-                         { label: 'Logic', val: ev.scores.logic, icon: Zap },
-                         { label: 'Interjection', val: ev.scores.interjection, icon: Volume2 },
-                         { label: 'Role Execution', val: ev.scores.roleExecution, icon: Trophy }
-                       ].map((s, idx) => (
-                         <div key={idx} className="space-y-1.5">
-                            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                               <span className="flex items-center gap-1.5 opacity-60"><s.icon size={12} /> {s.label}</span>
-                               <span className="text-white">{s.val}%</span>
-                            </div>
-                            <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
-                               <div className={`h-full transition-all duration-1000 ${ev.isUser ? 'bg-white' : 'bg-purple-500'}`} style={{ width: `${s.val}%` }}></div>
-                            </div>
-                         </div>
-                       ))}
+                <div className="space-y-4 mb-8">
+                  {[
+                    { label: 'Leadership', val: ev.scores.leadership, icon: Star },
+                    { label: 'Logic', val: ev.scores.logic, icon: Zap },
+                    { label: 'Interjection', val: ev.scores.interjection, icon: Volume2 },
+                    { label: 'Role Execution', val: ev.scores.roleExecution, icon: Trophy }
+                  ].map((s, idx) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                        <span className="flex items-center gap-1.5 opacity-60"><s.icon size={12} /> {s.label}</span>
+                        <span className="text-white">{s.val}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
+                        <div className={`h-full transition-all duration-1000 ${ev.isUser ? 'bg-white' : 'bg-purple-500'}`} style={{ width: `${s.val}%` }}></div>
+                      </div>
                     </div>
+                  ))}
+                </div>
 
-                    <div className={`p-4 rounded-2xl text-[11px] font-bold leading-relaxed ${ev.isUser ? 'bg-purple-700/50 text-purple-100' : 'bg-white/5 text-slate-400 italic'}`}>
-                       "{ev.feedback}"
-                    </div>
-                 </div>
-               ))}
-            </div>
-         </div>
+                <div className={`p-4 rounded-2xl text-[11px] font-bold leading-relaxed ${ev.isUser ? 'bg-purple-700/50 text-purple-100' : 'bg-white/5 text-slate-400 italic'}`}>
+                  "{ev.feedback}"
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -356,17 +590,17 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
           <div>
             <h2 className="font-black text-white text-xl tracking-tight leading-tight">Neural GD Room</h2>
             <p className="text-[10px] font-black uppercase text-purple-400 tracking-widest mt-1">
-              {isActive ? 'Live Interaction | Fast Engine Active' : 'Estabishing Vocal Identitites...'}
+              {isActive ? 'Live Interaction | Fast Engine Active' : 'Establishing Vocal Identities...'}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-4">
-           {isActive && (
-             <button onClick={() => setMicEnabled(!micEnabled)} className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-black uppercase text-[10px] tracking-widest transition-all ${micEnabled ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-lg shadow-emerald-500/10' : 'bg-rose-600 text-white shadow-lg'}`}>
-                {micEnabled ? <Mic2 size={14} /> : <MicOff size={14} />} {micEnabled ? 'MIC READY' : 'MUTED'}
-             </button>
-           )}
-           <button onClick={() => router.back()} className="p-3 hover:bg-white/10 rounded-2xl transition-all"><X size={24} /></button>
+          {isActive && (
+            <button onClick={() => setMicEnabled(!micEnabled)} className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-black uppercase text-[10px] tracking-widest transition-all ${micEnabled ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-lg shadow-emerald-500/10' : 'bg-rose-600 text-white shadow-lg'}`}>
+              {micEnabled ? <Mic2 size={14} /> : <MicOff size={14} />} {micEnabled ? 'MIC READY' : 'MUTED'}
+            </button>
+          )}
+          <button onClick={() => router.back()} className="p-3 hover:bg-white/10 rounded-2xl transition-all"><X size={24} /></button>
         </div>
       </div>
 
@@ -374,60 +608,60 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
         <div className="flex-1 p-8 flex flex-col items-center justify-center relative">
           {!isActive ? (
             <div className="text-center space-y-12 animate-in fade-in zoom-in duration-700">
-               <div className="relative w-32 h-32 mx-auto">
-                  <div className="absolute inset-0 bg-purple-500 blur-[60px] opacity-30 animate-pulse" />
-                  <div className="relative bg-purple-600 rounded-[3rem] w-full h-full flex items-center justify-center shadow-2xl"><Zap size={48} className="text-white fill-white" /></div>
-               </div>
-               <div className="space-y-4">
-                  <h3 className="text-3xl font-black text-white tracking-tight uppercase">Enter Neural Discussion</h3>
-                  <p className="text-slate-400 max-w-sm mx-auto font-medium leading-relaxed">Latency Optimized: Powered by Flash Neural Engine for real-time interjections.</p>
-               </div>
-               <button onClick={startSession} className="bg-white text-slate-900 px-24 py-7 rounded-full font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-xs">Begin Session</button>
+              <div className="relative w-32 h-32 mx-auto">
+                <div className="absolute inset-0 bg-purple-500 blur-[60px] opacity-30 animate-pulse" />
+                <div className="relative bg-purple-600 rounded-[3rem] w-full h-full flex items-center justify-center shadow-2xl"><Zap size={48} className="text-white fill-white" /></div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-3xl font-black text-white tracking-tight uppercase">Enter Neural Discussion</h3>
+                <p className="text-slate-400 max-w-sm mx-auto font-medium leading-relaxed">Latency Optimized: Powered by Flash Neural Engine for real-time interjections.</p>
+              </div>
+              <button onClick={startSession} className="bg-white text-slate-900 px-24 py-7 rounded-full font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-xs">Begin Session</button>
             </div>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center gap-12">
-               <div className={`grid gap-x-6 gap-y-10 items-center justify-center ${teamSize > 6 ? 'grid-cols-4 md:grid-cols-5' : 'grid-cols-3 md:grid-cols-4'}`}>
-                 {allParticipants.map((p, i) => (
-                   <ParticipantAvatar key={i} name={p.name as string} role={p.role as string} isSpeaking={activeSpeaker === p.name} isActive={true} isUser={'isUser' in p} isMuted={('isUser' in p) && !micEnabled} />
-                 ))}
-               </div>
+              <div className={`grid gap-x-6 gap-y-10 items-center justify-center ${participants > 6 ? 'grid-cols-4 md:grid-cols-5' : 'grid-cols-3 md:grid-cols-4'}`}>
+                {allParticipants.map((p, i) => (
+                  <ParticipantAvatar key={i} name={p.name as string} role={p.role as string} isSpeaking={activeSpeaker === p.name} isActive={true} isUser={'isUser' in p} isMuted={('isUser' in p) && !micEnabled} />
+                ))}
+              </div>
 
-               <div className="relative w-48 h-48 flex items-center justify-center">
-                  <div className={`absolute inset-0 rounded-full border-4 border-dashed transition-all duration-1000 ${isProcessing || isPlayingAudio.current ? 'border-purple-500 animate-spin-slow scale-110 shadow-[0_0_50px_rgba(168,85,247,0.2)]' : 'border-white/10'}`} />
-                  <div className={`w-36 h-36 rounded-full bg-slate-900 flex flex-col items-center justify-center shadow-2xl border transition-all ${isProcessing || isPlayingAudio.current ? 'border-purple-500' : 'border-white/5'}`}>
-                     {isPlayingAudio.current ? <Volume2 size={40} className="text-purple-500 animate-pulse" /> : isProcessing ? <Zap size={40} className="text-amber-500 animate-pulse" /> : <Mic2 size={40} className="text-emerald-500" />}
-                     <p className={`mt-4 text-[9px] font-black uppercase tracking-widest ${isPlayingAudio.current ? 'text-purple-500' : 'text-slate-400'}`}>
-                       {isPlayingAudio.current ? 'AI INTERJECTING' : isProcessing ? 'THINKING...' : 'LIVE FEED'}
-                     </p>
-                  </div>
-               </div>
-               
-               {!isPlayingAudio.current && !isProcessing && (
-                  <button onClick={() => triggerNextAIPhase("I believe technology is not just displacing jobs, it's evolving them.")} className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-12 py-5 rounded-full font-black uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-white transition-all animate-bounce shadow-xl">Interject Now</button>
-               )}
+              <div className="relative w-48 h-48 flex items-center justify-center">
+                <div className={`absolute inset-0 rounded-full border-4 border-dashed transition-all duration-1000 ${isProcessing || isPlayingAudio.current ? 'border-purple-500 animate-spin-slow scale-110 shadow-[0_0_50px_rgba(168,85,247,0.2)]' : 'border-white/10'}`} />
+                <div className={`w-36 h-36 rounded-full bg-slate-900 flex flex-col items-center justify-center shadow-2xl border transition-all ${isProcessing || isPlayingAudio.current ? 'border-purple-500' : 'border-white/5'}`}>
+                  {isPlayingAudio.current ? <Volume2 size={40} className="text-purple-500 animate-pulse" /> : isProcessing ? <Zap size={40} className="text-amber-500 animate-pulse" /> : <Mic2 size={40} className="text-emerald-500" />}
+                  <p className={`mt-4 text-[9px] font-black uppercase tracking-widest ${isPlayingAudio.current ? 'text-purple-500' : 'text-slate-400'}`}>
+                    {isPlayingAudio.current ? 'AI INTERJECTING' : isProcessing ? 'THINKING...' : 'LIVE FEED'}
+                  </p>
+                </div>
+              </div>
+
+              {!isPlayingAudio.current && !isProcessing && (
+                <button onClick={() => triggerNextAIPhase("I believe technology is not just displacing jobs, it's evolving them.")} className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-12 py-5 rounded-full font-black uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-white transition-all animate-bounce shadow-xl">Interject Now</button>
+              )}
             </div>
           )}
         </div>
 
         {/* Sidebar */}
         <div className="w-full lg:w-96 bg-black/40 border-l border-white/5 p-8 flex flex-col gap-6">
-           <h4 className="text-[10px] font-black uppercase text-purple-400 tracking-[0.3em] pb-2 border-b border-white/5 flex items-center gap-2"><Activity size={14} /> GD ANALYTICS</h4>
-           <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-4">
-              <div className="flex justify-between items-center"><p className="text-[10px] font-black uppercase tracking-widest text-slate-400">ENGINE LATENCY</p><Zap size={16} className="text-amber-500" /></div>
-              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-amber-500" style={{ width: '92%' }}></div></div>
-              <p className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">FLASH OPTIMIZATION: ACTIVE</p>
-           </div>
-           <div className="p-6 bg-purple-500/5 rounded-3xl border border-purple-500/10">
-              <p className="text-[10px] font-black uppercase text-purple-400 tracking-widest mb-3">CURRENT DYNAMICS</p>
-              <div className="space-y-3">
-                <p className="text-xs text-white font-bold leading-relaxed">{activeSpeaker ? `${activeSpeaker} is speaking as ${VOICE_MAP[activeSpeaker]} neural profile.` : isProcessing ? "Brain is calculating logical counters..." : "Room is open for your leadership interjection."}</p>
-                <div className="flex items-center gap-2 text-[8px] font-black text-slate-500 uppercase tracking-tighter"><Play size={10} className="fill-slate-500" /> ROLE-BASED EVALUATION ACTIVE</div>
-              </div>
-           </div>
-           <div className="mt-auto p-4 border border-white/5 rounded-2xl bg-white/2">
-              <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">TARGET ROUND</p>
-              <p className="text-[10px] font-bold text-white uppercase">{sessionMeta?.company || 'GLOBAL'} GD ROUND</p>
-           </div>
+          <h4 className="text-[10px] font-black uppercase text-purple-400 tracking-[0.3em] pb-2 border-b border-white/5 flex items-center gap-2"><Activity size={14} /> GD ANALYTICS</h4>
+          <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-4">
+            <div className="flex justify-between items-center"><p className="text-[10px] font-black uppercase tracking-widest text-slate-400">ENGINE LATENCY</p><Zap size={16} className="text-amber-500" /></div>
+            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-amber-500" style={{ width: '92%' }}></div></div>
+            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">FLASH OPTIMIZATION: ACTIVE</p>
+          </div>
+          <div className="p-6 bg-purple-500/5 rounded-3xl border border-purple-500/10">
+            <p className="text-[10px] font-black uppercase text-purple-400 tracking-widest mb-3">CURRENT DYNAMICS</p>
+            <div className="space-y-3">
+              <p className="text-xs text-white font-bold leading-relaxed">{activeSpeaker ? `${activeSpeaker} is speaking as ${VOICE_MAP[activeSpeaker]} neural profile.` : isProcessing ? "Brain is calculating logical counters..." : "Room is open for your leadership interjection."}</p>
+              <div className="flex items-center gap-2 text-[8px] font-black text-slate-500 uppercase tracking-tighter"><Play size={10} className="fill-slate-500" /> ROLE-BASED EVALUATION ACTIVE</div>
+            </div>
+          </div>
+          <div className="mt-auto p-4 border border-white/5 rounded-2xl bg-white/2">
+            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">TARGET ROUND</p>
+            <p className="text-[10px] font-bold text-white uppercase">{sessionMeta.company || 'GLOBAL'} GD ROUND</p>
+          </div>
         </div>
       </div>
 
