@@ -28,6 +28,13 @@ model users {
   role             Role     @default(User)
   usageCount       Int      @default(0)
   usageLimit       Int      @default(3)
+  // Training module usage counters
+  englishUsage     Int      @default(0)
+  dailyUsage       Int      @default(0)
+  hrUsage          Int      @default(0)
+  technicalUsage   Int      @default(0)
+  companyUsage     Int      @default(0)
+  mockUsage        Int      @default(0)
   renewalDate      DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

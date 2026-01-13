@@ -1,54 +1,76 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  CheckCircle2, 
-  PlayCircle, 
+import {
+  CheckCircle2,
+  PlayCircle,
   ChevronRight,
   ArrowLeft,
   GraduationCap,
-  Trophy
+  Trophy,
+  Lock
 } from 'lucide-react';
 import { UserProfile, Lesson, ModuleType } from '../types';
 
-const LessonCard: React.FC<{ lesson: Lesson, onStart: () => void }> = ({ lesson, onStart }) => (
-  <div 
-    onClick={onStart}
+const LessonCard: React.FC<{ lesson: Lesson, onStart: () => void, isLocked?: boolean }> = ({ lesson, onStart, isLocked = false }) => (
+  <div
+    onClick={isLocked ? undefined : onStart}
     className={`group relative p-6 rounded-3xl border transition-all duration-300 ${
-      lesson.isCompleted 
+      isLocked ? 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed' :
+      lesson.isCompleted
         ? 'bg-white border-emerald-100 shadow-sm cursor-pointer hover:shadow-md'
         : 'bg-white border-blue-100 shadow-lg shadow-blue-50 cursor-pointer hover:-translate-y-1'
     }`}
   >
     <div className="flex items-center gap-4">
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${
-        lesson.isCompleted 
-          ? 'bg-emerald-500 text-white' 
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform ${isLocked ? '' : 'group-hover:scale-110'} ${
+        isLocked ? 'bg-gray-400 text-white' :
+        lesson.isCompleted
+          ? 'bg-emerald-500 text-white'
           : 'bg-blue-600 text-white'
       }`}>
-        {lesson.isCompleted ? <CheckCircle2 size={24} /> : <PlayCircle size={24} />}
+        {isLocked ? <Lock size={24} /> : lesson.isCompleted ? <CheckCircle2 size={24} /> : <PlayCircle size={24} />}
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="font-bold truncate text-slate-900">
+        <h4 className={`font-bold truncate ${isLocked ? 'text-gray-500' : 'text-slate-900'}`}>
           {lesson.title}
         </h4>
         <div className="flex items-center gap-2 mt-0.5">
           <span className={`text-[10px] font-black uppercase tracking-wider ${
+            isLocked ? 'text-gray-400' :
             lesson.isCompleted ? `text-emerald-500` : 'text-blue-500'
           }`}>
-            {lesson.isCompleted ? `Score: ${lesson.score}%` : 'Practice Now'}
+            {isLocked ? 'Free limit reached' : lesson.isCompleted ? `Score: ${lesson.score}%` : 'Practice Now'}
           </span>
         </div>
       </div>
-      <ChevronRight size={18} className="text-slate-300 group-hover:text-blue-500 transition-all" />
+      {!isLocked && <ChevronRight size={18} className="text-slate-300 group-hover:text-blue-500 transition-all" />}
     </div>
   </div>
 );
 
 const EnglishDashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
   const router = useRouter();
+  const [canUse, setCanUse] = useState(true);
+
+  useEffect(() => {
+    const checkUsage = async () => {
+      try {
+        const response = await fetch('/api/training-usage');
+        if (response.ok) {
+          const data = await response.json();
+          setCanUse(data.canUse.english);
+        }
+      } catch (error) {
+        console.error('Failed to check usage:', error);
+      }
+    };
+
+    checkUsage();
+  }, []);
 
   const handleStartLesson = (lesson: Lesson) => {
+    if (!canUse) return;
     // For now, navigate to a session page with query params
     router.push(`/train/session/${ModuleType.ENGLISH_LEARNING}?lessonId=${lesson.id}&lessonTitle=${encodeURIComponent(lesson.title)}`);
   };
@@ -98,10 +120,11 @@ const EnglishDashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {levelProgress.lessons.map((lesson) => (
-                <LessonCard 
-                  key={lesson.id} 
-                  lesson={lesson} 
-                  onStart={() => handleStartLesson(lesson)} 
+                <LessonCard
+                  key={lesson.id}
+                  lesson={lesson}
+                  onStart={() => handleStartLesson(lesson)}
+                  isLocked={!canUse}
                 />
               ))}
             </div>
