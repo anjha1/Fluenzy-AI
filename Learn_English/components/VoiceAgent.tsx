@@ -154,11 +154,21 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
     if (saveResults) {
       const endTime = new Date();
       const mockScore = Math.floor(Math.random() * 25) + 70;
-      
+
+      const isEnglishLearning = type === ModuleType.ENGLISH_LEARNING;
+
       const transcript: QAPair[] = [];
       transcriptHistory.current.forEach(qa => {
-        transcript.push({ speaker: 'Interviewer', text: qa.question, timestamp: qa.timestamp });
-        transcript.push({ speaker: 'Candidate (You)', text: qa.answer, timestamp: qa.timestamp });
+        transcript.push({
+          speaker: isEnglishLearning ? 'English Tutor' : 'Interviewer',
+          text: qa.question,
+          timestamp: qa.timestamp
+        });
+        transcript.push({
+          speaker: isEnglishLearning ? 'Student (You)' : 'Candidate (You)',
+          text: qa.answer,
+          timestamp: qa.timestamp
+        });
       });
 
       const newSession: SessionRecord = {
@@ -170,19 +180,38 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
         type: (type as ModuleType) || ModuleType.ENGLISH_LEARNING,
         topic: topic,
         score: mockScore,
-        feedback: `Audit complete for ${sessionMeta?.company || 'MNC'}. Strong reasoning alignment.`,
-        company: sessionMeta?.company,
-        role: sessionMeta?.role,
-        resumeUsed: !!sessionMeta?.resumeText,
+        feedback: isEnglishLearning
+          ? `English lesson completed: ${sessionMeta?.lessonTitle || 'General Practice'}. Great progress in speaking skills!`
+          : `Audit complete for ${sessionMeta?.company || 'MNC'}. Strong reasoning alignment.`,
+        company: isEnglishLearning ? undefined : sessionMeta?.company,
+        role: isEnglishLearning ? undefined : sessionMeta?.role,
+        resumeUsed: isEnglishLearning ? false : !!sessionMeta?.resumeText,
         resultStatus: mockScore > 80 ? 'Selected' : 'Borderline',
-        readinessLevel: mockScore > 80 ? 'Interview Ready' : 'Needs Practice',
+        readinessLevel: isEnglishLearning
+          ? (mockScore > 80 ? 'Interview Ready' : 'Needs Practice')
+          : (mockScore > 80 ? 'Interview Ready' : 'Needs Practice'),
         transcript: transcript,
-        strengths: ["Persona Alignment", "Tone Consistency"],
-        weaknesses: ["Filler word usage"],
+        strengths: isEnglishLearning
+          ? ["Pronunciation Improvement", "Grammar Accuracy", "Fluency"]
+          : ["Persona Alignment", "Tone Consistency"],
+        weaknesses: isEnglishLearning
+          ? ["Vocabulary Expansion Needed"]
+          : ["Filler word usage"],
         mistakes: [],
-        skillScores: { communication: 80, confidence: 85, clarity: 75, hrReadiness: 82, companyFit: 88, content: 90 },
+        skillScores: isEnglishLearning
+          ? {
+              communication: mockScore,
+              confidence: Math.floor(Math.random() * 20) + 70,
+              clarity: Math.floor(Math.random() * 20) + 70,
+              hrReadiness: 0, // Not applicable
+              companyFit: 0, // Not applicable
+              content: Math.floor(Math.random() * 20) + 70
+            }
+          : { communication: 80, confidence: 85, clarity: 75, hrReadiness: 82, companyFit: 88, content: 90 },
         analytics: { totalSpeakingTime: "8m", avgAnswerLength: "45s", pauseTime: "10s", responseSpeed: "Optimal", talkingBalance: "Good" },
-        actionPlan: ["Review resume deep-dives"]
+        actionPlan: isEnglishLearning
+          ? ["Practice more sentences", "Review grammar rules", "Listen to native speakers"]
+          : ["Review resume deep-dives"]
       };
 
       const updatedUser: UserProfile = JSON.parse(JSON.stringify(user));
@@ -206,10 +235,14 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
+      const isEnglishLearning = type === ModuleType.ENGLISH_LEARNING;
       const instruction = `
         ${SYSTEM_INSTRUCTIONS[type as ModuleType] || 'Senior Interview Coach.'}
-        CONTEXT: Role: ${sessionMeta?.role || user.jobRole}, Company: ${sessionMeta?.company || 'Top MNC'}, Resume: ${sessionMeta?.resumeText || 'General Profile'}.
-        Use your thinking budget to analyze resume projects and company requirements before every question.
+        ${isEnglishLearning
+          ? `CONTEXT: Lesson Topic: ${sessionMeta?.lessonTitle || 'General English Practice'}, User Proficiency Level: ${user.proficiency}. Focus on teaching English skills, not conducting interviews.`
+          : `CONTEXT: Role: ${sessionMeta?.role || user.jobRole}, Company: ${sessionMeta?.company || 'Top MNC'}, Resume: ${sessionMeta?.resumeText || 'General Profile'}.
+        Use your thinking budget to analyze resume projects and company requirements before every question.`
+        }
       `;
 
       const sessionPromise = ai.live.connect({
