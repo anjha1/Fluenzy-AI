@@ -1,0 +1,8 @@
+{
+  "name": "AceVoice AI - Interview Coach & English Trainer Good-5",
+  "description": "A production-grade AI Voice Agent for English fluency, HR/Technical interviews, and career readiness, featuring real-time conversational feedback and deep analytics.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

@@ -100,6 +100,14 @@ const Navbar = () => {
                 Features
               </button>
             )}
+            {session?.user && (
+              <Link
+                href="/train"
+                className="text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Train Now
+              </Link>
+            )}
             {session?.user ? (
               <Link
                 href="/pricing"
@@ -198,6 +206,14 @@ const Navbar = () => {
               >
                 Features
               </button>
+            )}
+            {session?.user && (
+              <Link
+                href="/train"
+                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+              >
+                Train Now
+              </Link>
             )}
             {session?.user ? (
               <Link
