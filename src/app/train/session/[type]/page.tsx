@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import VoiceAgent from "../../../../../Learn_English/components/VoiceAgent";
-import { UserProfile } from "../../../../../Learn_English/types";
+import { UserProfile, ModuleType } from "../../../../../Learn_English/types";
 import { INITIAL_USER } from "../../../../../Learn_English/constants";
 
 const SessionPage = () => {
@@ -19,6 +19,29 @@ const SessionPage = () => {
       router.push("/");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (status === "authenticated" && type) {
+      // Increment usage for the module
+      const moduleMap: Record<string, string> = {
+        [ModuleType.ENGLISH_LEARNING]: 'english',
+        [ModuleType.CONVERSATION_PRACTICE]: 'daily',
+        [ModuleType.HR_INTERVIEW]: 'hr',
+        [ModuleType.TECH_INTERVIEW]: 'technical',
+        [ModuleType.COMPANY_WISE_HR]: 'company',
+        [ModuleType.FULL_MOCK]: 'mock',
+      };
+
+      const moduleKey = moduleMap[type] || type.toLowerCase().replace('_', '');
+      if (moduleKey) {
+        fetch('/api/training-usage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ module: moduleKey }),
+        }).catch(error => console.error('Failed to increment usage:', error));
+      }
+    }
+  }, [status, type]);
 
   if (status === "loading") {
     return <div>Loading...</div>;
