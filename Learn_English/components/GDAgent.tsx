@@ -339,12 +339,12 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                 <p className="text-slate-300 font-medium">How many participants should join this GD session?</p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6 max-w-4xl mx-auto">
                 {[3, 4, 5, 6, 8].map(size => (
                   <button
                     key={size}
                     onClick={() => { setParticipants(size); nextStep(); }}
-                    className={`p-4 md:p-8 rounded-3xl border-2 transition-all flex flex-col items-center justify-center gap-2 md:gap-4 hover:shadow-lg touch-manipulation ${
+                    className={`w-full p-4 md:p-8 rounded-3xl border-2 transition-all flex flex-col items-center justify-center gap-2 md:gap-4 hover:shadow-lg touch-manipulation ${
                       participants === size ? 'border-purple-500 bg-purple-900/30' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm'
                     }`}
                   >
@@ -424,7 +424,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                   <button
                     key={t.id}
                     onClick={() => { setTopicMode(t.id); nextStep(); }}
-                    className={`p-4 md:p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-3 md:gap-4 transition-all touch-manipulation ${
+                    className={`w-full p-4 md:p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-3 md:gap-4 transition-all touch-manipulation ${
                       topicMode === t.id ? 'border-purple-500 bg-purple-900/30' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm'
                     }`}
                   >
@@ -449,7 +449,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                 <p className="text-slate-300 font-medium">Choose your role in the group discussion.</p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
                 {[
                   { id: GDRole.INITIATOR, icon: Crown, desc: 'Start discussions, set agenda' },
                   { id: GDRole.INFO_PROVIDER, icon: Lightbulb, desc: 'Provide facts and data' },
@@ -462,7 +462,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                   <button
                     key={r.id}
                     onClick={() => { setSelectedRole(r.id); nextStep(); }}
-                    className={`p-4 md:p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-3 md:gap-4 transition-all touch-manipulation ${
+                    className={`w-full p-4 md:p-6 rounded-3xl border-2 flex flex-col items-center text-center gap-3 md:gap-4 transition-all touch-manipulation ${
                       selectedRole === r.id ? 'border-purple-500 bg-purple-900/30' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600 backdrop-blur-sm'
                     }`}
                   >
@@ -615,7 +615,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
           )}
           <button onClick={() => {
             try {
-              router.back();
+              router.push('/train');
             } catch (error) {
               console.error('Navigation error:', error);
               window.location.href = '/train';
