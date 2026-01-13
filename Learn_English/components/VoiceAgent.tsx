@@ -281,8 +281,9 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
               transcriptHistory.current.push({ ...currentQA.current, timestamp: new Date().toLocaleTimeString() });
               currentQA.current = { question: '', answer: '' };
             }
-            if (m.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data) {
-              const buf = await decodeAudioData(decode(m.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data), outputAudioContextRef.current!, 24000, 1);
+            const data = m.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
+            if (data) {
+              const buf = await decodeAudioData(decode(data), outputAudioContextRef.current!, 24000, 1);
               const src = outputAudioContextRef.current!.createBufferSource();
               src.buffer = buf; src.connect(outputAudioContextRef.current!.destination);
               setIsAiSpeaking(true);
