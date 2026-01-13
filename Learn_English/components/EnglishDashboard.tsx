@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 import { UserProfile, Lesson, ModuleType } from '../types';
 
-const LessonCard: React.FC<{ lesson: Lesson, onStart: () => void, isLocked?: boolean }> = ({ lesson, onStart, isLocked = false }) => (
+const LessonCard: React.FC<{ lesson: Lesson, onStart: () => void, onUpgrade?: () => void, isLocked?: boolean }> = ({ lesson, onStart, onUpgrade, isLocked = false }) => (
   <div
-    onClick={isLocked ? undefined : onStart}
+    onClick={isLocked ? onUpgrade : onStart}
     className={`group relative p-6 rounded-3xl border transition-all duration-300 ${
-      isLocked ? 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed' :
+      isLocked ? 'bg-gray-50 border-gray-200 opacity-60 cursor-pointer hover:bg-gray-100' :
       lesson.isCompleted
         ? 'bg-white border-emerald-100 shadow-sm cursor-pointer hover:shadow-md'
         : 'bg-white border-blue-100 shadow-lg shadow-blue-50 cursor-pointer hover:-translate-y-1'
@@ -37,10 +37,10 @@ const LessonCard: React.FC<{ lesson: Lesson, onStart: () => void, isLocked?: boo
         </h4>
         <div className="flex items-center gap-2 mt-0.5">
           <span className={`text-[10px] font-black uppercase tracking-wider ${
-            isLocked ? 'text-gray-400' :
+            isLocked ? 'text-red-400 cursor-pointer' :
             lesson.isCompleted ? `text-emerald-500` : 'text-blue-500'
           }`}>
-            {isLocked ? 'Free limit reached' : lesson.isCompleted ? `Score: ${lesson.score}%` : 'Practice Now'}
+            {isLocked ? 'Upgrade to continue' : lesson.isCompleted ? `Score: ${lesson.score}%` : 'Practice Now'}
           </span>
         </div>
       </div>
@@ -68,6 +68,23 @@ const EnglishDashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
 
     checkUsage();
   }, []);
+
+  const handleUpgrade = async () => {
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.url;
+      } else {
+        console.error('Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+    }
+  };
 
   const handleStartLesson = (lesson: Lesson) => {
     if (!canUse) return;
@@ -124,6 +141,7 @@ const EnglishDashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
                   key={lesson.id}
                   lesson={lesson}
                   onStart={() => handleStartLesson(lesson)}
+                  onUpgrade={handleUpgrade}
                   isLocked={!canUse}
                 />
               ))}

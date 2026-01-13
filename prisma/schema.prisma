@@ -36,6 +36,7 @@ model users {
   companyUsage     Int      @default(0)
   mockUsage        Int      @default(0)
   renewalDate      DateTime?
+  sessions         Session[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -49,4 +50,40 @@ model subscriptions {
   currentPeriodEnd     DateTime?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+}
+
+model Session {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId      String   @unique
+  userId         String   @db.ObjectId
+  user           users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module         String
+  targetCompany  String?
+  role           String?
+  startTime      DateTime @default(now())
+  endTime        DateTime?
+  duration       Int? // in minutes
+  aggregateScore Float?
+  status         String? // PASS or FAIL
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  transcripts    Transcript[]
+}
+
+model Transcript {
+  id                      String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId               String   @db.ObjectId
+  session                 Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  turnNumber              Int
+  aiPrompt                String
+  userAnswer              String // raw speech-to-text
+  aiFeedback              String
+  idealAnswer             String
+  clarityScore            Float?
+  relevanceScore          Float?
+  grammarScore            Float?
+  confidenceScore         Float?
+  technicalAccuracyScore  Float?
+  perQuestionScore        Float?
+  createdAt               DateTime @default(now())
 }
