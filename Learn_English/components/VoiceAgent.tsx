@@ -235,14 +235,14 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
             source.connect(scriptProcessor); scriptProcessor.connect(inputAudioContextRef.current!.destination);
           },
           onmessage: async (m) => {
-            if (m.serverContent?.outputTranscription) currentQA.current.question += m.serverContent.outputTranscription.text;
-            if (m.serverContent?.inputTranscription) currentQA.current.answer += m.serverContent.inputTranscription.text;
+            if (m.serverContent?.outputTranscription?.text) currentQA.current.question += m.serverContent.outputTranscription.text;
+            if (m.serverContent?.inputTranscription?.text) currentQA.current.answer += m.serverContent.inputTranscription.text;
             if (m.serverContent?.turnComplete) {
               transcriptHistory.current.push({ ...currentQA.current, timestamp: new Date().toLocaleTimeString() });
               currentQA.current = { question: '', answer: '' };
             }
-            if (m.serverContent?.modelTurn?.parts[0]?.inlineData?.data) {
-              const buf = await decodeAudioData(decode(m.serverContent.modelTurn.parts[0].inlineData.data), outputAudioContextRef.current!, 24000, 1);
+            if (m.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data) {
+              const buf = await decodeAudioData(decode(m.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data), outputAudioContextRef.current!, 24000, 1);
               const src = outputAudioContextRef.current!.createBufferSource();
               src.buffer = buf; src.connect(outputAudioContextRef.current!.destination);
               setIsAiSpeaking(true);
@@ -273,7 +273,7 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
           <div className="bg-slate-900 text-white p-3 rounded-2xl shadow-lg"><Sparkles size={24} /></div>
           <div><h2 className="font-black text-slate-900 text-xl tracking-tight leading-tight">{topic}</h2></div>
         </div>
-        <button onClick={() => router.back()} className="p-3 hover:bg-slate-100 rounded-2xl transition-all"><X size={24} /></button>
+        <button onClick={() => router.push('/train')} className="p-3 hover:bg-slate-100 rounded-2xl transition-all"><X size={24} /></button>
       </div>
       
       <div className="flex-1 p-10 flex flex-col items-center justify-center relative">
