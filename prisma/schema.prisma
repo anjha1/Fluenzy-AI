@@ -35,6 +35,7 @@ model users {
   technicalUsage   Int      @default(0)
   companyUsage     Int      @default(0)
   mockUsage        Int      @default(0)
+  gdUsage          Int      @default(0)
   renewalDate      DateTime?
   sessions         Session[]
   createdAt        DateTime @default(now())

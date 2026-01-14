@@ -11,7 +11,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Users,
-  Lock
+  Lock,
+  CheckCircle
 } from 'lucide-react';
 import { ModuleType } from '../types';
 
@@ -78,6 +79,7 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
       <h3 className="text-xl md:text-2xl font-black text-white mb-3 flex items-center gap-2">
         {title}
         {isAdvanced && <ShieldCheck size={20} className="text-blue-400" />}
+        {title === 'GD Agent' && <CheckCircle size={20} className="text-blue-400" />}
       </h3>
       <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-6">{description}</p>
 
@@ -89,7 +91,7 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
         <div className="text-right">
           <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Free uses</div>
           <div className={`text-sm font-black ${isLocked ? 'text-red-400' : remaining === 'Unlimited' ? 'text-green-400' : 'text-white'}`}>
-            {remaining === 'Unlimited' ? '∞' : `${remaining} / 3`}
+            {remaining === 'Unlimited' ? '∞' : `${remaining ?? 0} / 3`}
           </div>
         </div>
       </div>
@@ -135,6 +137,7 @@ const LearningPath: React.FC = () => {
       [ModuleType.TECH_INTERVIEW]: 'technical',
       [ModuleType.COMPANY_WISE_HR]: 'company',
       [ModuleType.FULL_MOCK]: 'mock',
+      [ModuleType.GD_DISCUSSION]: 'gd',
     };
 
     const key = moduleMap[type];
@@ -193,6 +196,15 @@ const LearningPath: React.FC = () => {
       delay: 'delay-400',
       isAdvanced: true,
       ...getModuleUsage(ModuleType.COMPANY_WISE_HR)
+    },
+    {
+      type: ModuleType.GD_DISCUSSION,
+      title: 'GD Agent',
+      description: 'Practice real Group Discussions with AI participants. Choose teams, roles, and get evaluated.',
+      icon: Users,
+      color: 'bg-purple-500',
+      delay: 'delay-500',
+      ...getModuleUsage(ModuleType.GD_DISCUSSION)
     },
   ];
 
