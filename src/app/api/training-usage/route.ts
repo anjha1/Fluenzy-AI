@@ -9,6 +9,7 @@ const MODULE_USAGE_FIELDS = {
   technical: "technicalUsage",
   company: "companyUsage",
   mock: "mockUsage",
+  gd: "gdUsage",
 } as const;
 
 const TRAINING_LIMIT = 3;
@@ -32,6 +33,7 @@ export async function GET(request: NextRequest) {
         technicalUsage: true,
         companyUsage: true,
         mockUsage: true,
+        gdUsage: true,
       },
     });
 
@@ -40,45 +42,51 @@ export async function GET(request: NextRequest) {
     }
 
     const usage = {
-      english: user.englishUsage,
-      daily: user.dailyUsage,
-      hr: user.hrUsage,
-      technical: user.technicalUsage,
-      company: user.companyUsage,
-      mock: user.mockUsage,
+      english: user.englishUsage ?? 0,
+      daily: user.dailyUsage ?? 0,
+      hr: user.hrUsage ?? 0,
+      technical: user.technicalUsage ?? 0,
+      company: user.companyUsage ?? 0,
+      mock: user.mockUsage ?? 0,
+      gd: user.gdUsage ?? 0,
     };
 
     // For Pro users, always allow
-    const canUse = user.plan === "Pro" ? {
+    const isPro = user.plan?.toString().toLowerCase() === 'pro';
+    const canUse = isPro ? {
       english: true,
       daily: true,
       hr: true,
       technical: true,
       company: true,
       mock: true,
+      gd: true,
     } : {
-      english: user.englishUsage < TRAINING_LIMIT,
-      daily: user.dailyUsage < TRAINING_LIMIT,
-      hr: user.hrUsage < TRAINING_LIMIT,
-      technical: user.technicalUsage < TRAINING_LIMIT,
-      company: user.companyUsage < TRAINING_LIMIT,
-      mock: user.mockUsage < TRAINING_LIMIT,
+      english: (user.englishUsage ?? 0) < TRAINING_LIMIT,
+      daily: (user.dailyUsage ?? 0) < TRAINING_LIMIT,
+      hr: (user.hrUsage ?? 0) < TRAINING_LIMIT,
+      technical: (user.technicalUsage ?? 0) < TRAINING_LIMIT,
+      company: (user.companyUsage ?? 0) < TRAINING_LIMIT,
+      mock: (user.mockUsage ?? 0) < TRAINING_LIMIT,
+      gd: (user.gdUsage ?? 0) < TRAINING_LIMIT,
     };
 
-    const remaining = user.plan === "Pro" ? {
+    const remaining = isPro ? {
       english: "Unlimited",
       daily: "Unlimited",
       hr: "Unlimited",
       technical: "Unlimited",
       company: "Unlimited",
       mock: "Unlimited",
+      gd: "Unlimited",
     } : {
-      english: Math.max(0, TRAINING_LIMIT - user.englishUsage),
-      daily: Math.max(0, TRAINING_LIMIT - user.dailyUsage),
-      hr: Math.max(0, TRAINING_LIMIT - user.hrUsage),
-      technical: Math.max(0, TRAINING_LIMIT - user.technicalUsage),
-      company: Math.max(0, TRAINING_LIMIT - user.companyUsage),
-      mock: Math.max(0, TRAINING_LIMIT - user.mockUsage),
+      english: Math.max(0, TRAINING_LIMIT - (user.englishUsage ?? 0)),
+      daily: Math.max(0, TRAINING_LIMIT - (user.dailyUsage ?? 0)),
+      hr: Math.max(0, TRAINING_LIMIT - (user.hrUsage ?? 0)),
+      technical: Math.max(0, TRAINING_LIMIT - (user.technicalUsage ?? 0)),
+      company: Math.max(0, TRAINING_LIMIT - (user.companyUsage ?? 0)),
+      mock: Math.max(0, TRAINING_LIMIT - (user.mockUsage ?? 0)),
+      gd: Math.max(0, TRAINING_LIMIT - (user.gdUsage ?? 0)),
     };
 
     return NextResponse.json({
@@ -123,6 +131,7 @@ export async function POST(request: NextRequest) {
         technicalUsage: true,
         companyUsage: true,
         mockUsage: true,
+        gdUsage: true,
       },
     });
 
@@ -131,7 +140,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Pro users don't have limits
-    if (user.plan === "Pro") {
+    if (user.plan?.toString().toLowerCase() === 'pro') {
       return NextResponse.json({
         success: true,
         message: "Pro user - no limits",
@@ -169,6 +178,7 @@ export async function POST(request: NextRequest) {
         technicalUsage: true,
         companyUsage: true,
         mockUsage: true,
+        gdUsage: true,
         plan: true,
       },
     });

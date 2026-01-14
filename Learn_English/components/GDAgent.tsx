@@ -101,6 +101,7 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
   const [intensity, setIntensity] = useState('Moderate');
   const [topicMode, setTopicMode] = useState('Company-Based');
   const [selectedRole, setSelectedRole] = useState<GDRole>(GDRole.INITIATOR);
+  const [canLaunch, setCanLaunch] = useState(false);
 
   const sessionMeta = {
     size: participants,
@@ -297,6 +298,22 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
     }
   }, [isFinished, router]);
 
+  useEffect(() => {
+    const checkUsage = async () => {
+      try {
+        const response = await fetch('/api/training-usage');
+        if (response.ok) {
+          const data = await response.json();
+          const isPro = data.plan?.toString().toLowerCase() === 'pro';
+          setCanLaunch(isPro || (data.canUse?.gd ?? false));
+        }
+      } catch (error) {
+        console.error('Usage check error:', error);
+      }
+    };
+    checkUsage();
+  }, []);
+
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
 
@@ -307,7 +324,11 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
   // Setup Steps UI
   if (step < 6) {
     return (
-      <div className="bg-slate-900/30 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl overflow-hidden min-h-[600px] flex flex-col">
+      <div className="bg-blue-950/40 backdrop-blur-xl rounded-3xl border border-blue-800/50 shadow-2xl overflow-hidden min-h-[600px] flex flex-col relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-blue-900/5 to-indigo-900/10 rounded-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(147,51,234,0.1),transparent_50%)] rounded-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)] rounded-3xl" />
+        <div className="relative z-10 flex flex-col min-h-[600px]">
         <div className="flex items-center justify-between p-6 md:p-8 border-b border-slate-700/50">
           <button
             onClick={() => {
@@ -515,22 +536,32 @@ const GDAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) => v
                 </div>
 
                 <div className="flex justify-center pt-6">
-                  <button
-                    onClick={() => {
-                      try {
-                        launchGDRoom();
-                      } catch (error) {
-                        console.error('Launch error:', error);
-                      }
-                    }}
-                    className="bg-purple-600 text-white px-12 md:px-20 py-4 md:py-5 rounded-3xl font-black uppercase tracking-[0.2em] text-xs md:text-sm shadow-2xl shadow-purple-500/25 hover:bg-purple-700 transition-all transform hover:scale-105 touch-manipulation"
-                  >
-                    Launch GD Room
-                  </button>
+                  {canLaunch ? (
+                    <button
+                      onClick={() => {
+                        try {
+                          launchGDRoom();
+                        } catch (error) {
+                          console.error('Launch error:', error);
+                        }
+                      }}
+                      className="bg-purple-600 text-white px-12 md:px-20 py-4 md:py-5 rounded-3xl font-black uppercase tracking-[0.2em] text-xs md:text-sm shadow-2xl shadow-purple-500/25 hover:bg-purple-700 transition-all transform hover:scale-105 touch-manipulation"
+                    >
+                      Launch GD Room
+                    </button>
+                  ) : (
+                    <div className="text-center">
+                      <p className="text-red-400 font-bold">Usage limit reached. Upgrade to continue.</p>
+                      <button onClick={() => window.location.href = '/api/create-checkout-session'} className="mt-2 bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-700 transition-all">
+                        Upgrade Now
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     );
