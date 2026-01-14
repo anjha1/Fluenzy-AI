@@ -194,15 +194,6 @@ const LearningPath: React.FC = () => {
       isAdvanced: true,
       ...getModuleUsage(ModuleType.COMPANY_WISE_HR)
     },
-    {
-      type: ModuleType.FULL_MOCK,
-      title: 'Mock Interview',
-      description: 'Full end-to-end interview simulation with comprehensive evaluation and feedback.',
-      icon: Briefcase,
-      color: 'bg-orange-500',
-      delay: 'delay-500',
-      ...getModuleUsage(ModuleType.FULL_MOCK)
-    },
   ];
 
   return (
