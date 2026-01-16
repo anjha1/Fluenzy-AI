@@ -3,7 +3,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Play, Sparkles, ArrowRight } from "lucide-react";
-import BeforeAfterSlider from "./BeforeAfterSlider";
+import CareerDashboard from "./CareerDashboard";
+import Link from "next/link";
 
 const Hero = () => {
   const scrollToSection = (sectionId: string) => {
@@ -43,7 +44,7 @@ const Hero = () => {
             className="inline-flex items-center space-x-2 bg-gradient-glass rounded-full px-4 py-2 mb-6 glass border border-card-border"
           >
             <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">Powered by AI Magic</span>
+            <span className="text-sm font-medium">Elite Career Training</span>
           </motion.div>
 
           <motion.h1
@@ -56,7 +57,7 @@ const Hero = () => {
               Pixora AI
             </span>
             <br />
-            <span className="text-foreground">The Magic Photo Editor</span>
+            <span className="text-foreground">Your Elite Career & Language Coach</span>
           </motion.h1>
 
           <motion.p
@@ -65,9 +66,7 @@ const Hero = () => {
             transition={{ delay: 0.4 }}
             className="text-xl text-muted-foreground mb-8 max-w-2xl"
           >
-            Transform your photos with AI-powered editing tools. Remove
-            backgrounds, enhance quality, and create stunning visuals in
-            seconds. Drop a photo. We'll do the magic.
+            Master Interviews. Unlock Global Opportunities. Prepare for top-tier companies like Google, Amazon, and Microsoft with real-time AI simulations, technical mastery, and advanced language training.
           </motion.p>
 
           <motion.div
@@ -79,19 +78,21 @@ const Hero = () => {
             <Button
               variant="hero"
               size="lg"
-              onClick={() => scrollToSection("editor")}
+              asChild
               className="group text-white"
             >
-              <Play className="h-5 w-5 mr-2 group-hover:animate-pulse" />
-              Try Free Now
+              <Link href="/train">
+                <Play className="h-5 w-5 mr-2 group-hover:animate-pulse" />
+                Start Training Now
+              </Link>
             </Button>
             <Button
               variant="secondary"
               size="lg"
-              onClick={() => scrollToSection("editor")}
+              onClick={() => scrollToSection("magic-studio")}
               className="group"
             >
-              Launch App
+              Explore Features
               <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </motion.div>
@@ -104,23 +105,23 @@ const Hero = () => {
           >
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span>Unlimited uploads on Pro</span>
+              <span>Real-time AI feedback</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
-              <span>Unlimited edits</span>
+              <span>Unlimited practice sessions</span>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Right Content - Before/After Slider */}
+        {/* Right Content - Career Dashboard */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="flex justify-center"
         >
-          <BeforeAfterSlider />
+          <CareerDashboard />
         </motion.div>
       </div>
     </section>

@@ -3,7 +3,9 @@ import Footer from "@/components/footer";
 import Editor from "@/modules/editor";
 import Features from "@/modules/features";
 import Hero from "@/modules/hero";
+import MagicStudio from "@/modules/hero/MagicStudio";
 import Pricing from "@/modules/pricing";
+import TargetCompaniesRibbon from "@/modules/hero/TargetCompaniesRibbon";
 import { useSession } from "next-auth/react";
 import React from "react";
 
@@ -24,6 +26,8 @@ const Page = () => {
   return (
     <div>
       <Hero />
+      <TargetCompaniesRibbon />
+      <MagicStudio />
       <Features />
       <Pricing />
       <Editor />

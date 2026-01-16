@@ -5,52 +5,12 @@ import { motion } from "framer-motion";
 
 const features = [
   {
-    icon: Scissors,
-    title: "AI Background Removal",
-    description:
-      "1-click clean photos with precision AI. Remove any background instantly and get professional results.",
-    gradient: "from-primary to-primary-glow",
-    delay: 0.1,
-  },
-  {
-    icon: Expand,
-    title: "AI Generative Fill",
-    description:
-      "Expand your canvas and auto-fill edges seamlessly. Create perfect aspect ratios effortlessly.",
-    gradient: "from-secondary to-secondary-glow",
-    delay: 0.2,
-  },
-  {
-    icon: Zap,
-    title: "AI Upscale & Enhance",
-    description:
-      "Boost resolution up to 4x while fixing details. Transform low-res into stunning high-quality images.",
-    gradient: "from-primary to-secondary",
-    delay: 0.3,
-  },
-  {
-    icon: Crop,
-    title: "Smart Crop & Face Focus",
-    description:
-      "Perfect thumbnails automatically. AI detects faces and important content for optimal cropping.",
-    gradient: "from-secondary to-primary",
-    delay: 0.4,
-  },
-  {
-    icon: Type,
-    title: "Watermark & Text Overlay",
-    description:
-      "Brand your content professionally. Add custom watermarks and text with perfect positioning.",
-    gradient: "from-primary-glow to-secondary-glow",
-    delay: 0.5,
-  },
-  {
     icon: BookOpen,
     title: "English Learning",
     description:
       "Master fluency with personalized daily conversations and real-time grammar feedback.",
     gradient: "from-indigo-500 to-indigo-600",
-    delay: 0.6,
+    delay: 0.1,
   },
   {
     icon: MessageSquare,
@@ -58,7 +18,7 @@ const features = [
     description:
       "Practice real-life office scenarios, small talk, and collaborative professional communication.",
     gradient: "from-sky-500 to-sky-600",
-    delay: 0.7,
+    delay: 0.2,
   },
   {
     icon: UserPlus,
@@ -66,7 +26,7 @@ const features = [
     description:
       "Ace behavioral questions and soft skills assessment with seasoned HR simulation.",
     gradient: "from-pink-500 to-pink-600",
-    delay: 0.8,
+    delay: 0.3,
   },
   {
     icon: Code,
@@ -74,7 +34,7 @@ const features = [
     description:
       "Deep-dive into role-based technical conceptual rounds and logic assessments.",
     gradient: "from-emerald-500 to-emerald-600",
-    delay: 0.9,
+    delay: 0.4,
   },
   {
     icon: Building2,
@@ -82,7 +42,7 @@ const features = [
     description:
       "Prepare for FAANG, Startups, or MNCs with specific curated company HR rounds.",
     gradient: "from-amber-500 to-amber-600",
-    delay: 1.0,
+    delay: 0.5,
   },
   {
     icon: Users,
@@ -90,6 +50,46 @@ const features = [
     description:
       "Practice real Group Discussions with AI participants. Choose teams, roles, and get evaluated.",
     gradient: "from-purple-500 to-purple-600",
+    delay: 0.6,
+  },
+  {
+    icon: Scissors,
+    title: "AI Background Removal",
+    description:
+      "1-click clean photos with precision AI. Remove any background instantly and get professional results.",
+    gradient: "from-primary to-primary-glow",
+    delay: 0.7,
+  },
+  {
+    icon: Expand,
+    title: "AI Generative Fill",
+    description:
+      "Expand your canvas and auto-fill edges seamlessly. Create perfect aspect ratios effortlessly.",
+    gradient: "from-secondary to-secondary-glow",
+    delay: 0.8,
+  },
+  {
+    icon: Zap,
+    title: "AI Upscale & Enhance",
+    description:
+      "Boost resolution up to 4x while fixing details. Transform low-res into stunning high-quality images.",
+    gradient: "from-primary to-secondary",
+    delay: 0.9,
+  },
+  {
+    icon: Crop,
+    title: "Smart Crop & Face Focus",
+    description:
+      "Perfect thumbnails automatically. AI detects faces and important content for optimal cropping.",
+    gradient: "from-secondary to-primary",
+    delay: 1.0,
+  },
+  {
+    icon: Type,
+    title: "Watermark & Text Overlay",
+    description:
+      "Brand your content professionally. Add custom watermarks and text with perfect positioning.",
+    gradient: "from-primary-glow to-secondary-glow",
     delay: 1.1,
   },
 ];
@@ -115,8 +115,7 @@ const Features = () => {
           </h2>
 
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Transform your photos with cutting-edge AI technology. Each feature
-            is designed to give you professional results in seconds, not hours.
+            Transform your photos and master your career with cutting-edge AI technology.
           </p>
         </motion.div>
 
