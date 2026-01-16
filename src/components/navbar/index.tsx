@@ -86,7 +86,7 @@ const Navbar = () => {
                   Train Now
                 </Link>
                 <Link
-                  href="/"
+                  href="/#editor"
                   className="text-foreground hover:text-primary transition-colors font-medium"
                 >
                   Edit Image
@@ -197,7 +197,7 @@ const Navbar = () => {
                   Train Now
                 </Link>
                 <Link
-                  href="/"
+                  href="/#editor"
                   className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
                 >
                   Edit Image
