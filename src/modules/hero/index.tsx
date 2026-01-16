@@ -17,17 +17,18 @@ const Hero = () => {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
     >
       {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted opacity-50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/60 to-slate-900/80" />
 
       {/* Floating orbs */}
-      <div className="absolute top-20 left-10 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float" />
+      <div className="absolute top-20 left-10 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-float" />
       <div
-        className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-float"
+        className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-float"
         style={{ animationDelay: "-1s" }}
       />
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
 
       <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center relative z-10">
         {/* Left Content */}
@@ -41,10 +42,10 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center space-x-2 bg-gradient-glass rounded-full px-4 py-2 mb-6 glass border border-card-border"
+            className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-full px-6 py-3 mb-6 border border-purple-500/30 backdrop-blur-sm"
           >
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">Elite Career Training</span>
+            <Sparkles className="h-5 w-5 text-purple-400" />
+            <span className="text-sm font-medium text-purple-200">AI-Powered Interview Training</span>
           </motion.div>
 
           <motion.h1
@@ -53,20 +54,22 @@ const Hero = () => {
             transition={{ delay: 0.3 }}
             className="text-5xl lg:text-7xl font-bold leading-tight mb-6"
           >
-            <span className="bg-gradient-primary !bg-clip-text text-transparent">
-              Pixora AI
+            <span className="text-white">Train Smarter.</span>
+            <br />
+            <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 !bg-clip-text text-transparent">
+              Crack FAANG Interviews
             </span>
             <br />
-            <span className="text-foreground">Your Elite Career & Language Coach</span>
+            <span className="text-white">with AI.</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-xl text-muted-foreground mb-8 max-w-2xl"
+            className="text-xl text-gray-300 mb-8 max-w-2xl"
           >
-            Master Interviews. Unlock Global Opportunities. Prepare for top-tier companies like Google, Amazon, and Microsoft with real-time AI simulations, technical mastery, and advanced language training.
+            AI Interviewer • HR + Technical + GD Training • Real-time feedback & analytics
           </motion.p>
 
           <motion.div
@@ -76,24 +79,23 @@ const Hero = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
           >
             <Button
-              variant="hero"
               size="lg"
               asChild
-              className="group text-white"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
             >
               <Link href="/train">
-                <Play className="h-5 w-5 mr-2 group-hover:animate-pulse" />
-                Start Training Now
+                <Play className="h-5 w-5 mr-2" />
+                Train Now
               </Link>
             </Button>
             <Button
-              variant="secondary"
+              variant="outline"
               size="lg"
-              onClick={() => scrollToSection("magic-studio")}
-              className="group"
+              onClick={() => scrollToSection("features")}
+              className="border-purple-500/50 text-purple-200 hover:bg-purple-500/10 px-8 py-4 rounded-xl"
             >
               Explore Features
-              <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </motion.div>
 
@@ -101,15 +103,15 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="mt-8 flex items-center justify-center lg:justify-start space-x-6 text-sm text-muted-foreground"
+            className="mt-8 flex items-center justify-center lg:justify-start space-x-6 text-sm text-gray-400"
           >
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span>Real-time AI feedback</span>
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+              <span>AI Interviewer & GD Agent</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
-              <span>Unlimited practice sessions</span>
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+              <span>Real-time Performance Analytics</span>
             </div>
           </motion.div>
         </motion.div>

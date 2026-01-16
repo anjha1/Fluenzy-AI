@@ -13,7 +13,7 @@ const companies = [
 
 const TargetCompaniesRibbon = () => {
   return (
-    <section className="py-12 bg-muted/30">
+    <section className="py-16 bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900 border-y border-slate-700/50">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -22,11 +22,11 @@ const TargetCompaniesRibbon = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-8"
         >
-          <h3 className="text-lg font-semibold text-muted-foreground mb-2">
-            Trusted By Leading Companies
+          <h3 className="text-xl font-semibold text-white mb-2">
+            Trusted By FAANG & Top Tech Companies
           </h3>
-          <p className="text-sm text-muted-foreground">
-            Prepare for interviews at top-tier organizations worldwide
+          <p className="text-sm text-gray-300">
+            Join thousands preparing for interviews at the world's leading technology companies
           </p>
         </motion.div>
 
@@ -46,10 +46,10 @@ const TargetCompaniesRibbon = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="flex flex-col items-center space-y-2 group"
             >
-              <div className="text-4xl group-hover:scale-110 transition-transform duration-300">
+              <div className="text-5xl group-hover:scale-110 transition-transform duration-300 filter drop-shadow-lg">
                 {company.logo}
               </div>
-              <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+              <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
                 {company.name}
               </span>
             </motion.div>
