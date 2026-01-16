@@ -38,7 +38,7 @@ const Navbar = () => {
     if (session?.user) {
       scrollToSection("editor");
     } else {
-      await signIn("google");
+      await signIn("google", { callbackUrl: "/train" });
     }
   };
 
@@ -78,29 +78,6 @@ const Navbar = () => {
           {/* Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {session?.user && (
-              <Link
-                href="/"
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Home
-              </Link>
-            )}
-            {session?.user ? (
-              <Link
-                href="/features"
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Features
-              </Link>
-            ) : (
-              <button
-                onClick={() => scrollToSection("features")}
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Features
-              </button>
-            )}
-            {session?.user && (
               <>
                 <Link
                   href="/train"
@@ -109,27 +86,46 @@ const Navbar = () => {
                   Train Now
                 </Link>
                 <Link
+                  href="/"
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Edit Image
+                </Link>
+                <Link
                   href="/history"
                   className="text-foreground hover:text-primary transition-colors font-medium"
                 >
                   History
                 </Link>
+                <Link
+                  href="/features"
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Features
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Pricing
+                </Link>
               </>
             )}
-            {session?.user ? (
-              <Link
-                href="/pricing"
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Pricing
-              </Link>
-            ) : (
-              <button
-                onClick={() => scrollToSection("pricing")}
-                className="text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Pricing
-              </button>
+            {!session?.user && (
+              <>
+                <button
+                  onClick={() => scrollToSection("features")}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Features
+                </button>
+                <button
+                  onClick={() => scrollToSection("pricing")}
+                  className="text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Pricing
+                </button>
+              </>
             )}
             {session?.user ? (
               <DropdownMenu>
@@ -193,29 +189,6 @@ const Navbar = () => {
         >
           <div className="py-4 space-y-4">
             {session?.user && (
-              <Link
-                href="/"
-                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Home
-              </Link>
-            )}
-            {session?.user ? (
-              <Link
-                href="/features"
-                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Features
-              </Link>
-            ) : (
-              <button
-                onClick={() => scrollToSection("features")}
-                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Features
-              </button>
-            )}
-            {session?.user && (
               <>
                 <Link
                   href="/train"
@@ -224,27 +197,46 @@ const Navbar = () => {
                   Train Now
                 </Link>
                 <Link
+                  href="/"
+                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Edit Image
+                </Link>
+                <Link
                   href="/history"
                   className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
                 >
                   History
                 </Link>
+                <Link
+                  href="/features"
+                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Features
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Pricing
+                </Link>
               </>
             )}
-            {session?.user ? (
-              <Link
-                href="/pricing"
-                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Pricing
-              </Link>
-            ) : (
-              <button
-                onClick={() => scrollToSection("pricing")}
-                className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-              >
-                Pricing
-              </button>
+            {!session?.user && (
+              <>
+                <button
+                  onClick={() => scrollToSection("features")}
+                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Features
+                </button>
+                <button
+                  onClick={() => scrollToSection("pricing")}
+                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Pricing
+                </button>
+              </>
             )}
             {session?.user ? (
               <div className="space-y-2">
