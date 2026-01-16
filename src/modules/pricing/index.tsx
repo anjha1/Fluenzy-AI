@@ -152,8 +152,8 @@ const Pricing = () => {
                 </div>
 
                 <div className="space-y-4 mb-8">
-                  {plan?.features?.map((feature) => (
-                    <div key={index} className={"flex items-center space-x-3"}>
+                  {plan?.features?.map((feature, idx) => (
+                    <div key={`feature-${idx}`} className={"flex items-center space-x-3"}>
                       <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
                         <Check className="w-3 h-3 text-primary" />
                       </div>

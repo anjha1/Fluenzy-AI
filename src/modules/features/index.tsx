@@ -1,5 +1,5 @@
 "use client";
-import { Crop, Expand, Scissors, Type, Zap } from "lucide-react";
+import { Crop, Expand, Scissors, Type, Zap, BookOpen, MessageSquare, UserPlus, Code, Building2, Users } from "lucide-react";
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -44,6 +44,54 @@ const features = [
     gradient: "from-primary-glow to-secondary-glow",
     delay: 0.5,
   },
+  {
+    icon: BookOpen,
+    title: "English Learning",
+    description:
+      "Master fluency with personalized daily conversations and real-time grammar feedback.",
+    gradient: "from-indigo-500 to-indigo-600",
+    delay: 0.6,
+  },
+  {
+    icon: MessageSquare,
+    title: "Daily Conversation",
+    description:
+      "Practice real-life office scenarios, small talk, and collaborative professional communication.",
+    gradient: "from-sky-500 to-sky-600",
+    delay: 0.7,
+  },
+  {
+    icon: UserPlus,
+    title: "HR Interview Coach",
+    description:
+      "Ace behavioral questions and soft skills assessment with seasoned HR simulation.",
+    gradient: "from-pink-500 to-pink-600",
+    delay: 0.8,
+  },
+  {
+    icon: Code,
+    title: "Technical Mastery",
+    description:
+      "Deep-dive into role-based technical conceptual rounds and logic assessments.",
+    gradient: "from-emerald-500 to-emerald-600",
+    delay: 0.9,
+  },
+  {
+    icon: Building2,
+    title: "Company Tracks",
+    description:
+      "Prepare for FAANG, Startups, or MNCs with specific curated company HR rounds.",
+    gradient: "from-amber-500 to-amber-600",
+    delay: 1.0,
+  },
+  {
+    icon: Users,
+    title: "GD Agent",
+    description:
+      "Practice real Group Discussions with AI participants. Choose teams, roles, and get evaluated.",
+    gradient: "from-purple-500 to-purple-600",
+    delay: 1.1,
+  },
 ];
 
 const Features = () => {
@@ -72,19 +120,9 @@ const Features = () => {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          {features?.slice(0, 3).map((feature, index) => (
-            <FeatureCard key={index} feature={feature} index={index} />
-          ))}
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {features.slice(3).map((feature, index) => (
-            <FeatureCard
-              key={feature.title}
-              feature={feature}
-              index={index + 3}
-            />
+        <div className="grid lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <FeatureCard key={feature.title} feature={feature} index={index} />
           ))}
         </div>
       </div>
