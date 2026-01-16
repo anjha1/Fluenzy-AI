@@ -9,7 +9,7 @@ const features = [
     title: "English Learning",
     description:
       "Master fluency with personalized daily conversations and real-time grammar feedback.",
-    gradient: "from-indigo-500 to-indigo-600",
+    gradient: "from-blue-500 to-cyan-500",
     delay: 0.1,
   },
   {
@@ -17,7 +17,7 @@ const features = [
     title: "Daily Conversation",
     description:
       "Practice real-life office scenarios, small talk, and collaborative professional communication.",
-    gradient: "from-sky-500 to-sky-600",
+    gradient: "from-purple-500 to-pink-500",
     delay: 0.2,
   },
   {
@@ -25,7 +25,7 @@ const features = [
     title: "HR Interview Coach",
     description:
       "Ace behavioral questions and soft skills assessment with seasoned HR simulation.",
-    gradient: "from-pink-500 to-pink-600",
+    gradient: "from-orange-500 to-red-500",
     delay: 0.3,
   },
   {
@@ -33,7 +33,7 @@ const features = [
     title: "Technical Mastery",
     description:
       "Deep-dive into role-based technical conceptual rounds and logic assessments.",
-    gradient: "from-emerald-500 to-emerald-600",
+    gradient: "from-green-500 to-emerald-500",
     delay: 0.4,
   },
   {
@@ -41,7 +41,7 @@ const features = [
     title: "Company Tracks",
     description:
       "Prepare for FAANG, Startups, or MNCs with specific curated company HR rounds.",
-    gradient: "from-amber-500 to-amber-600",
+    gradient: "from-cyan-500 to-blue-500",
     delay: 0.5,
   },
   {
@@ -49,55 +49,17 @@ const features = [
     title: "GD Agent",
     description:
       "Practice real Group Discussions with AI participants. Choose teams, roles, and get evaluated.",
-    gradient: "from-purple-500 to-purple-600",
+    gradient: "from-pink-500 to-purple-500",
     delay: 0.6,
-  },
-  {
-    icon: Scissors,
-    title: "AI Background Removal",
-    description:
-      "1-click clean photos with precision AI. Remove any background instantly and get professional results.",
-    gradient: "from-primary to-primary-glow",
-    delay: 0.7,
-  },
-  {
-    icon: Expand,
-    title: "AI Generative Fill",
-    description:
-      "Expand your canvas and auto-fill edges seamlessly. Create perfect aspect ratios effortlessly.",
-    gradient: "from-secondary to-secondary-glow",
-    delay: 0.8,
-  },
-  {
-    icon: Zap,
-    title: "AI Upscale & Enhance",
-    description:
-      "Boost resolution up to 4x while fixing details. Transform low-res into stunning high-quality images.",
-    gradient: "from-primary to-secondary",
-    delay: 0.9,
-  },
-  {
-    icon: Crop,
-    title: "Smart Crop & Face Focus",
-    description:
-      "Perfect thumbnails automatically. AI detects faces and important content for optimal cropping.",
-    gradient: "from-secondary to-primary",
-    delay: 1.0,
-  },
-  {
-    icon: Type,
-    title: "Watermark & Text Overlay",
-    description:
-      "Brand your content professionally. Add custom watermarks and text with perfect positioning.",
-    gradient: "from-primary-glow to-secondary-glow",
-    delay: 1.1,
   },
 ];
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent" />
+    <section id="features" className="py-24 relative overflow-hidden bg-gradient-to-b from-slate-800 to-slate-900">
+      {/* Background effects */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
@@ -108,14 +70,14 @@ const Features = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-6xl font-bold mb-6">
-            <span className="text-foreground">Magical </span>
-            <span className="bg-gradient-primary !bg-clip-text text-transparent">
-              Features
+            <span className="text-white">Advanced AI </span>
+            <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 !bg-clip-text text-transparent">
+              Training Features
             </span>
           </h2>
 
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Transform your photos and master your career with cutting-edge AI technology.
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Experience the most comprehensive AI-powered interview preparation platform with real-time feedback and adaptive learning.
           </p>
         </motion.div>
 
@@ -138,29 +100,29 @@ function FeatureCard({ feature, index }: { feature: any; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8, delay }}
-      whileHover={{ scale: 1.02, y: -5 }}
+      whileHover={{ scale: 1.05, y: -8 }}
       className="group"
     >
-      <div className="h-full glass rounded-2xl p-8 border border-card-border hover:border-primary/30 transition-all duration-300 shadow-glow-subtle hover:shadow-glow-primary">
+      <div className={`h-full bg-gradient-to-br ${feature.bgColor || "from-slate-800/50 to-slate-700/30"} rounded-2xl p-8 border ${feature.borderColor || "border-slate-600/30"} backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 shadow-2xl hover:shadow-purple-500/20`}>
         <div className="relative mb-6">
           <div
-            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} p-4 group-hover:animate-glow-pulse`}
+            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} p-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
           >
-            <Icon className="w-full h-full text-background" />
+            <Icon className="w-full h-full text-white" />
           </div>
-          <div className="absolute inset-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
+          <div className={`absolute inset-0 w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} blur-xl group-hover:blur-2xl transition-all duration-300 opacity-30`} />
         </div>
 
-        <h3 className="text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-colors">
+        <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-purple-200 transition-colors">
           {title}
         </h3>
 
-        <p className="text-muted-foreground leading-relaxed">{description}</p>
+        <p className="text-gray-300 leading-relaxed">{description}</p>
 
-        <div className="mt-6 pt-6 border-t border-card-border">
-          <div className="flex items-center space-x-2 text-sm text-primary">
-            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            <span className="font-medium">Pixora AI Powered</span>
+        <div className="mt-6 pt-6 border-t border-slate-600/50">
+          <div className="flex items-center space-x-2 text-sm text-purple-400">
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+            <span className="font-medium">AI-Powered Training</span>
           </div>
         </div>
       </div>

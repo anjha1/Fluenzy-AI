@@ -1,25 +1,21 @@
 "use client";
 import Footer from "@/components/footer";
-import Editor from "@/modules/editor";
 import Features from "@/modules/features";
 import Hero from "@/modules/hero";
-import MagicStudio from "@/modules/hero/MagicStudio";
 import Pricing from "@/modules/pricing";
+import AIPrecisionSection from "@/modules/hero/AIPrecisionSection";
 import TargetCompaniesRibbon from "@/modules/hero/TargetCompaniesRibbon";
+import TrainingShowcase from "@/modules/hero/TrainingShowcase";
 import { useSession } from "next-auth/react";
 import React from "react";
 
 const Page = () => {
   const { data: session } = useSession();
 
-  // If user is logged in, show only the Magic Studio dashboard
+  // If user is logged in, redirect to training
   if (session?.user) {
-    return (
-      <div>
-        <Editor />
-        <Footer />
-      </div>
-    );
+    window.location.href = "/train";
+    return null;
   }
 
   // If not logged in, show the full landing page
@@ -27,10 +23,10 @@ const Page = () => {
     <div>
       <Hero />
       <TargetCompaniesRibbon />
-      <MagicStudio />
+      <TrainingShowcase />
+      <AIPrecisionSection />
       <Features />
       <Pricing />
-      <Editor />
       <Footer />
     </div>
   );

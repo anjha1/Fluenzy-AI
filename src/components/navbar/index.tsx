@@ -86,12 +86,6 @@ const Navbar = () => {
                   Train Now
                 </Link>
                 <Link
-                  href="/#editor"
-                  className="text-foreground hover:text-primary transition-colors font-medium"
-                >
-                  Edit Image
-                </Link>
-                <Link
                   href="/history"
                   className="text-foreground hover:text-primary transition-colors font-medium"
                 >
@@ -195,12 +189,6 @@ const Navbar = () => {
                   className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
                 >
                   Train Now
-                </Link>
-                <Link
-                  href="/#editor"
-                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
-                >
-                  Edit Image
                 </Link>
                 <Link
                   href="/history"
