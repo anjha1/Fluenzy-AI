@@ -298,7 +298,25 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
         },
       });
       sessionRef.current = await sessionPromise;
-    } catch (err) { setIsConnecting(false); setError("Microphone access denied."); }
+    } catch (err: any) {
+      setIsConnecting(false);
+      console.error('Microphone error:', err);
+
+      let errorMessage = "Microphone access failed. ";
+      if (err.name === 'NotAllowedError') {
+        errorMessage += "Please allow microphone access in your browser settings and refresh the page.";
+      } else if (err.name === 'NotFoundError') {
+        errorMessage += "No microphone found. Please connect a microphone and try again.";
+      } else if (err.name === 'NotReadableError') {
+        errorMessage += "Microphone is being used by another application. Please close other apps using the microphone.";
+      } else if (err.name === 'OverconstrainedError') {
+        errorMessage += "Microphone constraints not satisfied. Please check your audio settings.";
+      } else {
+        errorMessage += "Please check your microphone permissions and try again.";
+      }
+
+      setError(errorMessage);
+    }
   };
 
   useEffect(() => {

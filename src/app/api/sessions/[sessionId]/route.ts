@@ -47,8 +47,8 @@ export async function GET(
       durationMinutes: sessionData.duration || 0,
       type: sessionData.module,
       topic: `${sessionData.module} - ${sessionData.targetCompany || 'General'} ${sessionData.role || ''}`,
-      score: Math.round((sessionData.aggregateScore || 0) * 10), // Convert to percentage
-      feedback: `Session completed with score: ${Math.round((sessionData.aggregateScore || 0) * 10)}%`,
+      score: Math.round((sessionData.aggregateScore || 0) * 100), // Convert to percentage
+      feedback: `Session completed with score: ${Math.round((sessionData.aggregateScore || 0) * 100)}%`,
       company: sessionData.targetCompany,
       role: sessionData.role,
       resumeUsed: false,
