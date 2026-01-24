@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { calculateInterviewScore } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,6 +66,18 @@ export async function POST(request: NextRequest) {
       },
       include: {
         transcripts: true
+      }
+    });
+
+    // Calculate real score based on transcripts
+    const { score, status: calculatedStatus } = calculateInterviewScore(newSession.transcripts, duration || undefined);
+
+    // Update the session with real score
+    await (prisma as any).session.update({
+      where: { id: newSession.id },
+      data: {
+        aggregateScore: score / 100, // Store as decimal
+        status: calculatedStatus
       }
     });
 
