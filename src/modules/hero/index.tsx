@@ -52,7 +52,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-5xl lg:text-7xl font-bold leading-tight mb-6"
+            className="text-3xl lg:text-5xl font-bold leading-tight mb-3"
           >
             <span className="text-white">Train Smarter.</span>
             <br />
@@ -67,35 +67,35 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-xl text-gray-300 mb-8 max-w-2xl"
+            className="text-base text-gray-300 mb-4 max-w-xl"
           >
-            AI Interviewer • HR + Technical + GD Training • Real-time feedback & analytics
+            AI Interviewer • HR + Technical + GD Training • Real-time analytics
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+            className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
           >
             <Button
-              size="lg"
+              size="sm"
               asChild
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-md shadow-md hover:shadow-purple-500/30 transition-all duration-300 glow-effect"
             >
               <Link href="/train">
-                <Play className="h-5 w-5 mr-2" />
+                <Play className="h-3 w-3 mr-2" />
                 Train Now
               </Link>
             </Button>
             <Button
               variant="outline"
-              size="lg"
+              size="sm"
               onClick={() => scrollToSection("features")}
-              className="border-purple-500/50 text-purple-200 hover:bg-purple-500/10 px-8 py-4 rounded-xl"
+              className="border-purple-500/60 text-purple-200 hover:bg-purple-500/10 hover:border-purple-400 px-4 py-2 rounded-md backdrop-blur-sm transition-all duration-300"
             >
               Explore Features
-              <ArrowRight className="h-5 w-5 ml-2" />
+              <ArrowRight className="h-3 w-3 ml-2" />
             </Button>
           </motion.div>
 

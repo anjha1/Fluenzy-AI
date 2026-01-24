@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { Heart, Sparkles, BookOpen, MessageSquare, UserPlus, Code, Building2, Users } from "lucide-react";
+import { Heart, Sparkles } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -37,39 +37,12 @@ const Footer = () => {
           </p>
         </motion.div>
 
-        {/* Training Capabilities */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-12"
-        >
-          <h3 className="text-2xl font-bold text-center mb-8 text-foreground">Training Capabilities</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: BookOpen, title: "English Learning", desc: "Personalized speaking practice with real-time grammar and fluency feedback." },
-              { icon: MessageSquare, title: "Daily Conversation", desc: "Practice professional office communication, teamwork, and small talk scenarios." },
-              { icon: UserPlus, title: "HR Interview Coach", desc: "AI-simulated HR interviews focused on behavioral and situational questions." },
-              { icon: Code, title: "Technical Mastery", desc: "Role-based technical rounds covering concepts, logic, and project discussions." },
-              { icon: Building2, title: "Company Tracks", desc: "Company-specific interview preparation for FAANG, startups, and MNCs." },
-              { icon: Users, title: "GD Agent", desc: "AI-powered group discussions with role-based evaluation and performance scoring." }
-            ].map((item, index) => (
-              <div key={index} className="text-center p-4 rounded-lg bg-card/50 border border-card-border hover:border-primary/50 transition-colors">
-                <item.icon className="h-8 w-8 mx-auto mb-3 text-primary" />
-                <h4 className="font-semibold mb-2 text-foreground">{item.title}</h4>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
         {/* Why Pixora AI Training */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-12"
         >
           <h3 className="text-2xl font-bold text-center mb-8 text-foreground">Why Pixora AI Training?</h3>
@@ -87,7 +60,7 @@ const Footer = () => {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
           className="text-center mb-12"
         >
           <h3 className="text-2xl font-bold mb-4 text-foreground">Advanced AI Training Features</h3>
@@ -101,7 +74,7 @@ const Footer = () => {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
           className="text-center mb-8"
         >
           <div className="flex items-center justify-center space-x-2 text-muted-foreground">
@@ -116,7 +89,7 @@ const Footer = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 1.0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
           className="pt-8 border-t border-card-border text-center"
         >
           <p className="text-sm text-muted-foreground">
