@@ -9,12 +9,14 @@ import {
   upload,
 } from "@imagekit/next";
 import PaymentModal from "@/components/modals/payment-modal";
+import { useSession } from "next-auth/react";
 
 interface UploadZoneProps {
   onImageUpload: (imageUrl: string) => void;
 }
 
 const UploadZone = ({ onImageUpload }: UploadZoneProps) => {
+  const { data: session, status } = useSession();
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -26,10 +28,12 @@ const UploadZone = ({ onImageUpload }: UploadZoneProps) => {
     canUpload: boolean;
   } | null>(null);
 
-  // check the usage on component mount
+  // check the usage on component mount when authenticated
   useEffect(() => {
-    checkUsage()?.catch(console.error);
-  }, []);
+    if (status === 'authenticated' && session?.user) {
+      checkUsage()?.catch(console.error);
+    }
+  }, [status, session]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -61,9 +65,12 @@ const UploadZone = ({ onImageUpload }: UploadZoneProps) => {
     const response = await fetch("/api/upload-auth");
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Unauthorized to upload");
+      }
       throw new Error("Failed to get upload auth params");
     }
-    const data = await response?.json();
+    const data = await response.json();
 
     return data;
   };
@@ -105,6 +112,11 @@ const UploadZone = ({ onImageUpload }: UploadZoneProps) => {
   };
 
   const handleFiles = async (files: File[]) => {
+    if (status !== 'authenticated' || !session?.user) {
+      console.error("User not authenticated");
+      return;
+    }
+
     const imageFile = files?.find((file) => file.type.startsWith("image/"));
     if (imageFile) {
       setIsUploading(true);
@@ -129,30 +141,48 @@ const UploadZone = ({ onImageUpload }: UploadZoneProps) => {
   };
 
   const checkUsage = async () => {
-    const response = await fetch("/api/usage");
-    if (!response.ok) {
-      throw new Error("Failed to check usage");
+    try {
+      const response = await fetch("/api/usage");
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.warn("Unauthorized to check usage");
+          return null;
+        }
+        throw new Error("Failed to check usage");
+      }
+      const data = await response.json();
+      setUsageData(data);
+      return data;
+    } catch (error) {
+      console.error("Error checking usage:", error);
+      return null;
     }
-    const data = await response.json();
-    setUsageData(data);
-    return data;
   };
 
   const updateUsage = async () => {
-    const response = await fetch("/api/usage", { method: "POST" });
-    if (!response.ok) {
-      const errorData = await response.json();
-      if (response.status === 403) {
-        // Usage limit reached
-        setUsageData(errorData);
-        setShowPaymentModal(true);
-        throw new Error("Usage limit reached");
+    try {
+      const response = await fetch("/api/usage", { method: "POST" });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 403) {
+          // Usage limit reached
+          setUsageData(errorData);
+          setShowPaymentModal(true);
+          throw new Error("Usage limit reached");
+        }
+        if (response.status === 401) {
+          console.warn("Unauthorized to update usage");
+          throw new Error("Unauthorized");
+        }
+        throw new Error("Failed to update usage");
       }
-      throw new Error("Failed to update usage");
+      const data = await response.json();
+      setUsageData(data);
+      return data;
+    } catch (error) {
+      console.error("Error updating usage:", error);
+      throw error;
     }
-    const data = await response.json();
-    setUsageData(data);
-    return data;
   };
 
   const clearImage = () => {
