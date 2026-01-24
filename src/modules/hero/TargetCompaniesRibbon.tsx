@@ -3,12 +3,12 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const companies = [
-  { name: "Google", logo: "🟦" }, // Using emojis for simplicity, can replace with actual logos
-  { name: "Amazon", logo: "🟨" },
-  { name: "Microsoft", logo: "🟩" },
-  { name: "Meta", logo: "🔵" },
-  { name: "Netflix", logo: "🔴" },
-  { name: "Apple", logo: "⚫" },
+  { name: "Google", logo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" },
+  { name: "Amazon", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" },
+  { name: "Microsoft", logo: "https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" },
+  { name: "Meta", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" },
+  { name: "Netflix", logo: "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" },
+  { name: "Apple", logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" },
 ];
 
 const TargetCompaniesRibbon = () => {
@@ -46,9 +46,11 @@ const TargetCompaniesRibbon = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="flex flex-col items-center space-y-2 group"
             >
-              <div className="text-5xl group-hover:scale-110 transition-transform duration-300 filter drop-shadow-lg">
-                {company.logo}
-              </div>
+              <img
+                src={company.logo}
+                alt={company.name}
+                className="h-8 w-auto transition-all duration-300 group-hover:scale-110"
+              />
               <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
                 {company.name}
               </span>

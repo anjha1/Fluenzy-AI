@@ -122,12 +122,16 @@ const Pricing = () => {
               )}
 
               <div
-                className={`h-full bg-gradient-to-br rounded-2xl p-8 border transition-all duration-300 ${
+                className={`h-full glass rounded-3xl p-8 border transition-all duration-500 relative overflow-hidden ${
                   plan.popular
-                    ? "from-purple-900/30 to-blue-900/30 border-purple-500/50 shadow-2xl shadow-purple-500/20"
-                    : "from-slate-800/50 to-slate-700/30 border-slate-600/30 hover:border-purple-500/50 shadow-2xl hover:shadow-purple-500/20"
-                } backdrop-blur-sm`}
+                    ? "border-purple-500/60 shadow-2xl shadow-purple-500/30 glow-border"
+                    : "border-card-border/50 hover:border-purple-500/60 shadow-2xl hover:shadow-purple-500/30"
+                }`}
               >
+                {/* Glow effect for popular plan */}
+                {plan.popular && (
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-3xl" />
+                )}
                 <div className="text-center mb-8">
                   <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 bg-gradient-to-br ${plan.popular ? "from-purple-500 to-blue-500" : "from-slate-600 to-slate-500"} group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                     <plan.icon className="w-8 h-8 text-white" />
@@ -176,7 +180,11 @@ const Pricing = () => {
                 </div>
 
                 <Button
-                  className={`w-full font-semibold ${plan.popular ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white" : "bg-slate-700 hover:bg-slate-600 text-gray-200 border border-slate-600"}`}
+                  className={`w-full font-semibold py-4 rounded-xl transition-all duration-300 relative overflow-hidden ${
+                    plan.popular
+                      ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-purple-500/50 glow-effect"
+                      : "glass border border-card-border/50 hover:border-purple-500/60 text-gray-200 hover:text-white backdrop-blur-sm"
+                  }`}
                   onClick={() => handleButtonClick(plan.name)}
                 >
                   {plan.cta}

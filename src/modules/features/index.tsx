@@ -8,7 +8,7 @@ const features = [
     icon: BookOpen,
     title: "English Learning",
     description:
-      "Master fluency with personalized daily conversations and real-time grammar feedback.",
+      "Practice professional English with AI conversations, grammar correction, and fluency building exercises.",
     gradient: "from-blue-500 to-cyan-500",
     delay: 0.1,
   },
@@ -16,7 +16,7 @@ const features = [
     icon: MessageSquare,
     title: "Daily Conversation",
     description:
-      "Practice real-life office scenarios, small talk, and collaborative professional communication.",
+      "Master workplace communication through realistic office scenarios, networking talks, and team interactions.",
     gradient: "from-purple-500 to-pink-500",
     delay: 0.2,
   },
@@ -24,7 +24,7 @@ const features = [
     icon: UserPlus,
     title: "HR Interview Coach",
     description:
-      "Ace behavioral questions and soft skills assessment with seasoned HR simulation.",
+      "Prepare for HR rounds with behavioral questions, situational scenarios, and personality assessments.",
     gradient: "from-orange-500 to-red-500",
     delay: 0.3,
   },
@@ -32,7 +32,7 @@ const features = [
     icon: Code,
     title: "Technical Mastery",
     description:
-      "Deep-dive into role-based technical conceptual rounds and logic assessments.",
+      "Build technical expertise through coding challenges, system design, and algorithmic problem-solving.",
     gradient: "from-green-500 to-emerald-500",
     delay: 0.4,
   },
@@ -40,7 +40,7 @@ const features = [
     icon: Building2,
     title: "Company Tracks",
     description:
-      "Prepare for FAANG, Startups, or MNCs with specific curated company HR rounds.",
+      "Train for specific companies with tailored interview questions, case studies, and company culture prep.",
     gradient: "from-cyan-500 to-blue-500",
     delay: 0.5,
   },
@@ -48,7 +48,7 @@ const features = [
     icon: Users,
     title: "GD Agent",
     description:
-      "Practice real Group Discussions with AI participants. Choose teams, roles, and get evaluated.",
+      "Hone group discussion skills with AI-moderated sessions, leadership scenarios, and peer evaluations.",
     gradient: "from-pink-500 to-purple-500",
     delay: 0.6,
   },
@@ -56,7 +56,7 @@ const features = [
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 relative overflow-hidden bg-gradient-to-b from-slate-800 to-slate-900">
+    <section id="features" className="py-16 relative overflow-hidden bg-gradient-to-b from-slate-800 to-slate-900">
       {/* Background effects */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
@@ -69,19 +69,19 @@ const Features = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl lg:text-6xl font-bold mb-6">
-            <span className="text-white">Advanced AI </span>
+          <h2 className="text-2xl lg:text-4xl font-bold mb-4">
+            <span className="text-white">Choose Your </span>
             <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 !bg-clip-text text-transparent">
-              Training Features
+              Training Path
             </span>
           </h2>
 
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Experience the most comprehensive AI-powered interview preparation platform with real-time feedback and adaptive learning.
+          <p className="text-base text-gray-300 max-w-2xl mx-auto">
+            Select the skills you want to master. Each module is designed for focused, intensive practice with AI-powered guidance.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((feature, index) => (
             <FeatureCard key={feature.title} feature={feature} index={index} />
           ))}
@@ -96,34 +96,33 @@ function FeatureCard({ feature, index }: { feature: any; index: number }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.8, delay }}
-      whileHover={{ scale: 1.05, y: -8 }}
-      className="group"
+      transition={{ duration: 0.6, delay }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      className="group cursor-pointer"
     >
-      <div className={`h-full bg-gradient-to-br ${feature.bgColor || "from-slate-800/50 to-slate-700/30"} rounded-2xl p-8 border ${feature.borderColor || "border-slate-600/30"} backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 shadow-2xl hover:shadow-purple-500/20`}>
-        <div className="relative mb-6">
-          <div
-            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} p-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
-          >
-            <Icon className="w-full h-full text-white" />
+      <div className="h-full glass rounded-xl p-5 border border-card-border/50 hover:border-purple-500/60 transition-all duration-300 shadow-lg hover:shadow-purple-500/20 relative overflow-hidden">
+        {/* Subtle glow effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/3 to-blue-500/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+
+        <div className="relative z-10">
+          <div className="relative mb-4">
+            <div
+              className={`w-12 h-12 rounded-lg bg-gradient-to-br ${gradient} p-3 group-hover:scale-105 transition-all duration-300 shadow-md`}
+            >
+              <Icon className="w-full h-full text-white" />
+            </div>
           </div>
-          <div className={`absolute inset-0 w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} blur-xl group-hover:blur-2xl transition-all duration-300 opacity-30`} />
-        </div>
 
-        <h3 className="text-2xl font-bold mb-4 text-white group-hover:text-purple-200 transition-colors">
-          {title}
-        </h3>
+          <h3 className="text-lg font-semibold mb-2 text-white group-hover:text-purple-200 transition-colors duration-300">
+            {title}
+          </h3>
 
-        <p className="text-gray-300 leading-relaxed">{description}</p>
-
-        <div className="mt-6 pt-6 border-t border-slate-600/50">
-          <div className="flex items-center space-x-2 text-sm text-purple-400">
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
-            <span className="font-medium">AI-Powered Training</span>
-          </div>
+          <p className="text-sm text-gray-300 leading-relaxed group-hover:text-gray-200 transition-colors duration-300">
+            {description}
+          </p>
         </div>
       </div>
     </motion.div>
