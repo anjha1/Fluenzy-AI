@@ -26,7 +26,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "₹299",
+    price: "₹150",
     period: "per month",
     description: "Unlimited training for serious candidates",
     features: [

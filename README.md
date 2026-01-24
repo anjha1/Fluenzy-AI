@@ -1,14 +1,16 @@
 # Pixora AI
 
-A modern AI-powered image editing platform built with Next.js, Tailwind CSS, and Framer Motion.
+Advanced AI Training Features - A comprehensive interview preparation platform built with Next.js, Tailwind CSS, and Framer Motion.
 
 ## Features
 
-- 🎨 AI-powered image editing with ImageKit
+- 🎯 AI Interviewer for technical and HR rounds
+- 📚 English learning with daily conversations
+- 👥 Group Discussion practice with AI participants
+- 🏢 Company-specific preparation tracks
 - 🔐 User authentication with Google OAuth
-- 📊 Usage tracking and limits for free users
-- 💳 Pro subscription with unlimited uploads
-- 🎯 Real-time image processing
+- 📊 Progress tracking and analytics
+- 💳 Pro subscription with unlimited sessions
 - 📱 Responsive design
 
 ## Setup
@@ -57,8 +59,8 @@ A modern AI-powered image editing platform built with Next.js, Tailwind CSS, and
 
 ## Usage Limits
 
-- **Free Plan:** 3 uploads per month
-- **Pro Plan:** Unlimited uploads
+- **Free Plan:** 5 interview sessions per month
+- **Pro Plan:** Unlimited interview sessions
 - Users are prompted to upgrade when they reach their limit
 
 ---

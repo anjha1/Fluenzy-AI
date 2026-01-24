@@ -3,7 +3,6 @@ import Footer from "@/components/footer";
 import Features from "@/modules/features";
 import Hero from "@/modules/hero";
 import Pricing from "@/modules/pricing";
-import AIPrecisionSection from "@/modules/hero/AIPrecisionSection";
 import TargetCompaniesRibbon from "@/modules/hero/TargetCompaniesRibbon";
 import TrainingShowcase from "@/modules/hero/TrainingShowcase";
 import { useSession } from "next-auth/react";
@@ -24,7 +23,6 @@ const Page = () => {
       <Hero />
       <TargetCompaniesRibbon />
       <TrainingShowcase />
-      <AIPrecisionSection />
       <Features />
       <Pricing />
       <Footer />
