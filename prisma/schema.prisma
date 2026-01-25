@@ -38,6 +38,7 @@ model users {
   gdUsage          Int      @default(0)
   renewalDate      DateTime?
   sessions         Session[]
+  lessonProgress   LessonProgress[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -87,4 +88,18 @@ model Transcript {
   technicalAccuracyScore  Float?
   perQuestionScore        Float?
   createdAt               DateTime @default(now())
+}
+
+model LessonProgress {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  user         users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId     String
+  isCompleted  Boolean  @default(false)
+  completedAt  DateTime?
+  score        Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, lessonId])
 }

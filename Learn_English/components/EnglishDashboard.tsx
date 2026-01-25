@@ -18,7 +18,7 @@ const LessonCard: React.FC<{ lesson: Lesson, onStart: () => void, onUpgrade?: ()
     className={`group relative p-6 rounded-3xl border transition-all duration-300 backdrop-blur-xl ${
       isLocked ? 'bg-slate-800/60 border-slate-700/50 opacity-60 cursor-pointer hover:bg-slate-800/80' :
       lesson.isCompleted
-        ? 'bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-emerald-500/30 shadow-lg shadow-emerald-500/10 cursor-pointer hover:shadow-xl hover:shadow-emerald-500/20 hover:-translate-y-1'
+        ? 'bg-gradient-to-br from-emerald-900/20 to-slate-900/80 border-emerald-500/30 shadow-lg shadow-emerald-500/10 cursor-pointer hover:shadow-xl hover:shadow-emerald-500/20 hover:-translate-y-1'
         : 'bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-blue-500/30 shadow-xl shadow-blue-500/10 cursor-pointer hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1'
     }`}
   >
@@ -35,13 +35,18 @@ const LessonCard: React.FC<{ lesson: Lesson, onStart: () => void, onUpgrade?: ()
         <h4 className={`font-bold truncate ${isLocked ? 'text-slate-400' : 'text-white'}`}>
           {lesson.title}
         </h4>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className={`text-[10px] font-black uppercase tracking-wider ${
-            isLocked ? 'text-red-400 cursor-pointer' :
-            lesson.isCompleted ? `text-emerald-400` : 'text-blue-400'
+        <div className="flex items-center gap-2 mt-1">
+          <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full ${
+            isLocked ? 'text-red-300 bg-red-500/20' :
+            lesson.isCompleted ? 'text-emerald-300 bg-emerald-500/20' : 'text-blue-300 bg-blue-500/20'
           }`}>
-            {isLocked ? 'Upgrade to continue' : lesson.isCompleted ? `Score: ${lesson.score}%` : 'Practice Now'}
+            {isLocked ? 'Locked' : lesson.isCompleted ? 'Completed' : 'Available'}
           </span>
+          {lesson.isCompleted && lesson.score && (
+            <span className="text-[10px] font-black text-emerald-400">
+              {lesson.score}%
+            </span>
+          )}
         </div>
       </div>
       {!isLocked && <ChevronRight size={18} className="text-slate-400 group-hover:text-blue-400 transition-all" />}
@@ -52,6 +57,7 @@ const LessonCard: React.FC<{ lesson: Lesson, onStart: () => void, onUpgrade?: ()
 const EnglishDashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
   const router = useRouter();
   const [canUse, setCanUse] = useState(true);
+  const [learningPath, setLearningPath] = useState(user.learningPath);
 
   useEffect(() => {
     const checkUsage = async () => {
@@ -68,6 +74,59 @@ const EnglishDashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
 
     checkUsage();
   }, []);
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      try {
+        // Try API first
+        const response = await fetch('/api/lesson-progress');
+        if (response.ok) {
+          const progressData = await response.json();
+          const updatedPath = user.learningPath.map(level => ({
+            ...level,
+            lessons: level.lessons.map(lesson => ({
+              ...lesson,
+              isCompleted: progressData[lesson.id] || false
+            }))
+          }));
+          setLearningPath(updatedPath);
+          // Store in localStorage as backup
+          localStorage.setItem('englishProgress', JSON.stringify(progressData));
+        } else {
+          // Fallback to localStorage
+          const stored = localStorage.getItem('englishProgress');
+          if (stored) {
+            const progressData = JSON.parse(stored);
+            const updatedPath = user.learningPath.map(level => ({
+              ...level,
+              lessons: level.lessons.map(lesson => ({
+                ...lesson,
+                isCompleted: progressData[lesson.id] || false
+              }))
+            }));
+            setLearningPath(updatedPath);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch progress:', error);
+        // Fallback to localStorage
+        const stored = localStorage.getItem('englishProgress');
+        if (stored) {
+          const progressData = JSON.parse(stored);
+          const updatedPath = user.learningPath.map(level => ({
+            ...level,
+            lessons: level.lessons.map(lesson => ({
+              ...lesson,
+              isCompleted: progressData[lesson.id] || false
+            }))
+          }));
+          setLearningPath(updatedPath);
+        }
+      }
+    };
+
+    fetchProgress();
+  }, [user.learningPath]);
 
   const handleUpgrade = async () => {
     try {
@@ -92,8 +151,8 @@ const EnglishDashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
     router.push(`/train/session/${ModuleType.ENGLISH_LEARNING}?lessonId=${lesson.id}&lessonTitle=${encodeURIComponent(lesson.title)}`);
   };
 
-  const totalLessons = user.learningPath.reduce((acc, level) => acc + level.lessons.length, 0);
-  const completedLessons = user.learningPath.reduce((acc, level) => 
+  const totalLessons = learningPath.reduce((acc, level) => acc + level.lessons.length, 0);
+  const completedLessons = learningPath.reduce((acc, level) =>
     acc + level.lessons.filter(l => l.isCompleted).length, 0);
   const progress = Math.round((completedLessons / totalLessons) * 100);
 
@@ -113,18 +172,27 @@ const EnglishDashboard: React.FC<{ user: UserProfile }> = ({ user }) => {
         </div>
 
         <div className="flex gap-4">
-          <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl p-4 rounded-3xl border border-slate-700/50 shadow-lg flex items-center gap-3 min-w-[160px]">
-            <div className="bg-blue-500/20 p-2 rounded-xl text-blue-400"><Trophy size={20} /></div>
-            <div>
-              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none">Overall Progress</p>
-              <p className="text-sm font-black text-white mt-1">{progress}% Completed</p>
+          <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl p-4 rounded-3xl border border-slate-700/50 shadow-lg min-w-[200px]">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="bg-blue-500/20 p-2 rounded-xl text-blue-400"><Trophy size={20} /></div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none">Overall Progress</p>
+                <p className="text-sm font-black text-white">{progress}% Completed</p>
+              </div>
             </div>
+            <div className="w-full bg-slate-700/50 rounded-full h-2">
+              <div
+                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-[10px] text-slate-400 mt-2">{completedLessons}/{totalLessons} Lessons</p>
           </div>
         </div>
       </div>
 
       <div className="space-y-16">
-        {user.learningPath.map((levelProgress) => (
+        {learningPath.map((levelProgress) => (
           <div key={levelProgress.level} className="space-y-6">
             <div className="flex items-center gap-4 px-2">
               <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-lg shadow-lg"><GraduationCap size={18} /></div>
