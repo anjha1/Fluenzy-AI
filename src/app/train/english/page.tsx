@@ -35,7 +35,7 @@ const EnglishPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="bg-slate-900/30 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl p-6 md:p-8 lg:p-12">
       <EnglishDashboard user={user} />
     </div>
   );
