@@ -245,10 +245,13 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
           })
         });
 
-        // Mark lesson as completed for English learning
-        if (isEnglishLearning && sessionMeta?.lessonId) {
+        // Mark lesson as completed
+        if (sessionMeta?.lessonId) {
+          const apiEndpoint = isEnglishLearning ? '/api/lesson-complete' : '/api/hr-complete';
+          const storageKey = isEnglishLearning ? 'englishProgress' : 'hrProgress';
+
           try {
-            await fetch('/api/lesson-complete', {
+            await fetch(apiEndpoint, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ lessonId: sessionMeta.lessonId })
@@ -258,10 +261,10 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
           }
 
           // Always update localStorage as backup
-          const stored = localStorage.getItem('englishProgress') || '{}';
+          const stored = localStorage.getItem(storageKey) || '{}';
           const progressData = JSON.parse(stored);
           progressData[sessionMeta.lessonId] = true;
-          localStorage.setItem('englishProgress', JSON.stringify(progressData));
+          localStorage.setItem(storageKey, JSON.stringify(progressData));
         }
       } catch (error) {
         console.error('Session save error:', error);
@@ -398,19 +401,19 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
 
   return (
     <div className={`min-h-[85vh] flex flex-col ${isEnglishLearning ? 'bg-gradient-to-br from-slate-800/80 to-slate-900/80' : 'bg-slate-50'} rounded-3xl border ${isEnglishLearning ? 'border-slate-700/50' : 'border-slate-200'} shadow-2xl overflow-hidden relative backdrop-blur-xl`}>
-      <div className={`${isEnglishLearning ? 'bg-slate-800/60 backdrop-blur-xl border-slate-700/50' : 'bg-white/80 backdrop-blur-md border-slate-100'} px-6 md:px-10 py-6 md:py-8 flex items-center justify-between border-b z-50`}>
+      <div className="bg-slate-800/60 backdrop-blur-xl border-slate-700/50 px-6 md:px-10 py-6 md:py-8 flex items-center justify-between border-b z-50">
         <div className="flex items-center gap-3 md:gap-5">
-          <div className={`${isEnglishLearning ? 'bg-gradient-to-br from-blue-600 to-purple-600' : 'bg-slate-900'} text-white p-2 md:p-3 rounded-2xl shadow-lg`}>
-            {isEnglishLearning ? <Sparkles size={20} className="md:w-6 md:h-6" /> : <Sparkles size={24} />}
+          <div className={`${isEnglishLearning ? 'bg-gradient-to-br from-blue-600 to-purple-600' : 'bg-gradient-to-br from-pink-600 to-purple-600'} text-white p-2 md:p-3 rounded-2xl shadow-lg`}>
+            <Sparkles size={20} className="md:w-6 md:h-6" />
           </div>
           <div>
-            <h2 className={`font-black ${isEnglishLearning ? 'text-white' : 'text-slate-900'} text-lg md:text-xl tracking-tight leading-tight`}>{topic}</h2>
+            <h2 className="font-black text-white text-lg md:text-xl tracking-tight leading-tight">{topic}</h2>
             {isEnglishLearning && lessonContext && (
               <p className="text-slate-300 text-sm font-medium mt-1">{lessonContext.objective}</p>
             )}
           </div>
         </div>
-        <button onClick={() => router.push('/train')} className={`p-2 md:p-3 ${isEnglishLearning ? 'hover:bg-slate-700/50' : 'hover:bg-slate-100'} rounded-2xl transition-all`}><X size={20} className="md:w-6 md:h-6" /></button>
+        <button onClick={() => router.push('/train')} className="p-2 md:p-3 text-slate-300 hover:bg-slate-700/50 hover:text-white rounded-2xl transition-all"><X size={20} className="md:w-6 md:h-6" /></button>
       </div>
       
       <div className="flex-1 p-6 md:p-10 flex flex-col items-center justify-center relative">
@@ -427,14 +430,19 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
                     alt="AI English Coach"
                     className="relative w-28 h-28 md:w-32 md:h-32 rounded-3xl border-2 border-slate-600/50 shadow-xl object-cover"
                   />
-                  <p className="text-xs font-semibold text-slate-300 mt-3 tracking-wide">AI English Coach</p>
+                  <p className="text-xs font-semibold text-slate-300 mt-3 tracking-wide">
+                    {isEnglishLearning ? 'AI English Coach' : 'AI HR Interview Coach'}
+                  </p>
                 </div>
                 <div className="space-y-3">
                   <h3 className="text-2xl md:text-3xl font-black text-white leading-tight">
-                    Your AI English Coach is Ready
+                    {isEnglishLearning ? 'Your AI English Coach is Ready' : 'Your AI HR Interview Coach is Ready'}
                   </h3>
                   <p className="text-slate-300 max-w-lg mx-auto font-medium text-base leading-relaxed">
-                    {lessonContext?.coachMessage || 'Get ready to practice your English speaking skills with personalized coaching.'}
+                    {isEnglishLearning
+                      ? (lessonContext?.coachMessage || 'Get ready to practice your English speaking skills with personalized coaching.')
+                      : 'Prepare for your HR interview with structured practice and expert feedback on your responses.'
+                    }
                   </p>
                 </div>
               </div>
@@ -449,7 +457,7 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
               onClick={startSession}
               className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full font-black uppercase tracking-[0.1em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm"
             >
-              Start Practice
+              {isEnglishLearning ? 'Start Practice' : 'Start Interview'}
             </button>
           </div>
         </div>
@@ -468,18 +476,24 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
                 </div>
                 <div className="space-y-4">
                   <h4 className="text-xs font-black uppercase text-slate-400 tracking-[0.3em]">
-                    English Practice Session
+                    {isEnglishLearning ? 'English Practice Session' : 'HR Interview Practice'}
                   </h4>
                   <p className="text-xl md:text-2xl font-black text-white leading-tight">
                     {isAiSpeaking
-                      ? 'Your AI Coach is guiding you through this lesson. Listen and respond naturally.'
-                      : 'Your turn to practice! Speak clearly and confidently.'
+                      ? (isEnglishLearning
+                          ? 'Your AI Coach is guiding you through this lesson. Listen and respond naturally.'
+                          : 'Your HR Interview Coach is providing structured feedback. Listen carefully.'
+                        )
+                      : (isEnglishLearning
+                          ? 'Your turn to practice! Speak clearly and confidently.'
+                          : 'Your turn to respond! Structure your answer professionally.'
+                        )
                     }
                   </p>
                   <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full border ${isAiSpeaking ? 'bg-blue-500/10 border-blue-500/30 text-blue-300 shadow-lg shadow-blue-500/10' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-lg shadow-emerald-500/10 animate-pulse'}`}>
                     <Mic2 size={20} />
                     <span className="text-sm font-semibold">
-                      {isAiSpeaking ? 'Coach Speaking' : 'Your Turn'}
+                      {isAiSpeaking ? 'Coach Speaking' : (isEnglishLearning ? 'Your Turn' : 'Your Response')}
                     </span>
                   </div>
                 </div>
@@ -492,15 +506,15 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
       {isActive && (
         <div className="mt-8 flex justify-center">
           <button onClick={() => cleanup(true)} className="w-full md:w-auto bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white px-8 py-4 rounded-full font-black uppercase tracking-[0.1em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm flex items-center justify-center gap-3">
-            End Practice <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            {isEnglishLearning ? 'End Practice' : 'End Interview'} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       )}
 
       {isConnecting && <div className={`absolute inset-0 ${isEnglishLearning ? 'bg-slate-900/95' : 'bg-white/95'} z-[100] flex flex-col items-center justify-center space-y-8`}>
         <div className={`w-20 h-20 border-[6px] ${isEnglishLearning ? 'border-slate-700 border-t-blue-500' : 'border-slate-100 border-t-blue-600'} rounded-full animate-spin`} />
-        <p className={`font-black ${isEnglishLearning ? 'text-white' : 'text-slate-900'} uppercase tracking-[0.2em] md:tracking-[0.4em] text-xs md:text-sm`}>
-          {isEnglishLearning ? 'Preparing Your Coach...' : 'Accessing Neural Core...'}
+        <p className="font-black text-white uppercase tracking-[0.2em] md:tracking-[0.4em] text-xs md:text-sm">
+          {isEnglishLearning ? 'Preparing Your Coach...' : 'Setting Up Interview Environment...'}
         </p>
       </div>}
     </div>
