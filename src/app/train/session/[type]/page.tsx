@@ -76,7 +76,9 @@ const SessionPage = () => {
       <div className="absolute inset-0 bg-gradient-radial from-blue-900/5 via-transparent to-transparent" />
 
       <div className="relative z-10 max-w-7xl mx-auto p-4 md:p-8 lg:p-12">
-        <VoiceAgent user={user} onSessionEnd={() => {}} />
+        <div className="bg-slate-900/30 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl p-6 md:p-8 lg:p-12">
+          <VoiceAgent user={user} onSessionEnd={() => {}} />
+        </div>
       </div>
     </div>
   );

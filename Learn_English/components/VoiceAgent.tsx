@@ -113,6 +113,10 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
   const [isFinished, setIsFinished] = useState(false);
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
 
+  const isEnglishLearning = type === ModuleType.ENGLISH_LEARNING;
+  const isHRInterview = type === ModuleType.HR_INTERVIEW;
+  const isConversationPractice = type === ModuleType.CONVERSATION_PRACTICE;
+
   const sessionMeta: any = {
     lessonId: searchParams.get('lessonId'),
     lessonTitle: searchParams.get('lessonTitle') ? decodeURIComponent(searchParams.get('lessonTitle')!) : undefined,
@@ -127,6 +131,32 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
     focus: searchParams.get('focus') ? decodeURIComponent(searchParams.get('focus')!) : undefined,
     level: searchParams.get('level') ? decodeURIComponent(searchParams.get('level')!) : undefined
   };
+
+  // Lesson-specific messaging for English
+  const getLessonContext = () => {
+    if (!isEnglishLearning || !sessionMeta?.lessonTitle) return null;
+    const title = sessionMeta.lessonTitle.toLowerCase();
+    if (title.includes('introduction') || title.includes('self')) {
+      return {
+        objective: "Practice introducing yourself confidently in English",
+        coachMessage: "Let's build your confidence in self-introductions. I'll guide you through natural English expressions."
+      };
+    }
+    if (title.includes('greetings') || title.includes('basic')) {
+      return {
+        objective: "Master everyday greetings and basic conversations",
+        coachMessage: "Greetings are the foundation of communication. Let's practice common phrases you'll use daily."
+      };
+    }
+    // Default for other lessons
+    return {
+      objective: `Practice ${sessionMeta.lessonTitle} skills`,
+      coachMessage: `Let's work on your ${sessionMeta.lessonTitle.toLowerCase()} skills with targeted practice.`
+    };
+  };
+
+  const lessonContext = getLessonContext();
+
   const currentQA = useRef({ question: '', answer: '' });
   const transcriptHistory = useRef<InterviewQA[]>([]);
   const startTimeRef = useRef(new Date());
@@ -214,6 +244,25 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
             status
           })
         });
+
+        // Mark lesson as completed for English learning
+        if (isEnglishLearning && sessionMeta?.lessonId) {
+          try {
+            await fetch('/api/lesson-complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lessonId: sessionMeta.lessonId })
+            });
+          } catch (error) {
+            console.error('API completion failed, using localStorage');
+          }
+
+          // Always update localStorage as backup
+          const stored = localStorage.getItem('englishProgress') || '{}';
+          const progressData = JSON.parse(stored);
+          progressData[sessionMeta.lessonId] = true;
+          localStorage.setItem('englishProgress', JSON.stringify(progressData));
+        }
       } catch (error) {
         console.error('Session save error:', error);
       }
@@ -236,9 +285,31 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      const isEnglishLearning = type === ModuleType.ENGLISH_LEARNING;
-      const isHRInterview = type === ModuleType.HR_INTERVIEW;
-      const isConversationPractice = type === ModuleType.CONVERSATION_PRACTICE;
+    
+      // Lesson-specific messaging for English
+      const getLessonContext = () => {
+        if (!isEnglishLearning || !sessionMeta?.lessonTitle) return null;
+        const title = sessionMeta.lessonTitle.toLowerCase();
+        if (title.includes('introduction') || title.includes('self')) {
+          return {
+            objective: "Practice introducing yourself confidently in English",
+            coachMessage: "Let's build your confidence in self-introductions. I'll guide you through natural English expressions."
+          };
+        }
+        if (title.includes('greetings') || title.includes('basic')) {
+          return {
+            objective: "Master everyday greetings and basic conversations",
+            coachMessage: "Greetings are the foundation of communication. Let's practice common phrases you'll use daily."
+          };
+        }
+        // Default for other lessons
+        return {
+          objective: `Practice ${sessionMeta.lessonTitle} skills`,
+          coachMessage: `Let's work on your ${sessionMeta.lessonTitle.toLowerCase()} skills with targeted practice.`
+        };
+      };
+    
+      const lessonContext = getLessonContext();
       const instruction = `
         ${SYSTEM_INSTRUCTIONS[type as ModuleType] || 'Senior Interview Coach.'}
         ${isEnglishLearning
@@ -326,58 +397,111 @@ const VoiceAgent: React.FC<{ user: UserProfile; onSessionEnd: (u: UserProfile) =
   }, [isFinished, router]);
 
   return (
-    <div className="min-h-[85vh] flex flex-col bg-slate-50 rounded-[4rem] border border-slate-200 shadow-2xl overflow-hidden relative">
-      <div className="bg-white/80 backdrop-blur-md px-10 py-8 flex items-center justify-between border-b border-slate-100 z-50">
-        <div className="flex items-center gap-5">
-          <div className="bg-slate-900 text-white p-3 rounded-2xl shadow-lg"><Sparkles size={24} /></div>
-          <div><h2 className="font-black text-slate-900 text-xl tracking-tight leading-tight">{topic}</h2></div>
+    <div className={`min-h-[85vh] flex flex-col ${isEnglishLearning ? 'bg-gradient-to-br from-slate-800/80 to-slate-900/80' : 'bg-slate-50'} rounded-3xl border ${isEnglishLearning ? 'border-slate-700/50' : 'border-slate-200'} shadow-2xl overflow-hidden relative backdrop-blur-xl`}>
+      <div className={`${isEnglishLearning ? 'bg-slate-800/60 backdrop-blur-xl border-slate-700/50' : 'bg-white/80 backdrop-blur-md border-slate-100'} px-6 md:px-10 py-6 md:py-8 flex items-center justify-between border-b z-50`}>
+        <div className="flex items-center gap-3 md:gap-5">
+          <div className={`${isEnglishLearning ? 'bg-gradient-to-br from-blue-600 to-purple-600' : 'bg-slate-900'} text-white p-2 md:p-3 rounded-2xl shadow-lg`}>
+            {isEnglishLearning ? <Sparkles size={20} className="md:w-6 md:h-6" /> : <Sparkles size={24} />}
+          </div>
+          <div>
+            <h2 className={`font-black ${isEnglishLearning ? 'text-white' : 'text-slate-900'} text-lg md:text-xl tracking-tight leading-tight`}>{topic}</h2>
+            {isEnglishLearning && lessonContext && (
+              <p className="text-slate-300 text-sm font-medium mt-1">{lessonContext.objective}</p>
+            )}
+          </div>
         </div>
-        <button onClick={() => router.push('/train')} className="p-3 hover:bg-slate-100 rounded-2xl transition-all"><X size={24} /></button>
+        <button onClick={() => router.push('/train')} className={`p-2 md:p-3 ${isEnglishLearning ? 'hover:bg-slate-700/50' : 'hover:bg-slate-100'} rounded-2xl transition-all`}><X size={20} className="md:w-6 md:h-6" /></button>
       </div>
       
-      <div className="flex-1 p-10 flex flex-col items-center justify-center relative">
-        {error && <div className="absolute top-10 bg-rose-50 text-rose-600 px-6 py-3 rounded-full font-bold flex items-center gap-2 border border-rose-100 z-[100]"><Zap size={16} /> {error}</div>}
+      <div className="flex-1 p-6 md:p-10 flex flex-col items-center justify-center relative">
+        {error && <div className={`absolute top-10 ${isEnglishLearning ? 'bg-rose-900/50 text-rose-300 border-rose-700/50' : 'bg-rose-50 text-rose-600 border-rose-100'} px-6 py-3 rounded-full font-bold flex items-center gap-2 border z-[100]`}><Zap size={16} /> {error}</div>}
         {!isActive && !isConnecting ? (
-          <div className="text-center space-y-12 animate-in fade-in duration-700">
-            <HumanAvatar isSpeaking={false} isListening={false} type={type} />
-            <div className="space-y-4">
-              <h3 className="text-3xl font-black text-slate-900">Advanced Reasoning Core Engaged</h3>
-              <p className="text-slate-500 max-w-sm mx-auto font-medium">AceVoice is analyzing your resume for {sessionMeta?.company || 'the interview'}.</p>
+        <div className="w-full max-w-2xl mx-auto">
+          <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl p-8 md:p-10 text-center space-y-8 animate-in fade-in duration-700">
+            <div className="space-y-8">
+              <div className="flex flex-col items-center space-y-6">
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-xl scale-110" />
+                  <img
+                    src="/image/img.png"
+                    alt="AI English Coach"
+                    className="relative w-28 h-28 md:w-32 md:h-32 rounded-3xl border-2 border-slate-600/50 shadow-xl object-cover"
+                  />
+                  <p className="text-xs font-semibold text-slate-300 mt-3 tracking-wide">AI English Coach</p>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-2xl md:text-3xl font-black text-white leading-tight">
+                    Your AI English Coach is Ready
+                  </h3>
+                  <p className="text-slate-300 max-w-lg mx-auto font-medium text-base leading-relaxed">
+                    {lessonContext?.coachMessage || 'Get ready to practice your English speaking skills with personalized coaching.'}
+                  </p>
+                </div>
+              </div>
+              {lessonContext && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
+                  <p className="text-blue-300 text-sm font-semibold mb-2">🎯 Lesson Objective</p>
+                  <p className="text-white text-sm leading-relaxed">{lessonContext.objective}</p>
+                </div>
+              )}
             </div>
-            <button onClick={startSession} className="bg-slate-900 text-white px-20 py-7 rounded-full font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all">Start Session</button>
+            <button
+              onClick={startSession}
+              className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full font-black uppercase tracking-[0.1em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm"
+            >
+              Start Practice
+            </button>
           </div>
+        </div>
         ) : (
-          <div className="w-full flex flex-col lg:flex-row gap-12 items-center justify-center animate-in zoom-in-95 duration-500">
-            <HumanAvatar isSpeaking={isAiSpeaking} isListening={!isAiSpeaking} type={type} />
-            <div className="w-full max-w-xl space-y-8">
-               <div className="bg-white p-10 rounded-[3.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
-                  <div className={`absolute top-0 left-0 bottom-0 w-2 transition-all ${isAiSpeaking ? 'bg-blue-600' : 'bg-emerald-500 animate-pulse'}`}></div>
-                  <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] pb-2 border-b">Real-Time Synthesis</h4>
-                  <div className="mt-8 flex items-center gap-6">
-                    <div className={`p-5 rounded-[1.5rem] ${isAiSpeaking ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600 animate-bounce'}`}>
-                      <Mic2 size={32} />
-                    </div>
-                    <div>
-                      <p className="text-xl font-black text-slate-900">{isAiSpeaking ? 'AI is speaking...' : 'Listening...'}</p>
-                    </div>
+          <div className="w-full max-w-2xl mx-auto">
+            <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl p-8 md:p-10 text-center space-y-8 animate-in zoom-in-95 duration-500">
+              <div className="flex flex-col items-center space-y-6">
+                <div className="relative">
+                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${isAiSpeaking ? 'from-blue-500/20 to-purple-500/20' : 'from-emerald-500/20 to-teal-500/20'} blur-xl scale-110`} />
+                  <img
+                    src="/image/img.png"
+                    alt="AI English Coach"
+                    className="relative w-28 h-28 md:w-32 md:h-32 rounded-3xl border-2 border-slate-600/50 shadow-xl object-cover"
+                  />
+                  <p className="text-xs font-semibold text-slate-300 mt-3 tracking-wide">AI English Coach</p>
+                </div>
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black uppercase text-slate-400 tracking-[0.3em]">
+                    English Practice Session
+                  </h4>
+                  <p className="text-xl md:text-2xl font-black text-white leading-tight">
+                    {isAiSpeaking
+                      ? 'Your AI Coach is guiding you through this lesson. Listen and respond naturally.'
+                      : 'Your turn to practice! Speak clearly and confidently.'
+                    }
+                  </p>
+                  <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full border ${isAiSpeaking ? 'bg-blue-500/10 border-blue-500/30 text-blue-300 shadow-lg shadow-blue-500/10' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-lg shadow-emerald-500/10 animate-pulse'}`}>
+                    <Mic2 size={20} />
+                    <span className="text-sm font-semibold">
+                      {isAiSpeaking ? 'Coach Speaking' : 'Your Turn'}
+                    </span>
                   </div>
-               </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
       </div>
 
       {isActive && (
-        <div className="px-10 py-10 border-t flex justify-center bg-white/50 backdrop-blur-md sticky bottom-0">
-          <button onClick={() => cleanup(true)} className="group bg-rose-600 hover:bg-rose-700 text-white px-20 py-6 rounded-full font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl transition-all flex items-center gap-3">
-            End & Save Report <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+        <div className="mt-8 flex justify-center">
+          <button onClick={() => cleanup(true)} className="w-full md:w-auto bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white px-8 py-4 rounded-full font-black uppercase tracking-[0.1em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm flex items-center justify-center gap-3">
+            End Practice <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       )}
 
-      {isConnecting && <div className="absolute inset-0 bg-white/95 z-[100] flex flex-col items-center justify-center space-y-8">
-        <div className="w-20 h-20 border-[6px] border-slate-100 border-t-blue-600 rounded-full animate-spin" />
-        <p className="font-black text-slate-900 uppercase tracking-[0.4em] text-xs">Accessing Neural Core...</p>
+      {isConnecting && <div className={`absolute inset-0 ${isEnglishLearning ? 'bg-slate-900/95' : 'bg-white/95'} z-[100] flex flex-col items-center justify-center space-y-8`}>
+        <div className={`w-20 h-20 border-[6px] ${isEnglishLearning ? 'border-slate-700 border-t-blue-500' : 'border-slate-100 border-t-blue-600'} rounded-full animate-spin`} />
+        <p className={`font-black ${isEnglishLearning ? 'text-white' : 'text-slate-900'} uppercase tracking-[0.2em] md:tracking-[0.4em] text-xs md:text-sm`}>
+          {isEnglishLearning ? 'Preparing Your Coach...' : 'Accessing Neural Core...'}
+        </p>
       </div>}
     </div>
   );
