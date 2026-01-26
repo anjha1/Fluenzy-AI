@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "FluenzyAI: AI Interview Coach & English Practice",
-  description: "Enhance your interview skills and English fluency with FluenzyAI's AI-powered platform. Practice HR interviews, technical questions, and group discussions for career success.",
+  description: "Master AI-powered interview preparation and English fluency training with FluenzyAI. Practice HR interviews, technical questions, group discussions, and spoken English to boost your career success.",
   keywords: "AI interview practice, AI interview coach, English speaking practice with AI, mock interview AI, group discussion AI, HR interview preparation, technical interview practice, spoken English for jobs, interview preparation platform",
   authors: [{ name: "FluenzyAI" }],
   creator: "FluenzyAI",

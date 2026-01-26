@@ -3,19 +3,19 @@ import Features from "@/modules/features";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Features - FluenzyAI: AI Interview Coach & English Practice",
-  description: "Discover FluenzyAI's advanced features: AI-powered HR interviews, technical mock interviews, group discussion practice, and English fluency training for career success.",
+  title: "FluenzyAI Features: AI Interview & English Training",
+  description: "Explore FluenzyAI's comprehensive features for AI-powered interview preparation and English fluency. Master HR interviews, technical questions, group discussions, and spoken English with advanced AI coaching.",
   keywords: "AI interview practice, mock interview AI, group discussion AI, English speaking practice with AI, HR interview preparation, technical interview practice",
   openGraph: {
-    title: "Features - FluenzyAI: AI Interview Coach & English Practice",
-    description: "Discover FluenzyAI's advanced features for interview and English training.",
+    title: "FluenzyAI Features: AI Interview & English Training",
+    description: "Explore FluenzyAI's comprehensive features for AI-powered interview preparation and English fluency.",
     url: "https://www.fluenzyai.app/features",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Features - FluenzyAI: AI Interview Coach & English Practice",
-    description: "Discover FluenzyAI's advanced features for interview and English training.",
+    title: "FluenzyAI Features: AI Interview & English Training",
+    description: "Explore FluenzyAI's comprehensive features for AI-powered interview preparation and English fluency.",
   },
 };
 
