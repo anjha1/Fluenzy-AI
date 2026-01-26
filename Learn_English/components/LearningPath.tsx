@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -67,25 +66,25 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
   return (
     <div
       onClick={handleStart}
-      className={`group relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-slate-700/50 shadow-xl ${isLocked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-2xl hover:shadow-purple-500/10 hover:border-purple-500/30 hover:-translate-y-1 cursor-pointer'} transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 fill-mode-both ${delay}`}
+      className={`group relative min-h-[280px] bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-6 rounded-3xl border border-slate-700/50 shadow-xl ${isLocked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-2xl hover:shadow-purple-500/10 hover:border-purple-500/30 hover:scale-[1.02] cursor-pointer'} transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 fill-mode-both ${delay}`}
     >
       <div className="relative mb-6">
-        <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg ${!isLocked && 'group-hover:shadow-xl transition-all duration-300 group-hover:scale-110'}`}>
+        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg ${!isLocked && 'group-hover:shadow-xl transition-all duration-300 group-hover:scale-110'}`}>
           {isLocked ? <Lock size={32} className="text-white" /> : <Icon size={32} className="text-white" />}
         </div>
-        <div className={`absolute -inset-2 bg-gradient-to-br ${color} opacity-30 blur-xl rounded-2xl ${!isLocked && 'group-hover:opacity-50'} transition-opacity duration-300`} />
+        <div className={`absolute -inset-2 bg-gradient-to-br ${color} opacity-20 blur-lg rounded-2xl ${!isLocked && 'group-hover:opacity-30'} transition-opacity duration-300`} />
       </div>
 
-      <h3 className="text-xl md:text-2xl font-black text-white mb-3 flex items-center gap-2">
+      <h3 className="text-xl font-black text-white mb-3 flex items-center gap-2">
         {title}
         {isAdvanced && <ShieldCheck size={20} className="text-blue-400" />}
         {title === 'GD Agent' && <CheckCircle size={20} className="text-blue-400" />}
       </h3>
-      <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-6">{description}</p>
+      <p className="text-slate-300 text-sm leading-relaxed mb-6 line-clamp-2">{description}</p>
 
-      <div className="flex items-center justify-between">
-        <div className={`font-bold text-sm md:text-base ${isLocked ? 'text-red-400 cursor-pointer hover:text-red-300' : 'text-purple-400 group-hover:text-purple-300'} transition-colors`} onClick={isLocked ? handleUpgrade : undefined}>
-          {isLocked ? 'Free limit reached. Upgrade to continue.' : 'Start Training'}
+      <div className="flex items-center justify-between mt-auto">
+        <div className={`font-bold text-sm ${isLocked ? 'text-red-400 cursor-pointer hover:text-red-300' : 'text-purple-400 group-hover:text-purple-300'} transition-colors`} onClick={isLocked ? handleUpgrade : undefined}>
+          {isLocked ? 'Free limit reached. Upgrade to continue.' : 'Start Training →'}
           {!isLocked && <ArrowRight size={16} className="ml-2 inline group-hover:translate-x-1 transition-transform" />}
         </div>
         <div className="text-right">
@@ -96,8 +95,8 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
         </div>
       </div>
 
-      <div className="absolute top-4 md:top-6 right-4 md:right-6">
-        <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-widest shadow-sm ${isLocked ? 'bg-red-900/50 text-red-300 border border-red-700/50' : isAdvanced ? 'bg-blue-900/50 text-blue-300 border border-blue-700/50' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'}`}>
+      <div className="absolute top-4 right-4">
+        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest shadow-sm ${isLocked ? 'bg-red-900/50 text-red-300 border border-red-700/50' : isAdvanced ? 'bg-blue-900/50 text-blue-300 border border-blue-700/50' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'}`}>
           {isLocked ? 'Locked' : isAdvanced ? 'Advanced' : 'Available'}
         </span>
       </div>
@@ -209,13 +208,13 @@ const LearningPath: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8 md:space-y-12 pb-12">
+    <div className="space-y-6 md:space-y-8 pb-8">
       <div className="text-center">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight">Select Training Module</h1>
-        <p className="text-slate-300 mt-4 text-base md:text-lg">Choose where you want to focus today. Your AI coach is ready.</p>
+        <p className="text-slate-300 mt-2 text-base md:text-lg leading-relaxed">Choose where you want to focus today. Your AI coach is ready.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {modules.map((m) => (
           <ModuleCard key={m.type} {...m} />
         ))}
