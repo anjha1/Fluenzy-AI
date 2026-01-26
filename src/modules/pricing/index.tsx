@@ -162,15 +162,15 @@ const Pricing = () => {
             <div className="col-span-3 text-center py-12">Loading plans...</div>
           ) : (
             plans?.map((plan: any, index: number) => (
-            <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
-              whileHover={{ scale: 1.02, y: -5 }}
-              className={`relative group ${plan.popular ? "lg:-mt-8" : ""}`}
-            >
+              <motion.div
+                key={plan.name}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: index * 0.2 }}
+                whileHover={{ scale: 1.02, y: -5 }}
+                className={`relative group ${plan.popular ? "lg:-mt-8" : ""}`}
+              >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                   <div className="bg-gradient-primary px-6 py-2 rounded-full text-sm font-bold text-background">
@@ -213,7 +213,7 @@ const Pricing = () => {
                 </div>
 
                 <div className="space-y-4 mb-8">
-                  {plan?.features?.map((feature, idx) => (
+                  {plan?.features?.map((feature: string, idx: number) => (
                     <div key={`feature-${plan.name}-${idx}`} className={"flex items-center space-x-3"}>
                       <div className="flex-shrink-0 w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center">
                         <Check className="w-3 h-3 text-purple-400" />
@@ -222,7 +222,7 @@ const Pricing = () => {
                     </div>
                   ))}
 
-                  {plan?.limitations?.map((limitation, idx) => (
+                  {plan?.limitations?.map((limitation: string, idx: number) => (
                     <div
                       key={`limitation-${plan.name}-${idx}`}
                       className="flex items-center space-x-3"
@@ -247,8 +247,8 @@ const Pricing = () => {
                 >
                   {plan.cta}
                 </Button>
-              </div>
-            </motion.div>
+                </div>
+              </motion.div>
             ))
           )}
         </div>
