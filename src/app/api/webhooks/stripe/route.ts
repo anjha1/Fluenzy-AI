@@ -43,6 +43,11 @@ export async function POST(request: NextRequest) {
         await handleSubscriptionDeleted(deletedSubscription);
         break;
 
+      case 'invoice.payment_succeeded':
+        const invoice = event.data.object as Stripe.Invoice;
+        await handleInvoicePaymentSucceeded(invoice);
+        break;
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -189,4 +194,64 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       stripeSubscriptionId: subscription.id,
     },
   });
+}
+
+async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
+  const subscriptionId = (invoice as any).subscription as string;
+  if (!subscriptionId) return;
+
+  // Check if payment history already exists (idempotency)
+  const existingPayment = await (prisma as any).paymentHistory.findFirst({
+    where: { invoiceId: invoice.id },
+  });
+  if (existingPayment) return; // Already processed
+
+  const subscription = await (prisma as any).subscriptions.findFirst({
+    where: { stripeSubscriptionId: subscriptionId },
+  });
+  if (!subscription) return;
+
+  const userId = subscription.userId;
+  const couponCode = subscription.couponUsed;
+
+  // Calculate amounts
+  const originalAmount = (invoice.amount_due / 100); // Convert from cents
+  const discountAmount = (invoice.total_discount_amounts?.[0]?.amount || 0) / 100;
+  const finalAmount = (invoice.amount_paid / 100);
+
+  let couponType = null;
+  let couponId = null;
+  if (couponCode) {
+    const coupon = await (prisma as any).coupon.findUnique({
+      where: { code: couponCode },
+    });
+    couponType = coupon?.discountType || null;
+    couponId = coupon?.id;
+  }
+
+  // Create payment history
+  await (prisma as any).paymentHistory.create({
+    data: {
+      userId,
+      originalAmount,
+      discountAmount,
+      finalAmount,
+      paymentMethod: 'stripe',
+      invoiceId: invoice.id,
+      status: 'paid',
+      couponUsed: couponCode,
+      couponType,
+      date: new Date(invoice.created * 1000),
+    },
+  });
+
+  // Update coupon usage if coupon was used
+  if (couponId) {
+    await (prisma as any).couponUsage.create({
+      data: {
+        couponId,
+        userId,
+      },
+    });
+  }
 }

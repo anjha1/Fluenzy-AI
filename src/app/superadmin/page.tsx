@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useRouter as useNextRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -206,6 +207,24 @@ export default function SuperAdminDashboard() {
     }
   };
 
+  const handleEditLimit = async (userId: string, currentLimit: number) => {
+    const newLimit = prompt('Enter new usage limit:', currentLimit.toString());
+    if (newLimit && !isNaN(Number(newLimit))) {
+      try {
+        const res = await fetch('/api/admin/users/limit', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, usageLimit: Number(newLimit) }),
+        });
+        if (res.ok) {
+          fetchUsers();
+        }
+      } catch (error) {
+        console.error("Failed to update limit:", error);
+      }
+    }
+  };
+
   const handleCreateCoupon = () => {
     setEditingCoupon(null);
     setCouponForm({
@@ -337,6 +356,20 @@ export default function SuperAdminDashboard() {
                             onClick={() => handleRoleChange(user.id, user.role === "Admin" ? "User" : "Admin")}
                           >
                             Toggle Role
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditLimit(user.id, user.usageLimit)}
+                          >
+                            Edit Limit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => router.push(`/superadmin/users/${user.id}`)}
+                          >
+                            View Details
                           </Button>
                           <Button
                             size="sm"

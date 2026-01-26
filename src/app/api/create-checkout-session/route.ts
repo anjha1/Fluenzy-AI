@@ -175,12 +175,13 @@ export async function POST(request: NextRequest) {
         await (prisma as any).paymentHistory.create({
           data: {
             userId: user.id,
-            amount: 10, // Base price
+            originalAmount: 10, // Base price
             discountAmount: 10, // Full discount
             finalAmount: 0,
             paymentMethod: 'coupon',
-            status: 'paid',
+            status: 'free_via_coupon',
             couponUsed: appliedCoupon.code,
+            couponType: appliedCoupon.discountType,
             date: new Date(),
           },
         });
