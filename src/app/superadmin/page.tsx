@@ -90,6 +90,10 @@ export default function SuperAdminDashboard() {
     applicablePlans: [] as string[],
     status: 'active',
   });
+  const [globalSettings, setGlobalSettings] = useState({
+    Free: { monthlyLimit: 3 },
+    Pro: { monthlyLimit: 999999 },
+  });
 
   useEffect(() => {
     if (status === "loading") return;
@@ -102,6 +106,7 @@ export default function SuperAdminDashboard() {
     fetchLoginLogs();
     fetchCoupons();
     fetchPaymentAnalytics();
+    fetchGlobalSettings();
   }, [session, status, router]);
 
   const fetchUsers = async () => {
@@ -161,6 +166,18 @@ export default function SuperAdminDashboard() {
       }
     } catch (error) {
       console.error("Failed to fetch payment analytics:", error);
+    }
+  };
+
+  const fetchGlobalSettings = async () => {
+    try {
+      const res = await fetch("/api/admin/global-settings");
+      if (res.ok) {
+        const data = await res.json();
+        setGlobalSettings(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch global settings:", error);
     }
   };
 
@@ -299,6 +316,28 @@ export default function SuperAdminDashboard() {
     }
   };
 
+  const handleSaveGlobalSettings = async () => {
+    try {
+      const res = await fetch('/api/admin/global-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          freeLimit: globalSettings.Free?.monthlyLimit || 3,
+          proLimit: globalSettings.Pro?.monthlyLimit || 999999,
+        }),
+      });
+      if (res.ok) {
+        alert('Global settings updated successfully!');
+        fetchGlobalSettings();
+      } else {
+        alert('Failed to update settings');
+      }
+    } catch (error) {
+      console.error('Failed to save global settings:', error);
+      alert('Error saving settings');
+    }
+  };
+
   if (status === "loading") return <div>Loading...</div>;
 
   return (
@@ -315,6 +354,7 @@ export default function SuperAdminDashboard() {
           <TabsTrigger value="login-logs">Login Logs</TabsTrigger>
           <TabsTrigger value="coupons">Coupons</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="plan-settings">Plan Settings</TabsTrigger>
           <TabsTrigger value="logs">System Logs</TabsTrigger>
         </TabsList>
 
@@ -718,6 +758,61 @@ export default function SuperAdminDashboard() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="plan-settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>Global Plan Settings</CardTitle>
+              <CardDescription>Configure monthly usage limits for all users</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="free-limit">Free Plan Monthly Limit</Label>
+                  <Input
+                    id="free-limit"
+                    type="number"
+                    value={globalSettings.Free?.monthlyLimit || 3}
+                    onChange={(e) => setGlobalSettings({
+                      ...globalSettings,
+                      Free: { monthlyLimit: parseInt(e.target.value) || 3 }
+                    })}
+                    placeholder="3"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Usage resets automatically on the 1st of each month
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="pro-limit">Pro Plan Monthly Limit</Label>
+                  <Input
+                    id="pro-limit"
+                    type="number"
+                    value={globalSettings.Pro?.monthlyLimit || 999999}
+                    onChange={(e) => setGlobalSettings({
+                      ...globalSettings,
+                      Pro: { monthlyLimit: parseInt(e.target.value) || 999999 }
+                    })}
+                    placeholder="999999"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Set to 999999 for unlimited usage
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-muted-foreground">
+                  Changes apply to all existing and new users immediately
+                </div>
+                <Button onClick={handleSaveGlobalSettings}>
+                  Save Settings
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -211,3 +211,12 @@ model PaymentHistory {
   couponType    String?  // percentage, flat
   date          DateTime @default(now())
 }
+
+model GlobalPlanSettings {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  plan          Plan     @unique
+  monthlyLimit  Int
+  lastReset     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
