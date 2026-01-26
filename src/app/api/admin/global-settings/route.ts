@@ -17,9 +17,24 @@ export async function GET() {
     settings.forEach((setting: any) => {
       settingsObj[setting.plan] = {
         monthlyLimit: setting.monthlyLimit,
+        isUnlimited: setting.isUnlimited,
+        status: setting.status,
         lastReset: setting.lastReset,
         updatedAt: setting.updatedAt,
       };
+    });
+
+    // Ensure all plans have defaults
+    const defaults: Record<string, any> = {
+      Free: { monthlyLimit: 3, isUnlimited: false, status: 'active' },
+      Standard: { monthlyLimit: null, isUnlimited: true, status: 'active' },
+      Pro: { monthlyLimit: 100, isUnlimited: false, status: 'active' },
+    };
+
+    Object.keys(defaults).forEach(plan => {
+      if (!settingsObj[plan]) {
+        settingsObj[plan] = { ...defaults[plan], lastReset: new Date(), updatedAt: new Date() };
+      }
     });
 
     return NextResponse.json(settingsObj);
@@ -37,24 +52,36 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { freeLimit, proLimit } = body;
+    const { plans } = body;
 
-    if (freeLimit == null || proLimit == null) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (!plans || typeof plans !== 'object') {
+      return NextResponse.json({ error: "Invalid plans data" }, { status: 400 });
     }
 
-    // Update or create settings
-    await (prisma as any).globalPlanSettings.upsert({
-      where: { plan: 'Free' },
-      update: { monthlyLimit: freeLimit },
-      create: { plan: 'Free', monthlyLimit: freeLimit },
-    });
+    const planNames = ['Free', 'Standard', 'Pro'];
+    const userId = session.user.id;
 
-    await (prisma as any).globalPlanSettings.upsert({
-      where: { plan: 'Pro' },
-      update: { monthlyLimit: proLimit },
-      create: { plan: 'Pro', monthlyLimit: proLimit },
-    });
+    for (const planName of planNames) {
+      const planData = plans[planName];
+      if (planData) {
+        await (prisma as any).globalPlanSettings.upsert({
+          where: { plan: planName },
+          update: {
+            monthlyLimit: planData.isUnlimited ? null : planData.monthlyLimit,
+            isUnlimited: planData.isUnlimited,
+            status: planData.status,
+            updatedBy: userId,
+          },
+          create: {
+            plan: planName,
+            monthlyLimit: planData.isUnlimited ? null : planData.monthlyLimit,
+            isUnlimited: planData.isUnlimited,
+            status: planData.status,
+            updatedBy: userId,
+          },
+        });
+      }
+    }
 
     return NextResponse.json({ message: "Settings updated successfully" });
   } catch (error) {

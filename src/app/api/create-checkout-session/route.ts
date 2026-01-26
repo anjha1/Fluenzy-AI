@@ -22,11 +22,13 @@ export async function POST(request: NextRequest) {
     }
 
     let couponCode = '';
+    let targetPlan = 'Pro'; // Default to Pro for backward compatibility
     try {
       const body = await request.json();
       couponCode = body?.couponCode || '';
+      targetPlan = body?.targetPlan || 'Pro';
     } catch (e) {
-      // No body or invalid JSON, continue with empty couponCode
+      // No body or invalid JSON, continue with defaults
     }
 
     // Get or create user
@@ -115,6 +117,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Get plan pricing
+    const planPricing = await (prisma as any).planPricing.findUnique({
+      where: { plan: targetPlan },
+    });
+
+    if (!planPricing) {
+      return NextResponse.json({ error: `Pricing not found for plan: ${targetPlan}` }, { status: 400 });
+    }
+
     // Create Stripe checkout session
     const sessionConfig: any = {
       customer_email: user.email,
@@ -131,11 +142,13 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         email: user.email,
         couponCode: appliedCoupon?.code || '',
+        targetPlan: targetPlan,
       },
       subscription_data: {
         metadata: {
           userId: user.id,
           email: user.email,
+          targetPlan: targetPlan,
           couponCode: appliedCoupon?.code || '',
         },
       },

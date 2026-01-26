@@ -1,20 +1,25 @@
 "use client";
 import { Check, Crown, Star, Zap } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-const plans = [
-  {
-    name: "Free",
-    price: "₹0",
-    period: "forever",
+interface PlanData {
+  name: string;
+  price: number;
+  currency: string;
+  status: string;
+  updatedAt: string;
+}
+
+const planFeatures = {
+  Free: {
     description: "Start your interview preparation journey",
     features: [
-      "5 interview sessions per month",
+      "3 interview sessions per month",
       "Basic AI feedback",
       "English conversation practice",
       "Community support",
@@ -23,11 +28,9 @@ const plans = [
     cta: "Start Free",
     popular: false,
     icon: Star,
+    period: "forever",
   },
-  {
-    name: "Pro",
-    price: "₹150",
-    period: "per month",
+  Standard: {
     description: "Unlimited training for serious candidates",
     features: [
       "Unlimited interview sessions",
@@ -38,16 +41,68 @@ const plans = [
       "Company-specific preparation",
       "Group discussion practice",
     ],
-    cta: "Go Pro",
+    cta: "Go Standard",
     popular: true,
     icon: Crown,
+    period: "per month",
   },
-];
+  Pro: {
+    description: "Premium training with detailed analytics",
+    features: [
+      "100 interview sessions per month",
+      "Advanced AI feedback & analytics",
+      "All training modules unlocked",
+      "Priority support",
+      "Progress tracking dashboard",
+      "Company-specific preparation",
+      "Group discussion practice",
+    ],
+    cta: "Go Pro",
+    popular: false,
+    icon: Zap,
+    period: "per month",
+  },
+};
 
 const Pricing = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await fetch('/api/admin/plan-pricing');
+        if (response.ok) {
+          const pricingData = await response.json();
+
+          // Convert to array and merge with features
+          const plansArray = Object.entries(pricingData).map(([planName, data]: [string, any]) => ({
+            name: planName,
+            price: data.price,
+            currency: data.currency,
+            ...planFeatures[planName as keyof typeof planFeatures],
+          }));
+
+          setPlans(plansArray);
+        }
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+        // Fallback to default plans
+        setPlans([
+          { name: "Free", price: 0, currency: "INR", ...planFeatures.Free },
+          { name: "Standard", price: 150, currency: "INR", ...planFeatures.Standard },
+          { name: "Pro", price: 20, currency: "INR", ...planFeatures.Pro },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
 
   const handleButtonClick = (planName: string) => {
     if (pathname === "/pricing") {
@@ -102,8 +157,11 @@ const Pricing = () => {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {plans?.map((plan, index) => (
+        <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {loading ? (
+            <div className="col-span-3 text-center py-12">Loading plans...</div>
+          ) : (
+            plans?.map((plan: any, index: number) => (
             <motion.div
               key={plan.name}
               initial={{ opacity: 0, y: 50 }}
@@ -191,7 +249,8 @@ const Pricing = () => {
                 </Button>
               </div>
             </motion.div>
-          ))}
+            ))
+          )}
         </div>
 
         <motion.div

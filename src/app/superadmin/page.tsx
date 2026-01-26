@@ -91,8 +91,15 @@ export default function SuperAdminDashboard() {
     status: 'active',
   });
   const [globalSettings, setGlobalSettings] = useState({
-    Free: { monthlyLimit: 3 },
-    Pro: { monthlyLimit: 999999 },
+    Free: { monthlyLimit: 3, isUnlimited: false, status: 'active', updatedAt: null as Date | null },
+    Standard: { monthlyLimit: null, isUnlimited: true, status: 'active', updatedAt: null as Date | null },
+    Pro: { monthlyLimit: 100, isUnlimited: false, status: 'active', updatedAt: null as Date | null },
+  });
+
+  const [planPricing, setPlanPricing] = useState({
+    Free: { name: 'Free', price: 0, currency: 'INR', status: 'active', updatedAt: null as Date | null },
+    Standard: { name: 'Standard', price: 150, currency: 'INR', status: 'active', updatedAt: null as Date | null },
+    Pro: { name: 'Pro', price: 20, currency: 'INR', status: 'active', updatedAt: null as Date | null },
   });
 
   useEffect(() => {
@@ -178,6 +185,18 @@ export default function SuperAdminDashboard() {
       }
     } catch (error) {
       console.error("Failed to fetch global settings:", error);
+    }
+  };
+
+  const fetchPlanPricing = async () => {
+    try {
+      const res = await fetch("/api/admin/plan-pricing");
+      if (res.ok) {
+        const data = await res.json();
+        setPlanPricing(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch plan pricing:", error);
     }
   };
 
@@ -322,19 +341,40 @@ export default function SuperAdminDashboard() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          freeLimit: globalSettings.Free?.monthlyLimit || 3,
-          proLimit: globalSettings.Pro?.monthlyLimit || 999999,
+          plans: globalSettings,
         }),
       });
       if (res.ok) {
         alert('Global settings updated successfully!');
         fetchGlobalSettings();
+        fetchPlanPricing();
       } else {
         alert('Failed to update settings');
       }
     } catch (error) {
       console.error('Failed to save global settings:', error);
       alert('Error saving settings');
+    }
+  };
+
+  const handleSavePlanPricing = async () => {
+    try {
+      const res = await fetch('/api/admin/plan-pricing', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plans: planPricing,
+        }),
+      });
+      if (res.ok) {
+        alert('Plan pricing updated successfully!');
+        fetchPlanPricing();
+      } else {
+        alert('Failed to update pricing');
+      }
+    } catch (error) {
+      console.error('Failed to save plan pricing:', error);
+      alert('Error saving pricing');
     }
   };
 
@@ -355,6 +395,7 @@ export default function SuperAdminDashboard() {
           <TabsTrigger value="coupons">Coupons</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="plan-settings">Plan Settings</TabsTrigger>
+          <TabsTrigger value="plan-pricing">Plan Pricing</TabsTrigger>
           <TabsTrigger value="logs">System Logs</TabsTrigger>
         </TabsList>
 
@@ -769,41 +810,83 @@ export default function SuperAdminDashboard() {
               <CardDescription>Configure monthly usage limits for all users</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="free-limit">Free Plan Monthly Limit</Label>
-                  <Input
-                    id="free-limit"
-                    type="number"
-                    value={globalSettings.Free?.monthlyLimit || 3}
-                    onChange={(e) => setGlobalSettings({
-                      ...globalSettings,
-                      Free: { monthlyLimit: parseInt(e.target.value) || 3 }
-                    })}
-                    placeholder="3"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Usage resets automatically on the 1st of each month
-                  </p>
-                </div>
+              {['Free', 'Standard', 'Pro'].map((planName) => {
+                const plan = globalSettings[planName as keyof typeof globalSettings];
+                return (
+                  <div key={planName} className="border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">{planName} Plan</h3>
+                      <Badge variant={plan?.status === 'active' ? 'default' : 'secondary'}>
+                        {plan?.status || 'active'}
+                      </Badge>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="pro-limit">Pro Plan Monthly Limit</Label>
-                  <Input
-                    id="pro-limit"
-                    type="number"
-                    value={globalSettings.Pro?.monthlyLimit || 999999}
-                    onChange={(e) => setGlobalSettings({
-                      ...globalSettings,
-                      Pro: { monthlyLimit: parseInt(e.target.value) || 999999 }
-                    })}
-                    placeholder="999999"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Set to 999999 for unlimited usage
-                  </p>
-                </div>
-              </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label>Monthly Limit</Label>
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            value={plan?.isUnlimited ? '' : (plan?.monthlyLimit || '')}
+                            onChange={(e) => setGlobalSettings({
+                              ...globalSettings,
+                              [planName]: {
+                                ...plan,
+                                monthlyLimit: e.target.value ? parseInt(e.target.value) : null,
+                                isUnlimited: false
+                              }
+                            })}
+                            placeholder="Enter limit"
+                            disabled={plan?.isUnlimited}
+                          />
+                          <span className="text-sm text-muted-foreground">OR</span>
+                          <Button
+                            type="button"
+                            variant={plan?.isUnlimited ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setGlobalSettings({
+                              ...globalSettings,
+                              [planName]: {
+                                ...plan,
+                                isUnlimited: !plan?.isUnlimited,
+                                monthlyLimit: plan?.isUnlimited ? (planName === 'Free' ? 3 : planName === 'Pro' ? 100 : null) : null
+                              }
+                            })}
+                          >
+                            Unlimited
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Status</Label>
+                        <Select
+                          value={plan?.status || 'active'}
+                          onValueChange={(value) => setGlobalSettings({
+                            ...globalSettings,
+                            [planName]: { ...plan, status: value }
+                          })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="disabled">Disabled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Last Updated</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {plan?.updatedAt ? new Date(plan.updatedAt).toLocaleDateString() : 'Never'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
 
               <div className="flex justify-between items-center">
                 <div className="text-sm text-muted-foreground">
@@ -811,6 +894,105 @@ export default function SuperAdminDashboard() {
                 </div>
                 <Button onClick={handleSaveGlobalSettings}>
                   Save Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="plan-pricing">
+          <Card>
+            <CardHeader>
+              <CardTitle>Plan Pricing Management</CardTitle>
+              <CardDescription>Control pricing for all subscription plans</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {['Free', 'Standard', 'Pro'].map((planName) => {
+                const plan = planPricing[planName as keyof typeof planPricing];
+                return (
+                  <div key={planName} className="border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">{planName} Plan</h3>
+                      <Badge variant={plan?.status === 'active' ? 'default' : 'secondary'}>
+                        {plan?.status || 'active'}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="space-y-2">
+                        <Label>Plan Name</Label>
+                        <Input
+                          value={plan?.name || planName}
+                          onChange={(e) => setPlanPricing({
+                            ...planPricing,
+                            [planName]: { ...plan, name: e.target.value }
+                          })}
+                          placeholder="Display name"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Monthly Price</Label>
+                        <Input
+                          type="number"
+                          value={plan?.price || 0}
+                          onChange={(e) => setPlanPricing({
+                            ...planPricing,
+                            [planName]: { ...plan, price: parseFloat(e.target.value) || 0 }
+                          })}
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Currency</Label>
+                        <Select
+                          value={plan?.currency || 'INR'}
+                          onValueChange={(value) => setPlanPricing({
+                            ...planPricing,
+                            [planName]: { ...plan, currency: value }
+                          })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="INR">INR (₹)</SelectItem>
+                            <SelectItem value="USD">USD ($)</SelectItem>
+                            <SelectItem value="EUR">EUR (€)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Status</Label>
+                        <Select
+                          value={plan?.status || 'active'}
+                          onValueChange={(value) => setPlanPricing({
+                            ...planPricing,
+                            [planName]: { ...plan, status: value }
+                          })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="disabled">Disabled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="text-sm text-muted-foreground">
+                      Last updated: {plan?.updatedAt ? new Date(plan.updatedAt).toLocaleDateString() : 'Never'}
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="flex justify-end">
+                <Button onClick={handleSavePlanPricing}>
+                  Save Pricing Changes
                 </Button>
               </div>
             </CardContent>

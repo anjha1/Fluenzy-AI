@@ -28,9 +28,14 @@ async function checkMonthlyReset(user: any) {
   const userPlan = user.plan?.toString() || 'Free';
   const planSettings = settingsMap[userPlan];
 
-  if (!planSettings) {
-    // Default limits if no global settings
-    return { limit: userPlan === 'Pro' ? 999999 : 3, resetNeeded: false };
+  if (!planSettings || planSettings.status !== 'active') {
+    // Default limits if no global settings or plan disabled
+    return { limit: 0, resetNeeded: false }; // Block usage if no settings
+  }
+
+  // Check if unlimited
+  if (planSettings.isUnlimited) {
+    return { limit: 999999, resetNeeded: false };
   }
 
   const lastReset = new Date(planSettings.lastReset);
@@ -75,10 +80,10 @@ async function checkMonthlyReset(user: any) {
       },
     });
 
-    return { limit: planSettings.monthlyLimit, resetNeeded: true, updatedUser };
+    return { limit: planSettings.monthlyLimit || 0, resetNeeded: true, updatedUser };
   }
 
-  return { limit: planSettings.monthlyLimit, resetNeeded: false };
+  return { limit: planSettings.monthlyLimit || 0, resetNeeded: false };
 }
 
 export async function GET(request: NextRequest) {
@@ -160,11 +165,17 @@ export async function GET(request: NextRequest) {
       gd: Math.max(0, limit - (currentUser.gdUsage ?? 0)),
     };
 
+    // Get plan pricing for display name
+    const planPricing = await (prisma as any).planPricing.findUnique({
+      where: { plan: currentUser.plan },
+    });
+
     return NextResponse.json({
       usage,
       canUse,
       remaining,
       plan: currentUser.plan,
+      planName: planPricing?.name || currentUser.plan,
       limit,
       resetPerformed: resetNeeded,
     });
