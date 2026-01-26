@@ -44,6 +44,14 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Increment HR usage count
+    await prisma.users.update({
+      where: { id: user.id },
+      data: {
+        hrUsage: { increment: 1 }
+      }
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('HR lesson completion error:', error);
