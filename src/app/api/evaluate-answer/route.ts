@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
 
     const prompt = `
-You are Pixora AI, an advanced AI Interview Coach. Analyze this transcript.
+You are Fluenzy AI, an advanced AI Interview Coach. Analyze this transcript.
 Candidate might use Hindi-English mix or have Speech-to-Text errors.
 
 **CRITICAL RULES:**

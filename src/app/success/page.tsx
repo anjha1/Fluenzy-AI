@@ -93,7 +93,7 @@ export default async function SuccessPage({
             {isUpgraded ? (
               <>
                 <p className="text-lg">
-                  Welcome to Pixora AI Pro! Your account has been upgraded successfully.
+                  Welcome to Fluenzy AI Pro! Your account has been upgraded successfully.
                 </p>
                 <div className="space-y-2">
                   <div className="flex items-center justify-center space-x-2">
@@ -131,7 +131,7 @@ export default async function SuccessPage({
                 <Link href="/profile">View Profile</Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link href="/">Start Using Pixora AI</Link>
+                <Link href="/">Start Using Fluenzy AI</Link>
               </Button>
             </div>
           </CardContent>

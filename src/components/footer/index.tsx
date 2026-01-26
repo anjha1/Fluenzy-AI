@@ -25,7 +25,7 @@ const Footer = () => {
             </div>
             <div>
               <h2 className="text-3xl font-bold bg-gradient-primary !bg-clip-text text-transparent">
-                Pixora AI — Training Module
+                Fluenzy AI — Training Module
               </h2>
               <p className="text-sm text-muted-foreground">Powered by AI Magic</p>
             </div>
@@ -33,11 +33,11 @@ const Footer = () => {
 
           {/* Main Description */}
           <p className="text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
-            Experience a next-generation AI-powered training ecosystem built exclusively for interview preparation, communication mastery, and group discussion simulations. Pixora AI Training Module delivers realistic practice environments, personalized scenarios, and actionable feedback to help learners perform with confidence in real-world interviews.
+            Experience a next-generation AI-powered training ecosystem built exclusively for interview preparation, communication mastery, and group discussion simulations. Fluenzy AI Training Module delivers realistic practice environments, personalized scenarios, and actionable feedback to help learners perform with confidence in real-world interviews.
           </p>
         </motion.div>
 
-        {/* Why Pixora AI Training */}
+        {/* Why Fluenzy AI Training */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -45,7 +45,7 @@ const Footer = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-12"
         >
-          <h3 className="text-2xl font-bold text-center mb-8 text-foreground">Why Pixora AI Training?</h3>
+          <h3 className="text-2xl font-bold text-center mb-8 text-foreground">Why Fluenzy AI Training?</h3>
           <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
             <span className="px-3 py-1 bg-primary/10 rounded-full">Adaptive AI simulations</span>
             <span className="px-3 py-1 bg-primary/10 rounded-full">Resume-driven personalization</span>
@@ -93,7 +93,7 @@ const Footer = () => {
           className="pt-8 border-t border-card-border text-center"
         >
           <p className="text-sm text-muted-foreground">
-            © 2025 Pixora AI. All rights reserved.
+            © 2025 Fluenzy AI. All rights reserved.
           </p>
         </motion.div>
       </div>
