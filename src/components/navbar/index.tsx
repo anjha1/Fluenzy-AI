@@ -12,11 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session } = useSession();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,11 +48,7 @@ const Navbar = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "glass border-b border-card-border backdrop-blur-glass"
-          : "bg-transparent"
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 bg-slate-900/30 backdrop-blur-xl border-b border-slate-700/50 transition-all duration-300"
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
@@ -65,7 +63,7 @@ const Navbar = () => {
                 fill="transparent"
                 className="h-8 w-8 text-primary animate-glow-pulse"
               />
-              <div className="absolute inset-0 h-8 w-8 text-secondary animate-glow-pulse opacity-50" />
+              <div className="absolute inset-0 h-8 w-8 text-secondary animate-glow-pulse opacity-30" />
             </div>
             <span className="text-2xl font-bold bg-gradient-primary !bg-clip-text text-transparent">
               Pixora AI
@@ -81,25 +79,25 @@ const Navbar = () => {
               <>
                 <Link
                   href="/train"
-                  className="text-foreground hover:text-primary transition-colors font-medium"
+                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/train' ? 'text-primary' : ''}`}
                 >
                   Train Now
                 </Link>
                 <Link
                   href="/history"
-                  className="text-foreground hover:text-primary transition-colors font-medium"
+                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/history' ? 'text-primary' : ''}`}
                 >
                   History
                 </Link>
                 <Link
                   href="/features"
-                  className="text-foreground hover:text-primary transition-colors font-medium"
+                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/features' ? 'text-primary' : ''}`}
                 >
                   Features
                 </Link>
                 <Link
                   href="/pricing"
-                  className="text-foreground hover:text-primary transition-colors font-medium"
+                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/pricing' ? 'text-primary' : ''}`}
                 >
                   Pricing
                 </Link>
@@ -124,7 +122,7 @@ const Navbar = () => {
             {session?.user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center space-x-2">
+                  <Button variant="ghost" className="flex items-center space-x-2 bg-transparent border border-slate-700/50 text-white hover:bg-slate-800/30 backdrop-blur-sm">
                     <User className="h-4 w-4" />
                     <span>Profile</span>
                   </Button>
@@ -186,25 +184,25 @@ const Navbar = () => {
               <>
                 <Link
                   href="/train"
-                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                  className={`block w-full text-left text-foreground hover:text-primary transition-colors font-medium ${pathname === '/train' ? 'text-primary' : ''}`}
                 >
                   Train Now
                 </Link>
                 <Link
                   href="/history"
-                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                  className={`block w-full text-left text-foreground hover:text-primary transition-colors font-medium ${pathname === '/history' ? 'text-primary' : ''}`}
                 >
                   History
                 </Link>
                 <Link
                   href="/features"
-                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                  className={`block w-full text-left text-foreground hover:text-primary transition-colors font-medium ${pathname === '/features' ? 'text-primary' : ''}`}
                 >
                   Features
                 </Link>
                 <Link
                   href="/pricing"
-                  className="block w-full text-left text-foreground hover:text-primary transition-colors font-medium"
+                  className={`block w-full text-left text-foreground hover:text-primary transition-colors font-medium ${pathname === '/pricing' ? 'text-primary' : ''}`}
                 >
                   Pricing
                 </Link>
@@ -228,13 +226,13 @@ const Navbar = () => {
             )}
             {session?.user ? (
               <div className="space-y-2">
-                <Button variant="outline" className="w-full" asChild>
+                <Button variant="ghost" className="w-full bg-transparent border border-slate-700/50 text-white hover:bg-slate-800/30 backdrop-blur-sm" asChild>
                   <Link href="/profile">Profile</Link>
                 </Button>
-                <Button variant="outline" className="w-full" asChild>
+                <Button variant="ghost" className="w-full bg-transparent border border-slate-700/50 text-white hover:bg-slate-800/30 backdrop-blur-sm" asChild>
                   <Link href="/billing">Billing</Link>
                 </Button>
-                <Button variant="outline" className="w-full" onClick={() => signOut()}>
+                <Button variant="ghost" className="w-full bg-transparent border border-slate-700/50 text-white hover:bg-slate-800/30 backdrop-blur-sm" onClick={() => signOut()}>
                   Logout
                 </Button>
               </div>
