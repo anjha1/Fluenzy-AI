@@ -61,16 +61,24 @@ export async function POST(request: NextRequest) {
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.userId;
+  const targetPlan = session.metadata?.targetPlan || 'Pro'; // Default to Pro for backward compatibility
   if (!userId) return;
 
-  // Update user to Pro plan
+  // Get plan settings
+  const globalSettings = await (prisma as any).globalPlanSettings.findUnique({
+    where: { plan: targetPlan },
+  });
+
+  const usageLimit = globalSettings?.isUnlimited ? 999999 : (globalSettings?.monthlyLimit || 0);
+
+  // Update user to target plan
   await prisma.users.update({
     where: { id: userId },
     data: {
-      plan: 'Pro',
-      usageLimit: 999999, // Unlimited
+      plan: targetPlan as any,
+      usageLimit: usageLimit,
       stripeCustomerId: session.customer as string,
-      // Reset training module usage counters for Pro users
+      // Reset training module usage counters
       englishUsage: 0,
       dailyUsage: 0,
       hrUsage: 0,

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { ModuleType } from '../types';
 
-const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdvanced, canUse, remaining, isLocked }: any) => {
+const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdvanced, canUse, remaining, isLocked, planName, limit }: any) => {
   const router = useRouter();
 
   const handleUpgrade = async () => {
@@ -101,9 +101,11 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
           {!isLocked && <ArrowRight size={16} className="ml-2 inline group-hover:translate-x-1 transition-transform" />}
         </div>
         <div className="text-right">
-          <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Free uses</div>
+          <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+            {planName ? `${planName} uses` : 'Free uses'}
+          </div>
           <div className={`text-sm font-black ${isLocked ? 'text-red-400' : remaining === 'Unlimited' ? 'text-green-400' : 'text-white'}`}>
-            {remaining === 'Unlimited' ? '∞' : `${remaining ?? 0} / 3`}
+            {remaining === 'Unlimited' ? '∞' : `${remaining ?? 0} / ${limit || 3}`}
           </div>
         </div>
       </div>
@@ -170,7 +172,9 @@ const LearningPath: React.FC = () => {
       icon: BookOpen,
       color: 'bg-indigo-500',
       delay: 'delay-0',
-      ...getModuleUsage(ModuleType.ENGLISH_LEARNING)
+      ...getModuleUsage(ModuleType.ENGLISH_LEARNING),
+      planName: usageData?.planName,
+      limit: usageData?.limit
     },
     {
       type: ModuleType.CONVERSATION_PRACTICE,
@@ -179,7 +183,9 @@ const LearningPath: React.FC = () => {
       icon: MessageSquare,
       color: 'bg-sky-500',
       delay: 'delay-100',
-      ...getModuleUsage(ModuleType.CONVERSATION_PRACTICE)
+      ...getModuleUsage(ModuleType.CONVERSATION_PRACTICE),
+      planName: usageData?.planName,
+      limit: usageData?.limit
     },
     {
       type: ModuleType.HR_INTERVIEW,
@@ -188,7 +194,9 @@ const LearningPath: React.FC = () => {
       icon: UserPlus,
       color: 'bg-pink-500',
       delay: 'delay-200',
-      ...getModuleUsage(ModuleType.HR_INTERVIEW)
+      ...getModuleUsage(ModuleType.HR_INTERVIEW),
+      planName: usageData?.planName,
+      limit: usageData?.limit
     },
     {
       type: ModuleType.TECH_INTERVIEW,
@@ -197,7 +205,9 @@ const LearningPath: React.FC = () => {
       icon: Code,
       color: 'bg-emerald-500',
       delay: 'delay-300',
-      ...getModuleUsage(ModuleType.TECH_INTERVIEW)
+      ...getModuleUsage(ModuleType.TECH_INTERVIEW),
+      planName: usageData?.planName,
+      limit: usageData?.limit
     },
     {
       type: ModuleType.COMPANY_WISE_HR,
@@ -207,7 +217,9 @@ const LearningPath: React.FC = () => {
       color: 'bg-amber-500',
       delay: 'delay-400',
       isAdvanced: true,
-      ...getModuleUsage(ModuleType.COMPANY_WISE_HR)
+      ...getModuleUsage(ModuleType.COMPANY_WISE_HR),
+      planName: usageData?.planName,
+      limit: usageData?.limit
     },
     {
       type: ModuleType.GD_DISCUSSION,
@@ -216,7 +228,9 @@ const LearningPath: React.FC = () => {
       icon: Users,
       color: 'bg-purple-500',
       delay: 'delay-500',
-      ...getModuleUsage(ModuleType.GD_DISCUSSION)
+      ...getModuleUsage(ModuleType.GD_DISCUSSION),
+      planName: usageData?.planName,
+      limit: usageData?.limit
     },
   ];
 

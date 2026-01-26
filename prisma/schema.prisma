@@ -16,6 +16,7 @@ enum Role {
 
 enum Plan {
   Free
+  Standard
   Pro
   Enterprise
 }
@@ -212,11 +213,26 @@ model PaymentHistory {
   date          DateTime @default(now())
 }
 
+model PlanPricing {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  plan        Plan     @unique
+  name        String   // Display name
+  price       Float    @default(0) // Monthly price
+  currency    String   @default("INR")
+  status      String   @default("active") // active, disabled
+  updatedBy   String?  @db.ObjectId
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
 model GlobalPlanSettings {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   plan          Plan     @unique
-  monthlyLimit  Int
+  monthlyLimit  Int?
+  isUnlimited   Boolean  @default(false)
+  status        String   @default("active") // active, disabled
   lastReset     DateTime @default(now())
+  updatedBy     String?  @db.ObjectId
   updatedAt     DateTime @updatedAt
   createdAt     DateTime @default(now())
 }
