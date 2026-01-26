@@ -44,6 +44,11 @@ const Navbar = () => {
     }
   };
 
+  // Hide navbar for superadmin
+  if (pathname.startsWith('/superadmin')) {
+    return null;
+  }
+
   return (
     <motion.nav
       initial={{ y: -100 }}
