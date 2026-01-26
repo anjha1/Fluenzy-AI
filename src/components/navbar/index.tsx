@@ -71,7 +71,7 @@ const Navbar = () => {
               <div className="absolute inset-0 h-8 w-8 text-secondary animate-glow-pulse opacity-30" />
             </div>
             <span className="text-2xl font-bold bg-gradient-primary !bg-clip-text text-transparent">
-              Pixora AI
+              Fluenzy AI
             </span>
             <p className="text-sm text-muted-foreground mt-1">
               Powered by AI Magic

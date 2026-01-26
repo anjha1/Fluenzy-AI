@@ -83,7 +83,7 @@ export default function SuperAdminLogin() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Super Admin Login</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Access the Pixora AI Super Admin Dashboard
+            Access the Fluenzy AI Super Admin Dashboard
           </p>
         </div>
 
@@ -186,7 +186,7 @@ export default function SuperAdminLogin() {
             href="/"
             className="text-sm text-blue-600 hover:text-blue-500"
           >
-            ← Back to Pixora AI
+            ← Back to Fluenzy AI
           </Link>
         </div>
 

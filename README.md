@@ -1,4 +1,4 @@
-# Pixora AI
+# Fluenzy AI
 
 Advanced AI Training Features - A comprehensive interview preparation platform built with Next.js, Tailwind CSS, and Framer Motion.
 
