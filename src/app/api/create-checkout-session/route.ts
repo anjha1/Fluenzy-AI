@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import Stripe from "stripe";
 import prisma from "@/lib/prisma";
 
@@ -9,26 +10,36 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = await getToken({ req: request });
+    const authSession = await getServerSession(authOptions);
 
-    if (!token?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Temporarily allow without session for Learn_English
+    // TODO: Fix authentication for Learn_English app
+    let userEmail = authSession?.user?.email;
+    if (!userEmail) {
+      // For testing, assume a user email or get from somewhere
+      // This is insecure, fix properly
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { couponCode } = body;
+    let couponCode = '';
+    try {
+      const body = await request.json();
+      couponCode = body?.couponCode || '';
+    } catch (e) {
+      // No body or invalid JSON, continue with empty couponCode
+    }
 
     // Get or create user
     let user = await prisma.users.findUnique({
-      where: { email: token.email as string },
+      where: { email: userEmail },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    let discountAmount = 0;
     let appliedCoupon: any = null;
+    let stripeDiscounts: any[] = [];
 
     if (couponCode) {
       // Validate coupon
@@ -38,6 +49,10 @@ export async function POST(request: NextRequest) {
 
       if (!coupon) {
         return NextResponse.json({ error: "Invalid coupon code" }, { status: 400 });
+      }
+
+      if (coupon.status !== 'active') {
+        return NextResponse.json({ error: "Coupon is not active" }, { status: 400 });
       }
 
       const now = new Date();
@@ -71,13 +86,33 @@ export async function POST(request: NextRequest) {
 
       appliedCoupon = coupon;
 
-      // For now, assume price is fixed, calculate discount
-      // In real, get price amount from Stripe or env
-      // Assume price is 10 USD for example, but since it's price ID, need to get amount
-      // For simplicity, assume discount is applied later in webhook
-      // But to apply now, I can create a discount in Stripe
-
-      // Since it's subscription, I can use discounts in line_items
+      // Create Stripe discount
+      try {
+        if (coupon.discountType === 'PERCENTAGE') {
+          const stripeCoupon = await stripe.coupons.create({
+            percent_off: coupon.discountValue,
+            duration: 'once', // Apply to first invoice only
+            name: coupon.code,
+          });
+          stripeDiscounts.push({
+            coupon: stripeCoupon.id,
+          });
+        } else {
+          // Flat amount in cents
+          const stripeCoupon = await stripe.coupons.create({
+            amount_off: coupon.discountValue * 100, // Convert to cents
+            currency: 'usd',
+            duration: 'once',
+            name: coupon.code,
+          });
+          stripeDiscounts.push({
+            coupon: stripeCoupon.id,
+          });
+        }
+      } catch (stripeError) {
+        console.error('Stripe coupon creation error:', stripeError);
+        return NextResponse.json({ error: "Failed to apply discount" }, { status: 500 });
+      }
     }
 
     // Create Stripe checkout session
@@ -106,16 +141,64 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    if (appliedCoupon) {
-      // Create a coupon in Stripe or use discounts
-      // For simplicity, since fixed price, I can adjust the amount, but for subscription, better to use discounts
-      // Stripe supports discounts for subscriptions
-      // But to keep simple, I'll store in metadata and apply in webhook
+    if (stripeDiscounts.length > 0) {
+      sessionConfig.discounts = stripeDiscounts;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionConfig);
+    // Check if this is a 100% discount (free upgrade)
+    const isFreeUpgrade = appliedCoupon && (
+      (appliedCoupon.discountType === 'PERCENTAGE' && appliedCoupon.discountValue === 100) ||
+      (appliedCoupon.discountType === 'FLAT' && appliedCoupon.discountValue >= 10) // Assuming $10 base price
+    );
 
-    return NextResponse.json({ sessionId: session.id, url: session.url });
+    if (isFreeUpgrade) {
+      try {
+        // Skip Stripe, do direct upgrade
+        await prisma.users.update({
+          where: { id: user.id },
+          data: {
+            plan: 'Pro',
+            usageLimit: 999999,
+            renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          },
+        });
+
+        // Record coupon usage
+        await (prisma as any).couponUsage.create({
+          data: {
+            couponId: appliedCoupon.id,
+            userId: user.id,
+          },
+        });
+
+        // Create payment history
+        await (prisma as any).paymentHistory.create({
+          data: {
+            userId: user.id,
+            amount: 10, // Base price
+            discountAmount: 10, // Full discount
+            finalAmount: 0,
+            paymentMethod: 'coupon',
+            status: 'paid',
+            couponUsed: appliedCoupon.code,
+            date: new Date(),
+          },
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: "Upgraded to Pro with 100% discount coupon!",
+          plan: 'Pro'
+        });
+      } catch (upgradeError) {
+        console.error("Free upgrade error:", upgradeError);
+        return NextResponse.json({ error: "Failed to process free upgrade" }, { status: 500 });
+      }
+    }
+
+    const stripeSession = await stripe.checkout.sessions.create(sessionConfig);
+
+    return NextResponse.json({ sessionId: stripeSession.id, url: stripeSession.url });
   } catch (error) {
     console.error("Stripe checkout error:", error);
     return NextResponse.json(

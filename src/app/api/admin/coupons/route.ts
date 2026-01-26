@@ -45,6 +45,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Get user ID - fallback to db lookup if not in session
+    let userId: string | undefined = session.user.id;
+    if (!userId) {
+      const dbUser = await prisma.users.findUnique({
+        where: { email: session.user.email },
+      });
+      userId = dbUser?.id;
+    }
+
+    if (!userId) {
+      return NextResponse.json({ error: "User ID not found" }, { status: 400 });
+    }
+
     const coupon = await (prisma as any).coupon.create({
       data: {
         code: code.toUpperCase(),
@@ -56,7 +69,7 @@ export async function POST(request: NextRequest) {
         expiryDate: expiryDate ? new Date(expiryDate) : null,
         applicablePlans,
         status: status || 'active',
-        createdBy: session.user.id,
+        createdBy: userId,
       },
     });
 

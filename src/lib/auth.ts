@@ -142,25 +142,23 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     // JWT callback to add custom fields to the token
     async jwt({ token, user }: { token: any; user: any }) {
-      if (user) {
-        token.id = user.id;
-        // Fetch user data from database
-        const dbUser = await prisma.users.findUnique({
-          where: { email: user.email },
-        });
-        if (dbUser) {
-          token.email = dbUser.email;
-          token.avatar = dbUser.avatar;
-          token.plan = dbUser.plan;
-          token.usageCount = dbUser.usageCount;
-          token.usageLimit = dbUser.usageLimit;
-          token.role = dbUser.role;
-        } else {
-          token.plan = "Free";
-          token.usageCount = 0;
-          token.usageLimit = 3;
-          token.role = "User";
-        }
+      // Always fetch fresh user data from database
+      const dbUser = await prisma.users.findUnique({
+        where: { email: token.email },
+      });
+      if (dbUser) {
+        token.id = dbUser.id;
+        token.email = dbUser.email;
+        token.avatar = dbUser.avatar;
+        token.plan = dbUser.plan;
+        token.usageCount = dbUser.usageCount;
+        token.usageLimit = dbUser.usageLimit;
+        token.role = dbUser.role;
+      } else {
+        token.plan = "Free";
+        token.usageCount = 0;
+        token.usageLimit = 3;
+        token.role = "User";
       }
       return token;
     },

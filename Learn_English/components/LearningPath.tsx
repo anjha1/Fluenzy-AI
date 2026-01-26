@@ -19,19 +19,32 @@ const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdva
   const router = useRouter();
 
   const handleUpgrade = async () => {
+    const couponCode = prompt('Enter coupon code (optional):', '') || '';
+
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couponCode }),
       });
       if (response.ok) {
         const data = await response.json();
-        window.location.href = data.url;
+        if (data.url) {
+          window.location.href = data.url;
+        } else if (data.success) {
+          alert(data.message || "Successfully upgraded!");
+          window.location.reload();
+        } else {
+          alert("Unexpected response");
+        }
       } else {
-        console.error('Failed to create checkout session');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to create checkout session:', errorData);
+        alert(errorData.error || "Failed to create checkout session");
       }
     } catch (error) {
       console.error('Upgrade error:', error);
+      alert("An error occurred. Please try again.");
     }
   };
 

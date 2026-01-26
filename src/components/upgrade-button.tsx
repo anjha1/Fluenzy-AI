@@ -1,33 +1,90 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function UpgradeButton() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleUpgrade = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          couponCode: couponCode.trim() || undefined,
+        }),
       });
 
       if (res.ok) {
-        const { url } = await res.json();
-        window.location.href = url; // Redirect to Stripe Checkout
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url; // Redirect to Stripe Checkout
+        } else if (data.success) {
+          // Free upgrade success
+          alert(data.message || "Successfully upgraded to Pro!");
+          window.location.reload(); // Refresh to show new plan
+        } else {
+          alert("Unexpected response from server");
+        }
       } else {
-        console.error("Failed to create checkout session");
-        // Optionally, show an error message to the user
+        const error = await res.json();
+        console.error("Failed to create checkout session:", error);
+        alert(error.error || "Failed to create checkout session");
       }
     } catch (error) {
       console.error("Error:", error);
-      // Optionally, show an error message to the user
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Button onClick={handleUpgrade}>
-      Upgrade to Pro
-    </Button>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          Upgrade to Pro
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Upgrade to Pro</DialogTitle>
+          <DialogDescription>
+            Enter a coupon code (optional) and proceed to payment.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="coupon" className="text-right">
+              Coupon Code
+            </Label>
+            <Input
+              id="coupon"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+              className="col-span-3"
+              placeholder="Optional"
+            />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleUpgrade} disabled={isLoading}>
+            {isLoading ? "Processing..." : "Proceed to Payment"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
