@@ -12,7 +12,74 @@ const MODULE_USAGE_FIELDS = {
   gd: "gdUsage",
 } as const;
 
-const TRAINING_LIMIT = 3;
+// Helper function to check and reset monthly usage
+async function checkMonthlyReset(user: any) {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  // Get global settings
+  const globalSettings = await (prisma as any).globalPlanSettings.findMany();
+  const settingsMap: Record<string, any> = {};
+  globalSettings.forEach((setting: any) => {
+    settingsMap[setting.plan] = setting;
+  });
+
+  const userPlan = user.plan?.toString() || 'Free';
+  const planSettings = settingsMap[userPlan];
+
+  if (!planSettings) {
+    // Default limits if no global settings
+    return { limit: userPlan === 'Pro' ? 999999 : 3, resetNeeded: false };
+  }
+
+  const lastReset = new Date(planSettings.lastReset);
+  const lastResetMonth = lastReset.getMonth();
+  const lastResetYear = lastReset.getFullYear();
+
+  const resetNeeded = currentMonth !== lastResetMonth || currentYear !== lastResetYear;
+
+  if (resetNeeded) {
+    // Reset usage
+    await prisma.users.update({
+      where: { id: user.id },
+      data: {
+        usageCount: 0,
+        englishUsage: 0,
+        dailyUsage: 0,
+        hrUsage: 0,
+        technicalUsage: 0,
+        companyUsage: 0,
+        mockUsage: 0,
+        gdUsage: 0,
+      },
+    });
+
+    // Update last reset
+    await (prisma as any).globalPlanSettings.update({
+      where: { plan: userPlan },
+      data: { lastReset: now },
+    });
+
+    // Refresh user data
+    const updatedUser = await prisma.users.findUnique({
+      where: { id: user.id },
+      select: {
+        englishUsage: true,
+        dailyUsage: true,
+        hrUsage: true,
+        technicalUsage: true,
+        companyUsage: true,
+        mockUsage: true,
+        gdUsage: true,
+      },
+    });
+
+    return { limit: planSettings.monthlyLimit, resetNeeded: true, updatedUser };
+  }
+
+  return { limit: planSettings.monthlyLimit, resetNeeded: false };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -41,19 +108,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Check for monthly reset
+    const { limit, resetNeeded, updatedUser } = await checkMonthlyReset(user);
+    const currentUser = updatedUser ? { ...user, ...updatedUser } : user;
+
     const usage = {
-      english: user.englishUsage ?? 0,
-      daily: user.dailyUsage ?? 0,
-      hr: user.hrUsage ?? 0,
-      technical: user.technicalUsage ?? 0,
-      company: user.companyUsage ?? 0,
-      mock: user.mockUsage ?? 0,
-      gd: user.gdUsage ?? 0,
+      english: currentUser.englishUsage ?? 0,
+      daily: currentUser.dailyUsage ?? 0,
+      hr: currentUser.hrUsage ?? 0,
+      technical: currentUser.technicalUsage ?? 0,
+      company: currentUser.companyUsage ?? 0,
+      mock: currentUser.mockUsage ?? 0,
+      gd: currentUser.gdUsage ?? 0,
     };
 
-    // For Pro users, always allow
-    const isPro = user.plan?.toString().toLowerCase() === 'pro';
-    const canUse = isPro ? {
+    // Check against global limits
+    const isUnlimited = limit >= 999999; // Pro plan
+    const canUse = isUnlimited ? {
       english: true,
       daily: true,
       hr: true,
@@ -62,16 +133,16 @@ export async function GET(request: NextRequest) {
       mock: true,
       gd: true,
     } : {
-      english: (user.englishUsage ?? 0) < TRAINING_LIMIT,
-      daily: (user.dailyUsage ?? 0) < TRAINING_LIMIT,
-      hr: (user.hrUsage ?? 0) < TRAINING_LIMIT,
-      technical: (user.technicalUsage ?? 0) < TRAINING_LIMIT,
-      company: (user.companyUsage ?? 0) < TRAINING_LIMIT,
-      mock: (user.mockUsage ?? 0) < TRAINING_LIMIT,
-      gd: (user.gdUsage ?? 0) < TRAINING_LIMIT,
+      english: (currentUser.englishUsage ?? 0) < limit,
+      daily: (currentUser.dailyUsage ?? 0) < limit,
+      hr: (currentUser.hrUsage ?? 0) < limit,
+      technical: (currentUser.technicalUsage ?? 0) < limit,
+      company: (currentUser.companyUsage ?? 0) < limit,
+      mock: (currentUser.mockUsage ?? 0) < limit,
+      gd: (currentUser.gdUsage ?? 0) < limit,
     };
 
-    const remaining = isPro ? {
+    const remaining = isUnlimited ? {
       english: "Unlimited",
       daily: "Unlimited",
       hr: "Unlimited",
@@ -80,21 +151,22 @@ export async function GET(request: NextRequest) {
       mock: "Unlimited",
       gd: "Unlimited",
     } : {
-      english: Math.max(0, TRAINING_LIMIT - (user.englishUsage ?? 0)),
-      daily: Math.max(0, TRAINING_LIMIT - (user.dailyUsage ?? 0)),
-      hr: Math.max(0, TRAINING_LIMIT - (user.hrUsage ?? 0)),
-      technical: Math.max(0, TRAINING_LIMIT - (user.technicalUsage ?? 0)),
-      company: Math.max(0, TRAINING_LIMIT - (user.companyUsage ?? 0)),
-      mock: Math.max(0, TRAINING_LIMIT - (user.mockUsage ?? 0)),
-      gd: Math.max(0, TRAINING_LIMIT - (user.gdUsage ?? 0)),
+      english: Math.max(0, limit - (currentUser.englishUsage ?? 0)),
+      daily: Math.max(0, limit - (currentUser.dailyUsage ?? 0)),
+      hr: Math.max(0, limit - (currentUser.hrUsage ?? 0)),
+      technical: Math.max(0, limit - (currentUser.technicalUsage ?? 0)),
+      company: Math.max(0, limit - (currentUser.companyUsage ?? 0)),
+      mock: Math.max(0, limit - (currentUser.mockUsage ?? 0)),
+      gd: Math.max(0, limit - (currentUser.gdUsage ?? 0)),
     };
 
     return NextResponse.json({
       usage,
       canUse,
       remaining,
-      plan: user.plan,
-      limit: TRAINING_LIMIT,
+      plan: currentUser.plan,
+      limit,
+      resetPerformed: resetNeeded,
     });
   } catch (error) {
     console.error("Training usage check error:", error);
@@ -139,23 +211,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Pro users don't have limits
-    if (user.plan?.toString().toLowerCase() === 'pro') {
+    // Check for monthly reset
+    const { limit } = await checkMonthlyReset(user);
+
+    // Check if unlimited
+    if (limit >= 999999) {
       return NextResponse.json({
         success: true,
-        message: "Pro user - no limits",
+        message: "Unlimited usage - no limits",
         plan: user.plan,
       });
     }
 
     const currentUsage = user[MODULE_USAGE_FIELDS[module as keyof typeof MODULE_USAGE_FIELDS] as keyof typeof user] as number;
 
-    if (currentUsage >= TRAINING_LIMIT) {
+    if (currentUsage >= limit) {
       return NextResponse.json(
         {
           error: "Usage limit reached",
           usage: currentUsage,
-          limit: TRAINING_LIMIT,
+          limit,
           plan: user.plan,
           canUse: false,
         },
@@ -188,10 +263,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       usage: newUsage,
-      limit: TRAINING_LIMIT,
+      limit,
       plan: updatedUser.plan,
-      canUse: newUsage < TRAINING_LIMIT,
-      remaining: Math.max(0, TRAINING_LIMIT - newUsage),
+      canUse: newUsage < limit,
+      remaining: Math.max(0, limit - newUsage),
     });
   } catch (error) {
     console.error("Training usage increment error:", error);
