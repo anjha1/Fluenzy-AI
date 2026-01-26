@@ -4,18 +4,18 @@ import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Pricing - FluenzyAI: AI Interview Coach & English Practice",
-  description: "Choose the perfect plan for FluenzyAI's AI-powered interview and English training. Affordable pricing for HR, technical, and group discussion practice.",
+  description: "Select the ideal FluenzyAI plan for AI-driven interview preparation and English fluency training. Flexible pricing for HR interviews, technical mock tests, group discussions, and career advancement.",
   keywords: "AI interview coach, interview preparation platform, spoken English for jobs, career growth using AI",
   openGraph: {
     title: "Pricing - FluenzyAI: AI Interview Coach & English Practice",
-    description: "Choose the perfect plan for FluenzyAI's AI-powered interview and English training.",
+    description: "Select the ideal FluenzyAI plan for AI-driven interview preparation and English fluency training.",
     url: "https://www.fluenzyai.app/pricing",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Pricing - FluenzyAI: AI Interview Coach & English Practice",
-    description: "Choose the perfect plan for FluenzyAI's AI-powered interview and English training.",
+    description: "Select the ideal FluenzyAI plan for AI-driven interview preparation and English fluency training.",
   },
 };
 
