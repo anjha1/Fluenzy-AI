@@ -201,12 +201,13 @@ model PaymentHistory {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   userId        String   @db.ObjectId
   user          users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount        Float
+  originalAmount Float
   discountAmount Float    @default(0)
   finalAmount   Float
   paymentMethod String?
   invoiceId     String?
-  status        String   // paid, failed, refunded
+  status        String   // paid, failed, refunded, free_via_coupon
   couponUsed    String?  // coupon code
+  couponType    String?  // percentage, flat
   date          DateTime @default(now())
 }
