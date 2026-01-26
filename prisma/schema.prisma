@@ -11,17 +11,25 @@ enum Role {
   User
   Admin
   Modaretor
+  SUPER_ADMIN
 }
 
 enum Plan {
   Free
   Pro
+  Enterprise
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT
 }
 
 model users {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
   name             String
   email            String   @unique
+  password         String?
   avatar           String?
   stripeCustomerId String?
   plan             Plan     @default(Free)
@@ -37,9 +45,15 @@ model users {
   mockUsage        Int      @default(0)
   gdUsage          Int      @default(0)
   renewalDate      DateTime?
+  disabled         Boolean  @default(false)
   sessions         Session[]
   lessonProgress   LessonProgress[]
   hrProgress       HRProgress[]
+  resumes          Resume[]
+  loginLogs        UserLoginLog[]
+  couponUsages     CouponUsage[]
+  paymentHistories PaymentHistory[]
+  subscriptions    subscriptions[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -47,10 +61,18 @@ model users {
 model subscriptions {
   id                   String   @id @default(auto()) @map("_id") @db.ObjectId
   userId               String   @db.ObjectId
+  user                 users    @relation(fields: [userId], references: [id], onDelete: Cascade)
   stripeSubscriptionId String
   stripeCustomerId     String
-  status               String   @default("active")
+  plan                 Plan     @default(Pro)
+  status               String   @default("active") // active, failed, cancelled, expired
   currentPeriodEnd     DateTime?
+  autoRenew            Boolean  @default(true)
+  paymentMethod        String?
+  invoiceId            String?
+  amount               Float?
+  discountAmount       Float    @default(0)
+  couponUsed           String?  // coupon code
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }
@@ -68,6 +90,8 @@ model Session {
   duration       Int? // in minutes
   aggregateScore Float?
   status         String? // PASS or FAIL
+  resumeId       String? @db.ObjectId
+  resume         Resume? @relation(fields: [resumeId], references: [id])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   transcripts    Transcript[]
@@ -117,4 +141,72 @@ model HRProgress {
   updatedAt    DateTime @updatedAt
 
   @@unique([userId, lessonId])
+}
+
+model Resume {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  user        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName    String
+  fileUrl     String
+  uploadedAt  DateTime @default(now())
+  sessions    Session[]
+}
+
+model UserLoginLog {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  user            users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loginTime       DateTime
+  logoutTime      DateTime?
+  sessionDuration Int? // in seconds
+  ip              String?
+  location        String? // country/city
+  deviceType      String? // Mobile, Laptop, Tablet, Desktop
+  os              String? // Android, iOS, Windows, macOS, Linux
+  browser         String? // Chrome, Safari, etc.
+  status          String   @default("success") // success, failed
+  createdAt       DateTime @default(now())
+}
+
+model Coupon {
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  code            String       @unique
+  discountType    DiscountType
+  discountValue   Float
+  maxUsage        Int?
+  perUserLimit    Int          @default(1)
+  startDate       DateTime?
+  expiryDate      DateTime?
+  applicablePlans String[]     // e.g. ["Pro", "Enterprise"]
+  status          String       @default("active") // active, inactive, expired
+  createdBy       String       @db.ObjectId // superadmin user id
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  usages          CouponUsage[]
+}
+
+model CouponUsage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  couponId  String   @db.ObjectId
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usedAt    DateTime @default(now())
+
+  @@unique([couponId, userId])
+}
+
+model PaymentHistory {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  user          users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount        Float
+  discountAmount Float    @default(0)
+  finalAmount   Float
+  paymentMethod String?
+  invoiceId     String?
+  status        String   // paid, failed, refunded
+  couponUsed    String?  // coupon code
+  date          DateTime @default(now())
 }

@@ -78,16 +78,33 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   const userId = subscription.metadata?.userId;
+  const couponCode = subscription.metadata?.couponCode;
   if (!userId) return;
 
+  let couponUsed = '';
+  if (couponCode) {
+    const coupon = await (prisma as any).coupon.findUnique({ where: { code: couponCode } });
+    if (coupon) {
+      // Record usage
+      await (prisma as any).couponUsage.create({
+        data: {
+          couponId: coupon.id,
+          userId,
+        },
+      });
+      couponUsed = couponCode;
+    }
+  }
+
   // Update user subscription details
-  await prisma.subscriptions.create({
+  await (prisma as any).subscriptions.create({
     data: {
       userId,
       stripeSubscriptionId: subscription.id,
       stripeCustomerId: subscription.customer as string,
       status: subscription.status,
       currentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
+      couponUsed,
     },
   });
 
