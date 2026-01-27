@@ -14,31 +14,73 @@ export default function UpgradeButton() {
   const handleUpgrade = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/create-checkout-session", {
+      const res = await fetch("/api/create-razorpay-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           couponCode: couponCode.trim() || undefined,
+          targetPlan: "Pro",
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url; // Redirect to Stripe Checkout
-        } else if (data.success) {
+        if (data.success) {
           // Free upgrade success
           alert(data.message || "Successfully upgraded to Pro!");
           window.location.reload(); // Refresh to show new plan
+        } else if (data.orderId) {
+          // Initialize Razorpay checkout
+          const options = {
+            key: data.key,
+            amount: data.amount,
+            currency: data.currency,
+            order_id: data.orderId,
+            name: "Fluenzy AI",
+            description: "Pro Plan Upgrade",
+            handler: async function (response: any) {
+              // Verify payment on backend
+              const verifyRes = await fetch("/api/verify-razorpay-payment", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  order_id: data.orderId,
+                  plan: "Pro",
+                }),
+              });
+
+              if (verifyRes.ok) {
+                alert("Payment successful! You have been upgraded to Pro.");
+                window.location.reload();
+              } else {
+                alert("Payment verification failed. Please contact support.");
+              }
+            },
+            prefill: {
+              email: "", // Will be filled from session
+              contact: "",
+            },
+            theme: {
+              color: "#7c3aed",
+            },
+          };
+
+          const rzp = new (window as any).Razorpay(options);
+          rzp.open();
         } else {
           alert("Unexpected response from server");
         }
       } else {
         const error = await res.json();
-        console.error("Failed to create checkout session:", error);
-        alert(error.error || "Failed to create checkout session");
+        console.error("Failed to create order:", error);
+        alert(error.error || "Failed to create order");
       }
     } catch (error) {
       console.error("Error:", error);
