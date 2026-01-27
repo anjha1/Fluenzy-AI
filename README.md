@@ -39,11 +39,9 @@ Advanced AI Training Features - A comprehensive interview preparation platform b
    IMAGEKIT_PRIVATE_KEY="your-imagekit-private-key"
    IMAGEKIT_URL_ENDPOINT="your-imagekit-url-endpoint"
    
-   # Stripe
-   STRIPE_SECRET_KEY="your-stripe-secret-key"
-   STRIPE_PUBLISHABLE_KEY="your-stripe-publishable-key"
-   STRIPE_PRICE_ID="your-stripe-price-id"
-   STRIPE_WEBHOOK_SECRET="your-stripe-webhook-secret"
+   # Razorpay
+   RAZORPAY_API_KEY="your-razorpay-api-key"
+   RAZORPAY_API_SECRET="your-razorpay-api-secret"
    ```
 
 3. **Set up database:**

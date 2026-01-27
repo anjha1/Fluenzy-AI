@@ -77,7 +77,7 @@ export default function BillingPage() {
     try {
       const couponCode = prompt('Enter coupon code (optional):', '') || '';
 
-      const response = await fetch('/api/create-checkout-session', {
+      const response = await fetch('/api/create-razorpay-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ targetPlan, couponCode }),
@@ -85,18 +85,60 @@ export default function BillingPage() {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.url) {
-          window.location.href = data.url;
-        } else if (data.success) {
+        if (data.success) {
+          // Free upgrade success
           alert(data.message || `Successfully upgraded to ${targetPlan}!`);
           window.location.reload();
+        } else if (data.orderId) {
+          // Initialize Razorpay checkout
+          const options = {
+            key: data.key,
+            amount: data.amount,
+            currency: data.currency,
+            order_id: data.orderId,
+            name: "Fluenzy AI",
+            description: `${targetPlan} Plan Upgrade`,
+            handler: async function (response: any) {
+              // Verify payment on backend
+              const verifyRes = await fetch("/api/verify-razorpay-payment", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  order_id: data.orderId,
+                  plan: targetPlan,
+                }),
+              });
+
+              if (verifyRes.ok) {
+                alert(`Payment successful! You have been upgraded to ${targetPlan}.`);
+                window.location.reload();
+              } else {
+                alert("Payment verification failed. Please contact support.");
+              }
+            },
+            prefill: {
+              email: "", // Will be filled from session
+              contact: "",
+            },
+            theme: {
+              color: "#7c3aed",
+            },
+          };
+
+          const rzp = new (window as any).Razorpay(options);
+          rzp.open();
         } else {
           alert("Unexpected response");
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to create checkout session:', errorData);
-        alert(errorData.error || "Failed to create checkout session");
+        console.error('Failed to create order:', errorData);
+        alert(errorData.error || "Failed to create order");
       }
     } catch (error) {
       console.error('Upgrade error:', error);

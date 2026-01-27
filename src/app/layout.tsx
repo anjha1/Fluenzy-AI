@@ -83,6 +83,8 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Razorpay Checkout Script */}
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

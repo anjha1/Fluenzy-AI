@@ -6,16 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-08-27.basil",
-});
 
 export default async function SuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ session_id?: string }>;
+  searchParams: Promise<{ plan?: string }>;
 }) {
   const session = await getServerSession(authOptions);
 
@@ -24,28 +19,10 @@ export default async function SuccessPage({
   }
 
   const params = await searchParams;
-  const sessionId = params.session_id;
-
-  if (!sessionId) {
-    redirect("/");
-  }
-
-  // Verify the checkout session with Stripe
-  let stripeSession;
-  try {
-    stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
-  } catch (error) {
-    console.error("Error retrieving Stripe session:", error);
-    redirect("/");
-  }
-
-  // Check if payment was successful
-  if (stripeSession.payment_status !== "paid") {
-    redirect("/");
-  }
+  const plan = params.plan || "Pro";
 
   // Get user data from database
-  let user = await prisma.users.findUnique({
+  const user = await prisma.users.findUnique({
     where: { email: session.user.email },
   });
 
@@ -53,32 +30,7 @@ export default async function SuccessPage({
     redirect("/");
   }
 
-  // If user is still Free, update immediately for immediate feedback
-  // The webhook will handle the final update with subscription details
-  if (user.plan !== "Pro") {
-    // Calculate renewal date (1 month from now)
-    const renewalDate = new Date();
-    renewalDate.setMonth(renewalDate.getMonth() + 1);
-
-    user = await prisma.users.update({
-      where: { id: user.id },
-      data: {
-        plan: "Pro",
-        usageLimit: 999999, // Unlimited
-        renewalDate: renewalDate,
-        stripeCustomerId: stripeSession.customer as string,
-        // Reset training module usage counters for Pro users
-        englishUsage: 0,
-        dailyUsage: 0,
-        hrUsage: 0,
-        technicalUsage: 0,
-        companyUsage: 0,
-        mockUsage: 0,
-      },
-    });
-  }
-
-  const isUpgraded = user.plan === "Pro";
+  const isUpgraded = user.plan === plan || user.plan === "Pro";
 
   return (
     <div className="container mx-auto px-4 py-8">
