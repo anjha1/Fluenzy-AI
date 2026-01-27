@@ -80,11 +80,11 @@ const Navbar = () => {
 
           {/* Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {session?.user && (
+            {session?.user ? (
               <>
                 <Link
                   href="/train"
-                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/train' ? 'text-primary' : ''}`}
+                  className={`text-foreground hover:text-primary transition-colors font-semibold ${pathname === '/train' ? 'text-primary' : ''}`}
                 >
                   Train Now
                 </Link>
@@ -107,21 +107,26 @@ const Navbar = () => {
                   Pricing
                 </Link>
               </>
-            )}
-            {!session?.user && (
+            ) : (
               <>
-                <button
-                  onClick={() => scrollToSection("features")}
-                  className="text-foreground hover:text-primary transition-colors font-medium"
+                <Link
+                  href="/"
+                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/' ? 'text-primary' : ''}`}
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/features"
+                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/features' ? 'text-primary' : ''}`}
                 >
                   Features
-                </button>
-                <button
-                  onClick={() => scrollToSection("pricing")}
-                  className="text-foreground hover:text-primary transition-colors font-medium"
+                </Link>
+                <Link
+                  href="/pricing"
+                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/pricing' ? 'text-primary' : ''}`}
                 >
                   Pricing
-                </button>
+                </Link>
               </>
             )}
             {session?.user ? (

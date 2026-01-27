@@ -38,7 +38,6 @@ const LandingPage = () => {
       <FeedbackSection />
       <AdvancedFeatures />
       <Pricing />
-      <Footer />
     </div>
   );
 };
