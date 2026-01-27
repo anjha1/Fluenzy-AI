@@ -70,6 +70,7 @@ const Pricing = () => {
   const { data: session } = useSession();
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -152,8 +153,36 @@ const Pricing = () => {
               Free Today
             </span>
           </h2>
+
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="bg-slate-800/50 backdrop-blur-sm rounded-full p-1 border border-slate-700/50">
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  billingCycle === 'monthly'
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingCycle('annual')}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  billingCycle === 'annual'
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                Annual
+                <span className="ml-2 bg-green-500 text-xs px-2 py-1 rounded-full text-white">Save 20%</span>
+              </button>
+            </div>
+          </div>
+
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Begin with our free plan and upgrade when you're ready to unlock unlimited AI-powered interview preparation.
+            Start your journey with our free plan featuring AI-powered training. Upgrade anytime to access unlimited sessions and premium features.
           </p>
         </motion.div>
 
@@ -203,12 +232,17 @@ const Pricing = () => {
                   </p>
 
                   <div className="mb-6">
-                    <span className="text-5xl font-bold text-white">
-                      {plan.price}
+                    <span className="text-5xl font-bold text-white group-hover:text-cyan-200 transition-colors duration-300">
+                      {billingCycle === 'annual' && plan.name !== 'Free' ? Math.round(plan.price * 12 * 0.8) : plan.price}
                     </span>
                     <span className="text-gray-400 ml-2">
-                      /{plan.period}
+                      /{billingCycle === 'annual' ? 'year' : plan.period}
                     </span>
+                    {billingCycle === 'annual' && plan.name !== 'Free' && (
+                      <div className="text-sm text-green-400 mt-1">
+                        Save ₹{plan.price * 12 - Math.round(plan.price * 12 * 0.8)} annually
+                      </div>
+                    )}
                   </div>
                 </div>
 

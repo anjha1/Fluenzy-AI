@@ -165,7 +165,6 @@ const Footer = () => {
               <span>for learners</span>
             </div>
             <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-              <span>Built in India 🇮🇳</span>
               <span>Powered by AI Magic</span>
             </div>
           </div>

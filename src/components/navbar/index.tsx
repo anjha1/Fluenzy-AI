@@ -73,9 +73,6 @@ const Navbar = () => {
             <span className="text-2xl font-bold bg-gradient-primary !bg-clip-text text-transparent">
               Fluenzy AI
             </span>
-            <p className="text-sm text-muted-foreground mt-1">
-              Powered by AI Magic
-            </p>
           </motion.div>
 
           {/* Navigation */}

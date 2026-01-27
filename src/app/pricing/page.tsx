@@ -22,14 +22,17 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <div className="min-h-screen">
-      <section className="py-16 bg-gradient-to-b from-slate-900 to-slate-800">
+      <section className="pt-32 pb-12 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl lg:text-5xl font-bold text-center mb-8">
+          <h1 className="text-4xl lg:text-6xl font-bold text-center mb-4">
             <span className="text-white">FluenzyAI </span>
             <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 !bg-clip-text text-transparent">
               Pricing Plans
             </span>
           </h1>
+          <p className="text-xl text-slate-300 text-center max-w-3xl mx-auto leading-relaxed">
+            Select the ideal plan to unlock unlimited AI-powered interview preparation and English fluency training. Start free and upgrade as you progress toward career success.
+          </p>
         </div>
       </section>
       <Pricing />
