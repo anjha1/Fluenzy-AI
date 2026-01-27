@@ -1,101 +1,175 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart, Sparkles, Mail } from "lucide-react";
+import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="py-16 border-t border-card-border relative overflow-hidden bg-gradient-to-b from-background to-muted/5">
-      {/* Background Effect */}
-      <div className="absolute inset-0 bg-gradient-to-t from-muted/10 to-transparent" />
-
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-12"
-        >
-          {/* Logo */}
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="relative">
-              <Sparkles className="h-10 w-10 text-primary animate-glow-pulse" />
-              <div className="absolute inset-0 h-10 w-10 text-secondary animate-glow-pulse opacity-50" />
+    <footer className="bg-slate-900/95 backdrop-blur-xl border-t border-slate-700/50">
+      <div className="container mx-auto px-4 py-16">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+          {/* Brand Column */}
+          <div className="lg:col-span-1">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="relative">
+                <Sparkles className="h-8 w-8 text-primary animate-glow-pulse" />
+                <div className="absolute inset-0 h-8 w-8 text-secondary animate-glow-pulse opacity-30" />
+              </div>
+              <span
+                className="text-2xl font-bold"
+                style={{
+                  background: 'var(--gradient-primary)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}
+              >
+                Fluenzy AI
+              </span>
             </div>
-            <div>
-              <h2 className="text-3xl font-bold bg-gradient-primary !bg-clip-text text-transparent">
-                Fluenzy AI — Training Module
-              </h2>
-              <p className="text-sm text-muted-foreground">Powered by AI Magic</p>
+            <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+              Fluenzy AI is an AI-powered training platform helping learners master communication, interviews, and professional confidence.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              © {new Date().getFullYear()} Fluenzy AI. All rights reserved.
+            </p>
+          </div>
+
+          {/* Product Column */}
+          <div>
+            <h3 className="text-foreground font-semibold mb-4">Product</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/train" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Train Now
+                </Link>
+              </li>
+              <li>
+                <Link href="/train" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Training Modules
+                </Link>
+              </li>
+              <li>
+                <Link href="/features" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link href="/history" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  History
+                </Link>
+              </li>
+              <li>
+                <Link href="/profile" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Profile
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Company Column */}
+          <div>
+            <h3 className="text-foreground font-semibold mb-4">Company</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/careers" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Careers
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Blog
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal Column */}
+          <div>
+            <h3 className="text-foreground font-semibold mb-4">Legal</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms-and-conditions" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link href="/shipping-policy" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Shipping Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/return-and-refund-policy" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Return & Refund Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Support Column */}
+          <div>
+            <h3 className="text-foreground font-semibold mb-4">Support</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/help" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Help Center
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  FAQs
+                </Link>
+              </li>
+            </ul>
+            <div className="mt-4">
+              <p className="text-muted-foreground text-sm mb-2">Email Support:</p>
+              <a
+                href="mailto:support@fluenzyai.app"
+                className="text-primary hover:text-primary/80 transition-colors text-sm flex items-center gap-2"
+              >
+                <Mail className="h-4 w-4" />
+                support@fluenzyai.app
+              </a>
             </div>
           </div>
+        </div>
 
-          {/* Main Description */}
-          <p className="text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
-            Experience a next-generation AI-powered training ecosystem built exclusively for interview preparation, communication mastery, and group discussion simulations. Fluenzy AI Training Module delivers realistic practice environments, personalized scenarios, and actionable feedback to help learners perform with confidence in real-world interviews.
-          </p>
-        </motion.div>
-
-        {/* Why Fluenzy AI Training */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-12"
-        >
-          <h3 className="text-2xl font-bold text-center mb-8 text-foreground">Why Fluenzy AI Training?</h3>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-            <span className="px-3 py-1 bg-primary/10 rounded-full">Adaptive AI simulations</span>
-            <span className="px-3 py-1 bg-primary/10 rounded-full">Resume-driven personalization</span>
-            <span className="px-3 py-1 bg-primary/10 rounded-full">Realistic interview pressure</span>
-            <span className="px-3 py-1 bg-primary/10 rounded-full">Structured performance reports</span>
-            <span className="px-3 py-1 bg-primary/10 rounded-full">Industry-ready preparation</span>
+        {/* Bottom Footer Bar */}
+        <div className="pt-8 border-t border-slate-700/50">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center space-x-2 text-muted-foreground text-sm">
+              <span>Made with</span>
+              <Heart className="h-4 w-4 text-red-500 animate-pulse" />
+              <span>for learners</span>
+            </div>
+            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+              <span>Built in India 🇮🇳</span>
+              <span>Powered by AI Magic</span>
+            </div>
           </div>
-        </motion.div>
-
-        {/* Advanced AI Training Features */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-center mb-12"
-        >
-          <h3 className="text-2xl font-bold mb-4 text-foreground">Advanced AI Training Features</h3>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Designed for students, job seekers, and professionals preparing for real interview success.
-          </p>
-        </motion.div>
-
-        {/* Made with love */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-center mb-8"
-        >
-          <div className="flex items-center justify-center space-x-2 text-muted-foreground">
-            <span>Made with</span>
-            <Heart className="h-5 w-5 text-red-500 animate-pulse" />
-            <span>for learners</span>
-          </div>
-        </motion.div>
-
-        {/* Copyright */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="pt-8 border-t border-card-border text-center"
-        >
-          <p className="text-sm text-muted-foreground">
-            © 2025 Fluenzy AI. All rights reserved.
-          </p>
-        </motion.div>
+        </div>
       </div>
     </footer>
   );
