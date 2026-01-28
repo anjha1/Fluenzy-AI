@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     const normalizedPlans = Array.isArray(applicablePlans)
       ? applicablePlans
           .map((plan: string) => allowedPlans.find((allowed) => allowed.toLowerCase() === String(plan).toLowerCase()))
-          .filter(Boolean)
+          .filter((plan): plan is string => typeof plan === 'string')
       : [];
 
     if (Array.isArray(applicablePlans) && normalizedPlans.length !== applicablePlans.length) {
@@ -122,7 +122,7 @@ export async function PUT(request: NextRequest) {
     const normalizedPlans = Array.isArray(applicablePlans)
       ? applicablePlans
           .map((plan: string) => allowedPlans.find((allowed) => allowed.toLowerCase() === String(plan).toLowerCase()))
-          .filter(Boolean)
+          .filter((plan): plan is string => typeof plan === 'string')
       : undefined;
 
     if (Array.isArray(applicablePlans) && normalizedPlans && normalizedPlans.length !== applicablePlans.length) {
