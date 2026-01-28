@@ -37,7 +37,7 @@ interface LoginLog {
 
 interface CouponUsage {
   userId: string;
-  usedAt: string;
+  appliedAt?: string | null;
   appliedPlan: string;
   originalPrice: number;
   discountAmount: number;
@@ -87,6 +87,8 @@ export default function SuperAdminDashboard() {
   const [analytics, setAnalytics] = useState<Analytics>({ totalUsers: 0, activeSessions: 0, totalSessions: 0, resumeParses: 0 });
   const [loginLogs, setLoginLogs] = useState<LoginLog[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [couponsLoading, setCouponsLoading] = useState(false);
+  const [couponsError, setCouponsError] = useState<string | null>(null);
   const [paymentAnalytics, setPaymentAnalytics] = useState<PaymentAnalytics | null>(null);
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
@@ -165,13 +167,21 @@ export default function SuperAdminDashboard() {
 
   const fetchCoupons = async () => {
     try {
+      setCouponsLoading(true);
+      setCouponsError(null);
       const res = await fetch("/api/admin/coupons");
       if (res.ok) {
         const data = await res.json();
         setCoupons(data);
+      } else {
+        const errorData = await res.json().catch(() => null);
+        setCouponsError(errorData?.error || "Failed to fetch coupons");
       }
     } catch (error) {
       console.error("Failed to fetch coupons:", error);
+      setCouponsError("Failed to fetch coupons");
+    } finally {
+      setCouponsLoading(false);
     }
   };
 
@@ -584,32 +594,52 @@ export default function SuperAdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {coupons.map((coupon) => (
-                    <TableRow key={coupon.id}>
-                      <TableCell>{coupon.code}</TableCell>
-                      <TableCell>{coupon.discountType === 'PERCENTAGE' ? `${coupon.discountValue}%` : `$${coupon.discountValue}`}</TableCell>
-                      <TableCell>{coupon.maxUsage || 'Unlimited'}</TableCell>
-                      <TableCell>{coupon.usages.length}</TableCell>
-                      <TableCell>
-                        <Badge variant={coupon.status === 'active' ? 'default' : 'secondary'}>
-                          {coupon.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => handleEditCoupon(coupon)}>
-                            Edit
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => handleToggleCouponStatus(coupon.id, coupon.status)}>
-                            {coupon.status === 'active' ? 'Disable' : 'Enable'}
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDeleteCoupon(coupon.id)}>
-                            Delete
-                          </Button>
-                        </div>
+                  {couponsLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground">
+                        Loading coupons...
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : couponsError ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-destructive">
+                        {couponsError}
+                      </TableCell>
+                    </TableRow>
+                  ) : coupons.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground">
+                        No coupons found.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    coupons.map((coupon) => (
+                      <TableRow key={coupon.id}>
+                        <TableCell>{coupon.code}</TableCell>
+                        <TableCell>{coupon.discountType === 'PERCENTAGE' ? `${coupon.discountValue}%` : `$${coupon.discountValue}`}</TableCell>
+                        <TableCell>{coupon.maxUsage || 'Unlimited'}</TableCell>
+                        <TableCell>{coupon.usages.length}</TableCell>
+                        <TableCell>
+                          <Badge variant={coupon.status === 'active' ? 'default' : 'secondary'}>
+                            {coupon.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" onClick={() => handleEditCoupon(coupon)}>
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleToggleCouponStatus(coupon.id, coupon.status)}>
+                              {coupon.status === 'active' ? 'Disable' : 'Enable'}
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDeleteCoupon(coupon.id)}>
+                              Delete
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -634,18 +664,38 @@ export default function SuperAdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {coupons.flatMap((coupon) =>
-                    coupon.usages.map((usage) => (
-                      <TableRow key={`${coupon.id}-${usage.userId}`}>
-                        <TableCell>{usage.user.email}</TableCell>
-                        <TableCell>{usage.appliedPlan}</TableCell>
-                        <TableCell>₹{usage.originalPrice}</TableCell>
-                        <TableCell>₹{usage.discountAmount}</TableCell>
-                        <TableCell>₹{usage.finalPrice}</TableCell>
-                        <TableCell>{usage.couponCode}</TableCell>
-                        <TableCell>{new Date(usage.usedAt).toLocaleDateString('en-IN')}</TableCell>
-                      </TableRow>
-                    ))
+                  {couponsLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground">
+                        Loading coupon usage...
+                      </TableCell>
+                    </TableRow>
+                  ) : couponsError ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-destructive">
+                        {couponsError}
+                      </TableCell>
+                    </TableRow>
+                  ) : coupons.flatMap((coupon) => coupon.usages).length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground">
+                        No coupon usage found.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    coupons.flatMap((coupon) =>
+                      coupon.usages.map((usage) => (
+                        <TableRow key={`${coupon.id}-${usage.userId}`}>
+                          <TableCell>{usage.user.email}</TableCell>
+                          <TableCell>{usage.appliedPlan}</TableCell>
+                          <TableCell>₹{usage.originalPrice}</TableCell>
+                          <TableCell>₹{usage.discountAmount}</TableCell>
+                          <TableCell>₹{usage.finalPrice}</TableCell>
+                          <TableCell>{usage.couponCode}</TableCell>
+                          <TableCell>{usage.appliedAt ? new Date(usage.appliedAt).toLocaleDateString('en-IN') : '-'}</TableCell>
+                        </TableRow>
+                      ))
+                    )
                   )}
                 </TableBody>
               </Table>

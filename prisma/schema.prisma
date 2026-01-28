@@ -197,7 +197,7 @@ model CouponUsage {
   discountAmount Float    @default(0)
   finalPrice     Float?
   couponCode     String?
-  usedAt         DateTime @default(now())
+  appliedAt      DateTime? @default(now())
   coupon         Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
   user           users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
