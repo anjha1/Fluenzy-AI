@@ -13,9 +13,12 @@ export async function GET() {
     const coupons = await prisma.coupon.findMany({
       include: {
         usages: {
+          where: {
+            appliedAt: { not: null },
+          },
           select: {
             userId: true,
-            usedAt: true,
+            appliedAt: true,
             appliedPlan: true,
             originalPrice: true,
             discountAmount: true,
@@ -68,7 +71,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User ID not found" }, { status: 400 });
     }
 
-    const coupon = await (prisma as any).coupon.create({
+    const coupon = await prisma.coupon.create({
       data: {
         code: code.toUpperCase(),
         discountType,
@@ -114,7 +117,7 @@ export async function PUT(request: NextRequest) {
         perUserLimit,
         startDate: startDate ? new Date(startDate) : null,
         expiryDate: expiryDate ? new Date(expiryDate) : null,
-        applicablePlans,
+        applicablePlans: applicablePlans ? applicablePlans.map((plan: string) => plan.toUpperCase()) : undefined,
         status,
       },
     });
