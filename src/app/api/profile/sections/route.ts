@@ -20,6 +20,14 @@ const typeMap = {
   language: "language",
 } as const;
 
+const normalizeUrl = (value?: string) => {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
 type SectionType = keyof typeof typeMap;
 
 export async function POST(request: NextRequest) {
@@ -87,7 +95,8 @@ export async function POST(request: NextRequest) {
               name: data.name,
               issuer: data.issuer,
               issueDate: new Date(data.issueDate),
-              credentialUrl: data.credentialUrl || "",
+              credentialUrl: normalizeUrl(data.credentialUrl),
+              skills: Array.isArray(data.skills) ? data.skills : [],
             },
           })
         );
@@ -192,7 +201,8 @@ export async function PUT(request: NextRequest) {
             name: data.name,
             issuer: data.issuer,
             issueDate: new Date(data.issueDate),
-            credentialUrl: data.credentialUrl || "",
+            credentialUrl: normalizeUrl(data.credentialUrl),
+            skills: Array.isArray(data.skills) ? data.skills : [],
           },
         });
         return NextResponse.json({ success: true });

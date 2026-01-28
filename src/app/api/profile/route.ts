@@ -68,6 +68,7 @@ export async function GET() {
             username: await generateUsername(user.email),
             headline: "",
             bio: "",
+            socialLinks: {},
             openToWork: false,
             publicProfileEnabled: false,
             publicSections: {
@@ -179,6 +180,7 @@ export async function GET() {
         username: ensuredProfile.username,
         headline: ensuredProfile.headline,
         bio: ensuredProfile.bio,
+        socialLinks: ensuredProfile.socialLinks || {},
         openToWork: ensuredProfile.openToWork,
         publicProfileEnabled: ensuredProfile.publicProfileEnabled,
         publicSections: ensuredProfile.publicSections,
@@ -241,6 +243,9 @@ export async function PUT(request: NextRequest) {
       openToWork,
       publicProfileEnabled,
       publicSections,
+      socialLinks,
+      name,
+      image,
     } = body;
 
     let normalizedUsername = username?.toString().toLowerCase().trim();
@@ -263,6 +268,7 @@ export async function PUT(request: NextRequest) {
         username: normalizedUsername,
         headline,
         bio,
+        socialLinks: socialLinks || undefined,
         openToWork: Boolean(openToWork),
         publicProfileEnabled: Boolean(publicProfileEnabled),
         publicSections: publicSections || undefined,
@@ -272,6 +278,7 @@ export async function PUT(request: NextRequest) {
         username: normalizedUsername || (await generateUsername(user.email)),
         headline: headline || "",
         bio: bio || "",
+        socialLinks: socialLinks || {},
         openToWork: Boolean(openToWork),
         publicProfileEnabled: Boolean(publicProfileEnabled),
         publicSections: publicSections || {
@@ -286,6 +293,16 @@ export async function PUT(request: NextRequest) {
       },
     });
 
+    if (name || image) {
+      await prisma.users.update({
+        where: { id: user.id },
+        data: {
+          name: name ?? user.name,
+          avatar: image ?? user.avatar,
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
       profile: {
@@ -293,6 +310,7 @@ export async function PUT(request: NextRequest) {
         username: profile.username,
         headline: profile.headline,
         bio: profile.bio,
+        socialLinks: profile.socialLinks || {},
         openToWork: profile.openToWork,
         publicProfileEnabled: profile.publicProfileEnabled,
         publicSections: profile.publicSections,

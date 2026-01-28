@@ -67,6 +67,7 @@ model UserProfile {
   username             String   @unique
   headline             String?
   bio                  String?
+  socialLinks          Json?
   openToWork           Boolean  @default(false)
   publicProfileEnabled Boolean  @default(false)
   publicSections       Json?
@@ -122,6 +123,7 @@ model Certification {
   issuer      String
   issueDate   DateTime
   credentialUrl String?
+  skills      String[]
   createdAt   DateTime @default(now())
 }
 
