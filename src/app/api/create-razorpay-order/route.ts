@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
         finalAmount = finalAmount * (1 - coupon.discountValue / 100);
       } else {
-        finalAmount = Math.max(0, finalAmount - coupon.discountValue * 100);
+        finalAmount = Math.max(0, finalAmount - coupon.discountValue);
       }
     }
 

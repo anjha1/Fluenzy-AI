@@ -39,13 +39,13 @@ export default function BillingPage() {
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null);
   const [plans, setPlans] = useState<Record<string, PlanData>>({});
   const [loading, setLoading] = useState(true);
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
-  const [couponError, setCouponError] = useState("");
-  const [couponLoading, setCouponLoading] = useState(false);
-  const [finalAmount, setFinalAmount] = useState<number | null>(null);
-  const [couponApplied, setCouponApplied] = useState(false);
-  const [couponSuccessMessage, setCouponSuccessMessage] = useState("");
+  const [couponCode, setCouponCode] = useState<{ [key: string]: string }>({});
+  const [appliedCoupon, setAppliedCoupon] = useState<{ [key: string]: any }>({});
+  const [couponError, setCouponError] = useState<{ [key: string]: string }>({});
+  const [couponLoading, setCouponLoading] = useState<{ [key: string]: boolean }>({});
+  const [finalAmount, setFinalAmount] = useState<{ [key: string]: number | null }>({});
+  const [couponApplied, setCouponApplied] = useState<{ [key: string]: boolean }>({});
+  const [couponSuccessMessage, setCouponSuccessMessage] = useState<{ [key: string]: string }>({});
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const [animatedPrice, setAnimatedPrice] = useState<{ [key: string]: number }>({});
   const [priceBreakdown, setPriceBreakdown] = useState<{ [key: string]: any }>({});
@@ -61,17 +61,31 @@ export default function BillingPage() {
       try {
         const [planResponse, pricingResponse] = await Promise.all([
           fetch("/api/user-plan"),
-          fetch("/api/admin/plan-pricing")
+          fetch("/api/plan-pricing")
         ]);
 
         if (planResponse.ok) {
-          const planData = await planResponse.json();
-          setPlanInfo(planData);
+          const contentType = planResponse.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const planData = await planResponse.json();
+            setPlanInfo(planData);
+          } else {
+            console.error("Plan response is not JSON:", await planResponse.text());
+          }
+        } else {
+          console.error("Plan response not ok:", planResponse.status, await planResponse.text());
         }
 
         if (pricingResponse.ok) {
-          const pricingData = await pricingResponse.json();
-          setPlans(pricingData);
+          const contentType = pricingResponse.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const pricingData = await pricingResponse.json();
+            setPlans(pricingData);
+          } else {
+            console.error("Pricing response is not JSON:", await pricingResponse.text());
+          }
+        } else {
+          console.error("Pricing response not ok:", pricingResponse.status, await pricingResponse.text());
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -100,14 +114,14 @@ export default function BillingPage() {
   }, [plans, billingCycle]);
 
   const applyCoupon = async (targetPlan: string) => {
-    const trimmedCode = couponCode.trim();
+    const trimmedCode = couponCode[targetPlan]?.trim();
     if (!trimmedCode) {
-      setCouponError("Please enter a coupon code");
+      setCouponError({ ...couponError, [targetPlan]: "Please enter a coupon code" });
       return;
     }
 
-    setCouponLoading(true);
-    setCouponError("");
+    setCouponLoading({ ...couponLoading, [targetPlan]: true });
+    setCouponError({ ...couponError, [targetPlan]: "" });
 
     try {
       const response = await fetch('/api/coupons/apply', {
@@ -118,12 +132,12 @@ export default function BillingPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setAppliedCoupon(data.coupon);
-        setFinalAmount(data.pricing.finalAmount);
-        setCouponError("");
-        setCouponCode(""); // Clear input after successful application
-        setCouponApplied(true);
-        setCouponSuccessMessage(`Coupon "${data.coupon.code}" applied successfully!`);
+        setAppliedCoupon({ ...appliedCoupon, [targetPlan]: data.coupon });
+        setFinalAmount({ ...finalAmount, [targetPlan]: data.pricing.finalAmount });
+        setCouponError({ ...couponError, [targetPlan]: "" });
+        setCouponCode({ ...couponCode, [targetPlan]: "" }); // Clear input after successful application
+        setCouponApplied({ ...couponApplied, [targetPlan]: true });
+        setCouponSuccessMessage({ ...couponSuccessMessage, [targetPlan]: `Coupon "${data.coupon.code}" applied successfully!` });
 
         // Update price breakdown for the selected plan
         setPriceBreakdown({
@@ -144,38 +158,35 @@ export default function BillingPage() {
         });
       } else {
         const errorData = await response.json();
-        setCouponError(errorData.error || "Failed to apply coupon");
-        setAppliedCoupon(null);
-        setFinalAmount(null);
-        setCouponApplied(false);
+        setCouponError({ ...couponError, [targetPlan]: errorData.error || "Failed to apply coupon" });
+        setAppliedCoupon({ ...appliedCoupon, [targetPlan]: null });
+        setFinalAmount({ ...finalAmount, [targetPlan]: null });
+        setCouponApplied({ ...couponApplied, [targetPlan]: false });
       }
     } catch (error) {
       console.error('Coupon apply error:', error);
-      setCouponError("Failed to apply coupon. Please try again.");
-      setAppliedCoupon(null);
-      setFinalAmount(null);
+      setCouponError({ ...couponError, [targetPlan]: "Failed to apply coupon. Please try again." });
+      setAppliedCoupon({ ...appliedCoupon, [targetPlan]: null });
+      setFinalAmount({ ...finalAmount, [targetPlan]: null });
     } finally {
-      setCouponLoading(false);
+      setCouponLoading({ ...couponLoading, [targetPlan]: false });
     }
   };
 
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setFinalAmount(null);
-    setCouponCode("");
-    setCouponError("");
-    setCouponApplied(false);
-    setCouponSuccessMessage("");
-    setPriceBreakdown({});
-    // Reset animated prices
-    const resetPrices: { [key: string]: number } = {};
-    Object.keys(plans).forEach(planName => {
-      const plan = plans[planName];
-      resetPrices[planName] = billingCycle === 'annual' && planName !== 'Free'
-        ? Math.round(plan.price * 12 * 0.8)
-        : plan.price;
-    });
-    setAnimatedPrice(resetPrices);
+  const removeCoupon = (targetPlan: string) => {
+    setAppliedCoupon({ ...appliedCoupon, [targetPlan]: null });
+    setFinalAmount({ ...finalAmount, [targetPlan]: null });
+    setCouponCode({ ...couponCode, [targetPlan]: "" });
+    setCouponError({ ...couponError, [targetPlan]: "" });
+    setCouponApplied({ ...couponApplied, [targetPlan]: false });
+    setCouponSuccessMessage({ ...couponSuccessMessage, [targetPlan]: "" });
+    setPriceBreakdown({ ...priceBreakdown, [targetPlan]: undefined });
+    // Reset animated price for this plan
+    const plan = plans[targetPlan];
+    const resetPrice = billingCycle === 'annual' && targetPlan !== 'Free'
+      ? Math.round(plan.price * 12 * 0.8)
+      : plan.price;
+    setAnimatedPrice({ ...animatedPrice, [targetPlan]: resetPrice });
   };
 
   const handleUpgrade = async (targetPlan: string) => {
@@ -398,10 +409,13 @@ export default function BillingPage() {
                               </p>
 
                               <p className="text-lg font-semibold text-foreground">
-                                {appliedCoupon ? (
+                                {priceBreakdown[planName] ? (
                                   <>
-                                    <span className="line-through text-muted-foreground">₹{appliedCoupon.originalPrice}</span>
-                                    <span className="ml-2 text-green-600">₹{appliedCoupon.finalPrice}</span>
+                                    <span className="line-through text-muted-foreground">₹{priceBreakdown[planName].originalPrice}</span>
+                                    <span className="ml-2 text-green-600">₹{priceBreakdown[planName].finalAmount}</span>
+                                    <span className="text-gray-400 ml-2">
+                                      /{billingCycle === 'annual' ? 'year' : 'month'}
+                                    </span>
                                   </>
                                 ) : (
                                   <>
@@ -423,7 +437,7 @@ export default function BillingPage() {
                                       </div>
                                     )}
                                   </>
-                                )}/month
+                                )}
                               </p>
                             </div>
                           </div>
@@ -443,20 +457,20 @@ export default function BillingPage() {
                             <span className="text-sm font-medium text-foreground">Have a coupon?</span>
                           </div>
 
-                          {appliedCoupon ? (
+                          {appliedCoupon[planName] ? (
                             <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 rounded-lg p-3">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-green-700">{appliedCoupon.code}</span>
+                                <span className="text-sm font-medium text-green-700">{appliedCoupon[planName].code}</span>
                                 <span className="text-xs text-green-600">
-                                  ({appliedCoupon.discountType === 'PERCENTAGE'
-                                    ? `${appliedCoupon.discountValue}% off`
-                                    : `₹${appliedCoupon.discountValue} off`})
+                                  ({appliedCoupon[planName].discountType === 'PERCENTAGE'
+                                    ? `${appliedCoupon[planName].discountValue}% off`
+                                    : `₹${appliedCoupon[planName].discountValue} off`})
                                 </span>
                               </div>
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={removeCoupon}
+                                onClick={() => removeCoupon(planName)}
                                 className="text-green-700 hover:text-green-800 hover:bg-green-500/20"
                               >
                                 Remove
@@ -466,33 +480,33 @@ export default function BillingPage() {
                             <div className="flex gap-2">
                               <Input
                                 type="text"
-                                value={couponCode}
-                                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                value={couponCode[planName] || ''}
+                                onChange={(e) => setCouponCode({ ...couponCode, [planName]: e.target.value.toUpperCase() })}
                                 placeholder="Enter coupon code"
-                                disabled={couponLoading}
+                                disabled={couponLoading[planName]}
                                 className="flex-1"
                               />
                               <Button
                                 onClick={() => applyCoupon(planName)}
-                                disabled={couponLoading || !couponCode.trim() || couponApplied}
+                                disabled={couponLoading[planName] || !couponCode[planName]?.trim() || couponApplied[planName]}
                                 size="sm"
                                 className="bg-purple-600 hover:bg-purple-700"
                               >
-                                {couponLoading ? "Applying..." : "Apply"}
+                                {couponLoading[planName] ? "Applying..." : "Apply"}
                               </Button>
                             </div>
                           )}
 
-                          {couponSuccessMessage && (
-                            <p className="text-sm text-green-600">{couponSuccessMessage}</p>
+                          {couponSuccessMessage[planName] && (
+                            <p className="text-sm text-green-600">{couponSuccessMessage[planName]}</p>
                           )}
 
-                          {couponError && (
-                            <p className="text-sm text-red-600">{couponError}</p>
+                          {couponError[planName] && (
+                            <p className="text-sm text-red-600">{couponError[planName]}</p>
                           )}
 
                           {/* Price Details Block */}
-                          {appliedCoupon && (
+                          {appliedCoupon[planName] && priceBreakdown[planName] && (
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
@@ -503,20 +517,20 @@ export default function BillingPage() {
                               <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
                                   <span>Original Price:</span>
-                                  <span>₹{appliedCoupon.originalPrice} / {billingCycle === 'annual' ? 'year' : 'month'}</span>
+                                  <span>₹{priceBreakdown[planName].originalPrice} / {billingCycle === 'annual' ? 'year' : 'month'}</span>
                                 </div>
                                 <div className="flex justify-between text-green-400">
-                                  <span>Discount ({appliedCoupon.discountValue}{appliedCoupon.discountType === 'percentage' ? '%' : '₹'}):</span>
-                                  <span>-₹{appliedCoupon.discountAmount}</span>
+                                  <span>Discount ({priceBreakdown[planName].discountValue}{priceBreakdown[planName].discountType === 'PERCENTAGE' ? '%' : '₹'}):</span>
+                                  <span>-₹{priceBreakdown[planName].discountAmount}</span>
                                 </div>
                                 <div className="flex justify-between font-semibold text-white border-t border-gray-600 pt-1">
                                   <span>You Save:</span>
-                                  <span>₹{appliedCoupon.discountAmount}</span>
+                                  <span>₹{priceBreakdown[planName].discountAmount}</span>
                                 </div>
                                 <hr className="my-2" />
                                 <div className="flex justify-between font-semibold">
                                   <span>Final Payable:</span>
-                                  <span className="text-green-700">₹{appliedCoupon.finalPrice} / {billingCycle === 'annual' ? 'year' : 'month'}</span>
+                                  <span className="text-green-700">₹{priceBreakdown[planName].finalAmount} / {billingCycle === 'annual' ? 'year' : 'month'}</span>
                                 </div>
                               </div>
                             </motion.div>
