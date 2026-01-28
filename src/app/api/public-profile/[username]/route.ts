@@ -1,10 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { stat } from "fs/promises";
+import path from "path";
 
-export async function GET(request: NextRequest, context: any) {
-  const { params } = context || {};
+const toIstDateKey = (date: Date) => {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return formatter.format(date);
+};
+
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ username: string }> }
+) {
+  const { params } = context;
   try {
-    const username = params.username?.toLowerCase();
+    const { username: rawUsername } = await params;
+    const username = rawUsername?.toLowerCase();
     if (!username) {
       return NextResponse.json({ error: "Username required" }, { status: 400 });
     }
@@ -37,6 +53,49 @@ export async function GET(request: NextRequest, context: any) {
       languages: true,
     };
 
+    const oneYearAgo = new Date();
+    oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+
+    const sessions = await prisma.session.findMany({
+      where: {
+        userId: profile.userId,
+        startTime: { gte: oneYearAgo },
+      },
+      select: { startTime: true },
+    });
+
+    const activity: Record<string, number> = {};
+    sessions.forEach((sessionItem) => {
+      const key = toIstDateKey(sessionItem.startTime);
+      activity[key] = (activity[key] || 0) + 1;
+    });
+
+    const resumes = await (prisma as any).resume.findMany({
+      where: { userId: profile.userId },
+      orderBy: { uploadedAt: "desc" },
+      take: 5,
+    });
+
+    const resumesWithSize = await Promise.all(
+      resumes.map(async (resume: any) => {
+        let fileSize: number | null = null;
+        try {
+          const localPath = path.join(process.cwd(), "public", resume.fileUrl.replace(/^\/+/, ""));
+          const stats = await stat(localPath);
+          fileSize = stats.size;
+        } catch (error) {
+          fileSize = null;
+        }
+        return {
+          id: resume.id,
+          fileName: resume.fileName,
+          fileUrl: resume.fileUrl,
+          uploadedAt: resume.uploadedAt,
+          fileSize,
+        };
+      })
+    );
+
     return NextResponse.json({
       profile: {
         username: profile.username,
@@ -48,6 +107,7 @@ export async function GET(request: NextRequest, context: any) {
           email: profile.user.email,
           image: profile.user.avatar,
         },
+        socialLinks: (profile as any).socialLinks || null,
       },
       sections: {
         skills: allowed.skills ? profile.skills : [],
@@ -58,6 +118,8 @@ export async function GET(request: NextRequest, context: any) {
         courses: allowed.courses ? profile.courses : [],
         languages: allowed.languages ? profile.languages : [],
       },
+      activity,
+      resumes: resumesWithSize,
     });
   } catch (error) {
     console.error("Public profile error:", error);

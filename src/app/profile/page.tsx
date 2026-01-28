@@ -36,6 +36,12 @@ interface ProfileData {
     username: string;
     headline?: string;
     bio?: string;
+    socialLinks?: {
+      github?: string;
+      linkedin?: string;
+      portfolio?: string;
+      leetcode?: string;
+    };
     openToWork: boolean;
     publicProfileEnabled: boolean;
     publicSections: Record<string, boolean>;
@@ -171,19 +177,33 @@ export default function ProfilePage() {
   };
 
   const openDialog = (type: SectionType, item: any = null) => {
+    const prefilled = item ? { ...item } : {};
+    if (type === "certification" && item?.skills?.length) {
+      prefilled.skillsText = item.skills.join(", ");
+    }
     setActiveSection(type);
     setEditingItem(item);
-    setFormData(item ? { ...item } : {});
+    setFormData(prefilled);
     setDialogOpen(true);
   };
 
   const saveSection = async () => {
     if (!activeSection) return;
     const method = editingItem ? "PUT" : "POST";
+    const payloadData = { ...formData };
+
+    if (activeSection === "certification") {
+      const raw = (formData.skillsText || "") as string;
+      payloadData.skills = raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
     const payload = {
       type: activeSection,
       id: editingItem?.id,
-      data: formData,
+      data: payloadData,
     };
 
     const res = await fetch("/api/profile/sections", {
@@ -213,7 +233,9 @@ export default function ProfilePage() {
     }
   };
 
-  const updateProfile = async (updates: Partial<ProfileData["profile"]>) => {
+  const updateProfile = async (
+    updates: Partial<ProfileData["profile"]> & { name?: string; image?: string | null }
+  ) => {
     try {
       const res = await fetch("/api/profile", {
         method: "PUT",
@@ -222,9 +244,12 @@ export default function ProfilePage() {
           username: updates.username ?? profile.username,
           headline: updates.headline ?? profile.headline,
           bio: updates.bio ?? profile.bio,
+          socialLinks: updates.socialLinks ?? profile.socialLinks,
           openToWork: updates.openToWork ?? profile.openToWork,
           publicProfileEnabled: updates.publicProfileEnabled ?? profile.publicProfileEnabled,
           publicSections: updates.publicSections ?? profile.publicSections,
+          name: updates.name ?? user.name,
+          image: updates.image ?? user.image,
         }),
       });
       if (res.ok) {
@@ -284,6 +309,23 @@ export default function ProfilePage() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-3">
+                <div>
+                  <label className="text-sm text-slate-300">Full Name</label>
+                  <Input
+                    value={user.name || ""}
+                    onChange={(e) => updateProfile({ name: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300">Profile Image URL</label>
+                  <Input
+                    value={user.image || ""}
+                    onChange={(e) => updateProfile({ image: e.target.value })}
+                    className="mt-1"
+                    placeholder="https://..."
+                  />
+                </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-300">Open to Work</span>
                   <Switch
@@ -328,6 +370,57 @@ export default function ProfilePage() {
                     value={profile.username}
                     onChange={(e) => updateProfile({ username: e.target.value })}
                     className="mt-1"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-slate-300">Social Links</label>
+                  <Input
+                    placeholder="GitHub URL"
+                    value={profile.socialLinks?.github || ""}
+                    onChange={(e) =>
+                      updateProfile({
+                        socialLinks: {
+                          ...profile.socialLinks,
+                          github: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                  <Input
+                    placeholder="LinkedIn URL"
+                    value={profile.socialLinks?.linkedin || ""}
+                    onChange={(e) =>
+                      updateProfile({
+                        socialLinks: {
+                          ...profile.socialLinks,
+                          linkedin: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                  <Input
+                    placeholder="Portfolio URL"
+                    value={profile.socialLinks?.portfolio || ""}
+                    onChange={(e) =>
+                      updateProfile({
+                        socialLinks: {
+                          ...profile.socialLinks,
+                          portfolio: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                  <Input
+                    placeholder="LeetCode URL"
+                    value={profile.socialLinks?.leetcode || ""}
+                    onChange={(e) =>
+                      updateProfile({
+                        socialLinks: {
+                          ...profile.socialLinks,
+                          leetcode: e.target.value,
+                        },
+                      })
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -491,12 +584,30 @@ export default function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-semibold text-slate-100">{cert.name}</p>
-                          <p className="text-sm text-slate-400">{cert.issuer}</p>
+                          <p className="text-sm text-slate-400">Issuer: {cert.issuer || "Microsoft"}</p>
                         </div>
                         <div className="flex gap-2">
                           <Button variant="ghost" size="icon" onClick={() => openDialog("certification", cert)}><Pencil className="h-4 w-4" /></Button>
                           <Button variant="ghost" size="icon" onClick={() => deleteSection("certification", cert.id)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
+                      </div>
+                      <div className="mt-2 text-sm text-slate-300 space-y-1">
+                        <p>Date: {cert.issueDate ? new Date(cert.issueDate).toLocaleDateString() : "N/A"}</p>
+                        <p>ID: {cert.credentialId || cert.id}</p>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {cert.skills?.length ? (
+                          cert.skills.map((skill: string) => (
+                            <Badge key={skill} variant="secondary">{skill}</Badge>
+                          ))
+                        ) : (
+                          <Badge variant="secondary">No skills added</Badge>
+                        )}
+                        <Button variant="outline" size="sm" asChild disabled={!cert.credentialUrl}>
+                          <a href={cert.credentialUrl || "#"} target="_blank" rel="noreferrer">
+                            Verify
+                          </a>
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -528,9 +639,23 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       <p className="text-sm text-slate-300 mt-2">{project.description}</p>
-                      {(project.repoUrl || project.projectUrl) && (
-                        <p className="text-xs text-slate-400 mt-2">{project.repoUrl || project.projectUrl}</p>
-                      )}
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Button variant="outline" size="sm" asChild disabled={!project.projectUrl}>
+                          <a href={project.projectUrl || "#"} target="_blank" rel="noreferrer">
+                            Show Project
+                          </a>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild disabled={!project.repoUrl}>
+                          <a href={project.repoUrl || "#"} target="_blank" rel="noreferrer">
+                            GitHub
+                          </a>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild disabled={!project.projectUrl && !project.repoUrl}>
+                          <a href={project.projectUrl || project.repoUrl || "#"} target="_blank" rel="noreferrer">
+                            Project Details
+                          </a>
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -726,6 +851,11 @@ export default function ProfilePage() {
               <Input placeholder="Issuer" value={formData.issuer || ""} onChange={(e) => setFormData({ ...formData, issuer: e.target.value })} />
               <Input type="date" value={formData.issueDate ? formData.issueDate.slice(0, 10) : ""} onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })} />
               <Input placeholder="Credential URL" value={formData.credentialUrl || ""} onChange={(e) => setFormData({ ...formData, credentialUrl: e.target.value })} />
+              <Input
+                placeholder="Skills (comma separated)"
+                value={formData.skillsText || ""}
+                onChange={(e) => setFormData({ ...formData, skillsText: e.target.value })}
+              />
             </div>
           )}
 
