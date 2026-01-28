@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
         finalAmount = finalAmount * (1 - coupon.discountValue / 100);
       } else {
-        finalAmount = Math.max(0, finalAmount - coupon.discountValue);
+        finalAmount = Math.max(0, finalAmount - coupon.discountValue * 100);
       }
     }
 
@@ -165,10 +165,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Razorpay order
+    const receipt = `rcpt_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`;
     const options = {
       amount: Math.round(finalAmount), // Amount in paise
       currency: "INR",
-      receipt: `rcpt_${user.id}_${targetPlan}_${Date.now()}`,
+      receipt,
       notes: {
         userId: user.id,
         email: user.email,
