@@ -71,6 +71,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User ID not found" }, { status: 400 });
     }
 
+    const allowedPlans = ["Free", "Standard", "Pro", "Enterprise"];
+    const normalizedPlans = Array.isArray(applicablePlans)
+      ? applicablePlans
+          .map((plan: string) => allowedPlans.find((allowed) => allowed.toLowerCase() === String(plan).toLowerCase()))
+          .filter(Boolean)
+      : [];
+
+    if (Array.isArray(applicablePlans) && normalizedPlans.length !== applicablePlans.length) {
+      return NextResponse.json({ error: "Invalid applicable plan selection" }, { status: 400 });
+    }
+
     const coupon = await prisma.coupon.create({
       data: {
         code: code.toUpperCase(),
@@ -80,7 +91,7 @@ export async function POST(request: NextRequest) {
         perUserLimit,
         startDate: startDate ? new Date(startDate) : null,
         expiryDate: expiryDate ? new Date(expiryDate) : null,
-        applicablePlans: applicablePlans.map((plan: string) => plan.toUpperCase()),
+        applicablePlans: normalizedPlans,
         status: status || 'active',
         createdBy: userId,
       },
@@ -107,6 +118,17 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Coupon ID required" }, { status: 400 });
     }
 
+    const allowedPlans = ["Free", "Standard", "Pro", "Enterprise"];
+    const normalizedPlans = Array.isArray(applicablePlans)
+      ? applicablePlans
+          .map((plan: string) => allowedPlans.find((allowed) => allowed.toLowerCase() === String(plan).toLowerCase()))
+          .filter(Boolean)
+      : undefined;
+
+    if (Array.isArray(applicablePlans) && normalizedPlans && normalizedPlans.length !== applicablePlans.length) {
+      return NextResponse.json({ error: "Invalid applicable plan selection" }, { status: 400 });
+    }
+
     const coupon = await (prisma as any).coupon.update({
       where: { id },
       data: {
@@ -117,7 +139,7 @@ export async function PUT(request: NextRequest) {
         perUserLimit,
         startDate: startDate ? new Date(startDate) : null,
         expiryDate: expiryDate ? new Date(expiryDate) : null,
-        applicablePlans: applicablePlans ? applicablePlans.map((plan: string) => plan.toUpperCase()) : undefined,
+        applicablePlans: normalizedPlans,
         status,
       },
     });

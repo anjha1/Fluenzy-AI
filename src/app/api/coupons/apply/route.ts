@@ -81,12 +81,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Coupon expired on ${expiryDateStr}` }, { status: 400 });
     }
 
-    // Applicable plans validation
+    // Applicable plans validation (case-sensitive)
+    const allowedPlans = ["Free", "Standard", "Pro", "Enterprise"];
+    if (!allowedPlans.includes(targetPlan)) {
+      return NextResponse.json({ error: "Invalid plan selection" }, { status: 400 });
+    }
     if (targetPlan === "Free") {
       return NextResponse.json({ error: "This coupon is not applicable to the selected plan." }, { status: 400 });
     }
-    if (coupon.applicablePlans && coupon.applicablePlans.length > 0 && !coupon.applicablePlans.map((plan: string) => plan.toUpperCase()).includes(targetPlan.toUpperCase())) {
-      return NextResponse.json({ error: "This coupon is not applicable to the selected plan." }, { status: 400 });
+
+    const applicablePlans = Array.isArray(coupon.applicablePlans) ? coupon.applicablePlans : [];
+    const normalizedApplicablePlans = applicablePlans
+      .map((plan: string) => allowedPlans.find((allowed) => allowed.toLowerCase() === String(plan).toLowerCase()))
+      .filter(Boolean) as string[];
+    const isApplicable = normalizedApplicablePlans.length === 0 || normalizedApplicablePlans.includes(targetPlan);
+    console.log("Coupon apply validation", {
+      targetPlan,
+      applicablePlans: normalizedApplicablePlans,
+      isApplicable,
+    });
+
+    if (!isApplicable) {
+      return NextResponse.json({ error: "Coupon not valid for this plan" }, { status: 400 });
     }
 
     // Max total usage validation

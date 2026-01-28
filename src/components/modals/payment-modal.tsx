@@ -29,6 +29,10 @@ const PaymentModal = ({
   const handleUpgrade = async () => {
     setIsLoading(true);
     try {
+      const originalAmount = planPrice ?? 0;
+      const finalAmountValue = finalAmount ?? originalAmount;
+      const discountAmount = appliedCoupon ? Math.max(0, originalAmount - finalAmountValue) : 0;
+
       // Create Razorpay order
       const response = await fetch("/api/create-razorpay-order", {
         method: "POST",
@@ -38,6 +42,9 @@ const PaymentModal = ({
         body: JSON.stringify({
           targetPlan: "Pro",
           couponCode: appliedCoupon?.code || undefined,
+          originalAmount,
+          discountAmount,
+          finalAmount: finalAmountValue,
         }),
       });
 
@@ -76,6 +83,9 @@ const PaymentModal = ({
               order_id: data.orderId,
               plan: "Pro",
               couponCode: appliedCoupon?.code || null,
+              originalAmount,
+              discountAmount,
+              finalAmount: finalAmountValue,
             }),
           });
 
