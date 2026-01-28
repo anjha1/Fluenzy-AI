@@ -71,8 +71,13 @@ export async function POST(request: NextRequest) {
     let finalAmount = planPricing.price;
 
     if (couponCode) {
-      const coupon = await prisma.coupon.findUnique({
-        where: { code: couponCode },
+      const coupon = await prisma.coupon.findFirst({
+        where: {
+          code: {
+            equals: couponCode,
+            mode: 'insensitive'
+          }
+        },
       });
 
       if (coupon) {
