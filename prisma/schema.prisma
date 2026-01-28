@@ -122,6 +122,7 @@ model Certification {
   name        String
   issuer      String
   issueDate   DateTime
+  imageUrl    String?
   credentialUrl String?
   skills      String[]
   createdAt   DateTime @default(now())
