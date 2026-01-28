@@ -20,6 +20,9 @@ const PaymentModal = ({
   onUpgrade,
   usageCount,
   usageLimit,
+  appliedCoupon,
+  finalAmount,
+  planPrice,
 }: PaymentModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
