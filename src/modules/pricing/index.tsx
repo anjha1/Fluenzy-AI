@@ -102,7 +102,7 @@ const Pricing = () => {
         setPlans([
           { name: "Free", price: 0, currency: "INR", ...planFeatures.Free },
           { name: "Standard", price: 150, currency: "INR", ...planFeatures.Standard },
-          { name: "Pro", price: 999, currency: "INR", ...planFeatures.Pro },
+          { name: "Pro", price: 20, currency: "INR", ...planFeatures.Pro },
         ]);
       } finally {
         setLoading(false);
