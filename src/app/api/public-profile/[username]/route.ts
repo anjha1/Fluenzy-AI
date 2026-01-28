@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(request: NextRequest, { params }: { params: { username: string } }) {
+export async function GET(request: NextRequest, context: any) {
+  const { params } = context || {};
   try {
     const username = params.username?.toLowerCase();
     if (!username) {
