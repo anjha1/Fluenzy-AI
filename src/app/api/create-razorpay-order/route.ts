@@ -25,10 +25,21 @@ export async function POST(request: NextRequest) {
 
     let couponCode = '';
     let targetPlan = 'Pro'; // Default to Pro for backward compatibility
+    let billingCycle: 'monthly' | 'annual' = 'monthly';
+    let requestOriginalAmount: number | null = null;
+    let requestDiscountAmount: number | null = null;
+    let requestFinalAmount: number | null = null;
     try {
       const body = await request.json();
       couponCode = body?.couponCode || '';
       targetPlan = body?.targetPlan || 'Pro';
+      billingCycle = body?.billingCycle === 'annual' ? 'annual' : 'monthly';
+      const parsedOriginal = typeof body?.originalAmount === 'number' ? body.originalAmount : Number(body?.originalAmount);
+      const parsedDiscount = typeof body?.discountAmount === 'number' ? body.discountAmount : Number(body?.discountAmount);
+      const parsedFinal = typeof body?.finalAmount === 'number' ? body.finalAmount : Number(body?.finalAmount);
+      requestOriginalAmount = Number.isFinite(parsedOriginal) ? parsedOriginal : null;
+      requestDiscountAmount = Number.isFinite(parsedDiscount) ? parsedDiscount : null;
+      requestFinalAmount = Number.isFinite(parsedFinal) ? parsedFinal : null;
     } catch (e) {
       // No body or invalid JSON, continue with defaults
     }
@@ -52,8 +63,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle coupon logic
-    let finalAmount = planPricing.price * 100; // Convert to paise
     let appliedCoupon: any = null;
+    const fallbackOriginalAmount = billingCycle === 'annual' && targetPlan !== 'Free'
+      ? Math.round(planPricing.price * 12 * 0.8)
+      : planPricing.price;
+    let originalAmount = requestOriginalAmount ?? fallbackOriginalAmount;
+    let discountAmount = requestDiscountAmount ?? 0;
+    let finalAmount = requestFinalAmount ?? originalAmount;
 
     if (couponCode) {
       const trimmedCode = couponCode.trim().toUpperCase();
@@ -84,8 +100,27 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Coupon has expired" }, { status: 400 });
       }
 
-      // Applicable plans validation
-      if (coupon.applicablePlans && coupon.applicablePlans.length > 0 && !coupon.applicablePlans.includes(targetPlan)) {
+      const allowedPlans = ["Free", "Standard", "Pro", "Enterprise"];
+      if (!allowedPlans.includes(targetPlan)) {
+        return NextResponse.json({ error: "Invalid plan selection" }, { status: 400 });
+      }
+
+      if (targetPlan === "Free") {
+        return NextResponse.json({ error: "This coupon is not applicable to the selected plan." }, { status: 400 });
+      }
+
+      const applicablePlans = Array.isArray(coupon.applicablePlans) ? coupon.applicablePlans : [];
+      const normalizedApplicablePlans = applicablePlans
+        .map((plan: string) => allowedPlans.find((allowed) => allowed.toLowerCase() === String(plan).toLowerCase()))
+        .filter(Boolean) as string[];
+      const isApplicable = normalizedApplicablePlans.length === 0 || normalizedApplicablePlans.includes(targetPlan);
+      console.log("Coupon order validation", {
+        targetPlan,
+        applicablePlans: normalizedApplicablePlans,
+        isApplicable,
+      });
+
+      if (!isApplicable) {
         return NextResponse.json({ error: "Coupon not valid for this plan" }, { status: 400 });
       }
 
@@ -107,19 +142,22 @@ export async function POST(request: NextRequest) {
 
       appliedCoupon = coupon;
 
-      // Apply discount
-      if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
-        finalAmount = finalAmount * (1 - coupon.discountValue / 100);
-      } else {
-        finalAmount = Math.max(0, finalAmount - coupon.discountValue * 100);
+      // Apply discount if pricing not provided by client
+      if (requestFinalAmount === null) {
+        if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
+          discountAmount = originalAmount * (coupon.discountValue / 100);
+        } else {
+          discountAmount = coupon.discountValue;
+        }
+
+        finalAmount = Math.max(0, originalAmount - discountAmount);
+      } else if (requestDiscountAmount === null) {
+        discountAmount = Math.max(0, originalAmount - finalAmount);
       }
     }
 
     // Check for 100% discount (free upgrade)
-    const isFreeUpgrade = appliedCoupon && (
-      (appliedCoupon.discountType?.toUpperCase() === 'PERCENTAGE' && appliedCoupon.discountValue === 100) ||
-      (appliedCoupon.discountType?.toUpperCase() === 'FLAT' && appliedCoupon.discountValue * 100 >= planPricing.price * 100)
-    );
+    const isFreeUpgrade = finalAmount === 0;
 
     if (isFreeUpgrade) {
       try {
@@ -142,8 +180,8 @@ export async function POST(request: NextRequest) {
         await (prisma as any).paymentHistory.create({
           data: {
             userId: user.id,
-            originalAmount: planPricing.price,
-            discountAmount: planPricing.price,
+            originalAmount: originalAmount,
+            discountAmount: originalAmount,
             finalAmount: 0,
             paymentMethod: 'coupon',
             status: 'free_via_coupon',
@@ -166,8 +204,18 @@ export async function POST(request: NextRequest) {
 
     // Create Razorpay order
     const receipt = `rcpt_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`;
+    const amountInPaise = Math.round(finalAmount * 100);
+    console.log('Razorpay order amount', {
+      targetPlan,
+      couponCode,
+      originalAmount,
+      discountAmount,
+      finalAmount,
+      amountInPaise,
+    });
+
     const options = {
-      amount: Math.round(finalAmount), // Amount in paise
+      amount: amountInPaise, // Amount in paise
       currency: "INR",
       receipt,
       notes: {
@@ -175,6 +223,10 @@ export async function POST(request: NextRequest) {
         email: user.email,
         targetPlan: targetPlan,
         couponCode: appliedCoupon?.code || '',
+        originalAmount: String(originalAmount),
+        discountAmount: String(discountAmount),
+        finalAmount: String(finalAmount),
+        billingCycle,
       },
     };
 

@@ -20,6 +20,9 @@ export async function POST(request: NextRequest) {
       order_id,
       plan,
       couponCode,
+      originalAmount: requestOriginalAmount,
+      discountAmount: requestDiscountAmount,
+      finalAmount: requestFinalAmount,
     } = body;
 
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
@@ -56,6 +59,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, message: "Payment already processed" });
     }
 
+    const parsedOriginal = typeof requestOriginalAmount === 'number' ? requestOriginalAmount : Number(requestOriginalAmount);
+    const parsedDiscount = typeof requestDiscountAmount === 'number' ? requestDiscountAmount : Number(requestDiscountAmount);
+    const parsedFinal = typeof requestFinalAmount === 'number' ? requestFinalAmount : Number(requestFinalAmount);
+    const hasRequestOriginal = Number.isFinite(parsedOriginal);
+    const hasRequestDiscount = Number.isFinite(parsedDiscount);
+    const hasRequestFinal = Number.isFinite(parsedFinal);
+
     // Get plan pricing for amount
     const planPricing = await (prisma as any).planPricing.findUnique({
       where: { plan: plan },
@@ -66,9 +76,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate discount and final amount
-    let discountAmount = 0;
+    let discountAmount = hasRequestDiscount ? parsedDiscount : 0;
     let couponType = null;
-    let finalAmount = planPricing.price;
+    let originalAmount = hasRequestOriginal ? parsedOriginal : planPricing.price;
+    let finalAmount = hasRequestFinal ? parsedFinal : originalAmount;
 
     if (couponCode) {
       const coupon = await prisma.coupon.findFirst({
@@ -82,13 +93,17 @@ export async function POST(request: NextRequest) {
 
       if (coupon) {
           couponType = coupon.discountType;
-          if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
-            discountAmount = planPricing.price * (coupon.discountValue / 100);
-          } else {
-            discountAmount = coupon.discountValue;
-          }
+          if (!hasRequestFinal) {
+            if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
+              discountAmount = originalAmount * (coupon.discountValue / 100);
+            } else {
+              discountAmount = coupon.discountValue;
+            }
 
-          finalAmount = Math.max(0, planPricing.price - discountAmount);
+            finalAmount = Math.max(0, originalAmount - discountAmount);
+          } else if (!hasRequestDiscount) {
+            discountAmount = Math.max(0, originalAmount - finalAmount);
+          }
 
         // Use transaction to create coupon usage and increment usedCount
         await prisma.$transaction(async (tx) => {
@@ -98,7 +113,7 @@ export async function POST(request: NextRequest) {
               couponId: coupon.id,
               userId: user.id,
               appliedPlan: plan,
-              originalPrice: planPricing.price,
+              originalPrice: originalAmount,
               discountAmount: discountAmount,
               finalPrice: finalAmount,
               couponCode: coupon.code,
@@ -153,7 +168,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
-        originalAmount: planPricing.price,
+        originalAmount: originalAmount,
         discountAmount: discountAmount,
         finalAmount: finalAmount,
         paymentMethod: 'razorpay',

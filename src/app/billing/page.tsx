@@ -191,12 +191,26 @@ export default function BillingPage() {
 
   const handleUpgrade = async (targetPlan: string) => {
     try {
+      const planPrice = plans[targetPlan]?.price ?? 0;
+      const basePrice = billingCycle === 'annual' && targetPlan !== 'Free'
+        ? Math.round(planPrice * 12 * 0.8)
+        : planPrice;
+      const breakdown = priceBreakdown[targetPlan];
+      const originalAmount = breakdown?.originalPrice ?? basePrice;
+      const discountAmount = breakdown?.discountAmount ?? 0;
+      const finalAmountValue = breakdown?.finalAmount ?? basePrice;
+      const appliedCouponCode = appliedCoupon?.[targetPlan]?.code || undefined;
+
       const response = await fetch('/api/create-razorpay-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           targetPlan,
-          couponCode: appliedCoupon?.code || undefined
+          couponCode: appliedCouponCode,
+          originalAmount,
+          discountAmount,
+          finalAmount: finalAmountValue,
+          billingCycle,
         }),
       });
 
@@ -228,7 +242,11 @@ export default function BillingPage() {
                   razorpay_signature: response.razorpay_signature,
                   order_id: data.orderId,
                   plan: targetPlan,
-                  couponCode: appliedCoupon?.code || null,
+                  couponCode: appliedCouponCode || null,
+                  originalAmount,
+                  discountAmount,
+                  finalAmount: finalAmountValue,
+                  billingCycle,
                 }),
               });
 
