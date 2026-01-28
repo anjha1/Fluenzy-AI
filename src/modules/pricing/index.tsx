@@ -71,6 +71,13 @@ const Pricing = () => {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [couponCode, setCouponCode] = useState('');
+  const [couponData, setCouponData] = useState<any>(null);
+  const [couponError, setCouponError] = useState('');
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>('');
+  const [animatedPrice, setAnimatedPrice] = useState<{ [key: string]: number }>({});
+  const [priceBreakdown, setPriceBreakdown] = useState<{ [key: string]: any }>({});
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -95,7 +102,7 @@ const Pricing = () => {
         setPlans([
           { name: "Free", price: 0, currency: "INR", ...planFeatures.Free },
           { name: "Standard", price: 150, currency: "INR", ...planFeatures.Standard },
-          { name: "Pro", price: 20, currency: "INR", ...planFeatures.Pro },
+          { name: "Pro", price: 999, currency: "INR", ...planFeatures.Pro },
         ]);
       } finally {
         setLoading(false);
@@ -104,6 +111,19 @@ const Pricing = () => {
 
     fetchPlans();
   }, []);
+
+  // Initialize animated prices
+  useEffect(() => {
+    if (plans.length > 0) {
+      const initialPrices: { [key: string]: number } = {};
+      plans.forEach(plan => {
+        initialPrices[plan.name] = billingCycle === 'annual' && plan.name !== 'Free'
+          ? Math.round(plan.price * 12 * 0.8)
+          : plan.price;
+      });
+      setAnimatedPrice(initialPrices);
+    }
+  }, [plans, billingCycle]);
 
   const handleButtonClick = (planName: string) => {
     if (pathname === "/pricing") {
@@ -126,6 +146,71 @@ const Pricing = () => {
         element.scrollIntoView({ behavior: "smooth" });
       }
     }
+  };
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim() || !selectedPlan) return;
+
+    setApplyingCoupon(true);
+    setCouponError('');
+    setCouponData(null);
+
+    try {
+      const response = await fetch('/api/coupons/apply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          couponCode: couponCode.trim(),
+          targetPlan: selectedPlan,
+          billingCycle,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCouponData(data);
+        // Update price breakdown for the selected plan
+        setPriceBreakdown({
+          ...priceBreakdown,
+          [selectedPlan]: {
+            originalPrice: data.pricing.originalAmount,
+            discountAmount: data.pricing.discountAmount,
+            finalAmount: data.pricing.finalAmount,
+            discountType: data.coupon.discountType,
+            discountValue: data.coupon.discountValue,
+          }
+        });
+        // Animate price change
+        setAnimatedPrice({
+          ...animatedPrice,
+          [selectedPlan]: data.pricing.finalAmount
+        });
+      } else {
+        setCouponError(data.error);
+      }
+    } catch (error) {
+      setCouponError('Failed to apply coupon. Please try again.');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const clearCoupon = () => {
+    setCouponCode('');
+    setCouponData(null);
+    setCouponError('');
+    setPriceBreakdown({});
+    // Reset animated prices
+    const resetPrices: { [key: string]: number } = {};
+    plans.forEach(plan => {
+      resetPrices[plan.name] = billingCycle === 'annual' && plan.name !== 'Free'
+        ? Math.round(plan.price * 12 * 0.8)
+        : plan.price;
+    });
+    setAnimatedPrice(resetPrices);
   };
 
   return (
@@ -232,15 +317,84 @@ const Pricing = () => {
                   </p>
 
                   <div className="mb-6">
-                    <span className="text-5xl font-bold text-white group-hover:text-cyan-200 transition-colors duration-300">
-                      {billingCycle === 'annual' && plan.name !== 'Free' ? Math.round(plan.price * 12 * 0.8) : plan.price}
-                    </span>
+                    <motion.span
+                      key={animatedPrice[plan.name] || (billingCycle === 'annual' && plan.name !== 'Free' ? Math.round(plan.price * 12 * 0.8) : plan.price)}
+                      initial={{ scale: 1 }}
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 0.3 }}
+                      className="text-5xl font-bold text-white group-hover:text-cyan-200 transition-colors duration-300"
+                    >
+                      {animatedPrice[plan.name] || (billingCycle === 'annual' && plan.name !== 'Free' ? Math.round(plan.price * 12 * 0.8) : plan.price)}
+                    </motion.span>
                     <span className="text-gray-400 ml-2">
                       /{billingCycle === 'annual' ? 'year' : plan.period}
                     </span>
                     {billingCycle === 'annual' && plan.name !== 'Free' && (
                       <div className="text-sm text-green-400 mt-1">
                         Save ₹{plan.price * 12 - Math.round(plan.price * 12 * 0.8)} annually
+                      </div>
+                    )}
+
+                    {/* Price Breakdown for Paid Plans with Coupon */}
+                    {plan.price > 0 && priceBreakdown[plan.name] && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4 p-3 bg-slate-800/50 rounded-lg border border-purple-500/30"
+                      >
+                        <div className="text-sm text-gray-300 space-y-1">
+                          <div className="flex justify-between">
+                            <span>Original Price:</span>
+                            <span>₹{priceBreakdown[plan.name].originalPrice}</span>
+                          </div>
+                          <div className="flex justify-between text-green-400">
+                            <span>Discount ({priceBreakdown[plan.name].discountValue}{priceBreakdown[plan.name].discountType === 'percentage' ? '%' : '₹'}):</span>
+                            <span>-₹{priceBreakdown[plan.name].discountAmount}</span>
+                          </div>
+                          <div className="flex justify-between font-semibold text-white border-t border-gray-600 pt-1">
+                            <span>You Save:</span>
+                            <span>₹{priceBreakdown[plan.name].discountAmount}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Coupon Input for Paid Plans */}
+                    {plan.price > 0 && (
+                      <div className="mt-4 space-y-2">
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            placeholder="Enter coupon code"
+                            value={selectedPlan === plan.name ? couponCode : ''}
+                            onChange={(e) => {
+                              setCouponCode(e.target.value);
+                              setSelectedPlan(plan.name);
+                            }}
+                            className="flex-1 px-3 py-2 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none"
+                          />
+                          <Button
+                            onClick={applyCoupon}
+                            disabled={applyingCoupon || !couponCode.trim() || selectedPlan !== plan.name}
+                            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg disabled:opacity-50"
+                          >
+                            {applyingCoupon ? 'Applying...' : 'Apply'}
+                          </Button>
+                        </div>
+                        {couponError && selectedPlan === plan.name && (
+                          <p className="text-red-400 text-sm">{couponError}</p>
+                        )}
+                        {couponData && selectedPlan === plan.name && (
+                          <p className="text-green-400 text-sm">Coupon applied successfully!</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Message for Free Plan */}
+                    {plan.price === 0 && (
+                      <div className="mt-4 text-sm text-gray-400">
+                        Coupons are applicable only on paid plans.
                       </div>
                     )}
                   </div>

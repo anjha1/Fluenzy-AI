@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
       razorpay_signature,
       order_id,
       plan,
+      couponCode,
     } = body;
 
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
@@ -64,10 +65,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Pricing not found for plan: ${plan}` }, { status: 400 });
     }
 
+    // Calculate discount and final amount
+    let discountAmount = 0;
+    let couponType = null;
+    let finalAmount = planPricing.price;
+
+    if (couponCode) {
+      const coupon = await prisma.coupon.findUnique({
+        where: { code: couponCode },
+      });
+
+      if (coupon) {
+          couponType = coupon.discountType;
+          if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
+            discountAmount = planPricing.price * (coupon.discountValue / 100);
+          } else {
+            discountAmount = coupon.discountValue;
+          }
+
+          finalAmount = Math.max(0, planPricing.price - discountAmount);
+
+        // Use transaction to create coupon usage and increment usedCount
+        await prisma.$transaction(async (tx) => {
+          // Create coupon usage record with pricing data
+          await tx.couponUsage.create({
+            data: {
+              couponId: coupon.id,
+              userId: user.id,
+              appliedPlan: plan,
+              originalPrice: planPricing.price,
+              discountAmount: discountAmount,
+              finalPrice: finalAmount,
+              couponCode: coupon.code,
+              appliedAt: new Date(),
+            },
+          });
+
+          // Increment usedCount
+          await tx.coupon.update({
+            where: { id: coupon.id },
+            data: { usedCount: { increment: 1 } },
+          });
+        });
+
+        console.log('Database: Coupon usage recorded and count incremented', {
+          couponId: coupon.id,
+          userId: user.id,
+          appliedPlan: plan
+        });
+      }
+    }
+
     // Update user plan
     const usageLimit = plan === 'Standard' ? 999999 : (plan === 'Pro' ? 100 : 3);
 
-    await prisma.users.update({
+    const updatedUser = await prisma.users.update({
       where: { id: user.id },
       data: {
         plan: plan as any,
@@ -84,24 +136,38 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log('Database: User plan updated successfully', {
+      userId: user.id,
+      newPlan: updatedUser.plan,
+      usageLimit: updatedUser.usageLimit
+    });
+
     // Create payment history record
-    await (prisma as any).paymentHistory.create({
+    const paymentHistory = await (prisma as any).paymentHistory.create({
       data: {
         userId: user.id,
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
         originalAmount: planPricing.price,
-        discountAmount: 0, // TODO: Handle discounts
-        finalAmount: planPricing.price,
+        discountAmount: discountAmount,
+        finalAmount: finalAmount,
         paymentMethod: 'razorpay',
         status: 'paid',
         plan: plan,
+        couponUsed: couponCode || null,
+        couponType: couponType,
         date: new Date(),
       },
     });
 
-    // Handle coupon usage if any
-    // TODO: Implement coupon tracking for Razorpay payments
+    console.log('Database: Payment history created', {
+      paymentHistoryId: paymentHistory.id,
+      paymentId: razorpay_payment_id,
+      userId: user.id,
+      plan: plan,
+      finalAmount: finalAmount,
+      couponUsed: couponCode
+    });
 
     return NextResponse.json({
       success: true,

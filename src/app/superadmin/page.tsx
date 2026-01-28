@@ -35,6 +35,17 @@ interface LoginLog {
   status: string;
 }
 
+interface CouponUsage {
+  userId: string;
+  usedAt: string;
+  appliedPlan: string;
+  originalPrice: number;
+  discountAmount: number;
+  finalPrice: number;
+  couponCode: string;
+  user: { email: string };
+}
+
 interface Coupon {
   id: string;
   code: string;
@@ -46,7 +57,7 @@ interface Coupon {
   expiryDate?: string;
   applicablePlans: string[];
   status: string;
-  usages: { userId: string }[];
+  usages: CouponUsage[];
 }
 
 interface PaymentAnalytics {
@@ -599,6 +610,43 @@ export default function SuperAdminDashboard() {
                       </TableCell>
                     </TableRow>
                   ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Coupon Usage View</CardTitle>
+              <CardDescription>Detailed breakdown of coupon usage with pricing information</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User Email</TableHead>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>Original Price</TableHead>
+                    <TableHead>Discount</TableHead>
+                    <TableHead>Final Paid</TableHead>
+                    <TableHead>Coupon Code</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {coupons.flatMap((coupon) =>
+                    coupon.usages.map((usage) => (
+                      <TableRow key={`${coupon.id}-${usage.userId}`}>
+                        <TableCell>{usage.user.email}</TableCell>
+                        <TableCell>{usage.appliedPlan}</TableCell>
+                        <TableCell>₹{usage.originalPrice}</TableCell>
+                        <TableCell>₹{usage.discountAmount}</TableCell>
+                        <TableCell>₹{usage.finalPrice}</TableCell>
+                        <TableCell>{usage.couponCode}</TableCell>
+                        <TableCell>{new Date(usage.usedAt).toLocaleDateString('en-IN')}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>

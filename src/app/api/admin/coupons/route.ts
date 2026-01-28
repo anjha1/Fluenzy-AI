@@ -10,12 +10,22 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const coupons = await (prisma as any).coupon.findMany({
+    const coupons = await prisma.coupon.findMany({
       include: {
         usages: {
           select: {
             userId: true,
             usedAt: true,
+            appliedPlan: true,
+            originalPrice: true,
+            discountAmount: true,
+            finalPrice: true,
+            couponCode: true,
+            user: {
+              select: {
+                email: true,
+              },
+            },
           },
         },
       },

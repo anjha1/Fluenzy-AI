@@ -177,6 +177,7 @@ model Coupon {
   discountValue   Float
   maxUsage        Int?
   perUserLimit    Int          @default(1)
+  usedCount       Int          @default(0)
   startDate       DateTime?
   expiryDate      DateTime?
   applicablePlans String[]     // e.g. ["Pro", "Enterprise"]
@@ -188,12 +189,17 @@ model Coupon {
 }
 
 model CouponUsage {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  couponId  String   @db.ObjectId
-  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
-  userId    String   @db.ObjectId
-  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  usedAt    DateTime @default(now())
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  couponId       String   @db.ObjectId
+  userId         String   @db.ObjectId
+  appliedPlan    String?
+  originalPrice  Float?
+  discountAmount Float    @default(0)
+  finalPrice     Float?
+  couponCode     String?
+  usedAt         DateTime @default(now())
+  coupon         Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user           users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([couponId, userId])
 }
@@ -202,7 +208,7 @@ model PaymentHistory {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   userId        String   @db.ObjectId
   user          users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  originalAmount Float
+  originalAmount Float?
   discountAmount Float    @default(0)
   finalAmount   Float
   paymentMethod String?
