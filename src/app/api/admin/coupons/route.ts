@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         perUserLimit,
         startDate: startDate ? new Date(startDate) : null,
         expiryDate: expiryDate ? new Date(expiryDate) : null,
-        applicablePlans,
+        applicablePlans: applicablePlans.map((plan: string) => plan.toUpperCase()),
         status: status || 'active',
         createdBy: userId,
       },

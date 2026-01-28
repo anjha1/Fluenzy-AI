@@ -82,8 +82,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Applicable plans validation
-    if (coupon.applicablePlans && coupon.applicablePlans.length > 0 && !coupon.applicablePlans.includes(targetPlan)) {
-      return NextResponse.json({ error: `Coupon valid only for ${coupon.applicablePlans.join(', ')} plan(s)` }, { status: 400 });
+    if (targetPlan === "Free") {
+      return NextResponse.json({ error: "This coupon is not applicable to the selected plan." }, { status: 400 });
+    }
+    if (coupon.applicablePlans && coupon.applicablePlans.length > 0 && !coupon.applicablePlans.map((plan: string) => plan.toUpperCase()).includes(targetPlan.toUpperCase())) {
+      return NextResponse.json({ error: "This coupon is not applicable to the selected plan." }, { status: 400 });
     }
 
     // Max total usage validation
@@ -128,6 +131,12 @@ export async function POST(request: NextRequest) {
         discountAmount: discountAmount,
         finalAmount: finalAmount,
         billingCycle: billingCycle,
+      },
+      breakdown: {
+        originalPrice: effectivePrice,
+        discount: discountAmount,
+        youSave: discountAmount,
+        finalPayablePrice: finalAmount,
       },
     });
   } catch (error) {

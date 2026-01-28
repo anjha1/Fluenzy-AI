@@ -733,7 +733,7 @@ export default function SuperAdminDashboard() {
                 <div>
                   <Label>Applicable Plans</Label>
                   <div className="flex gap-4">
-                    {['Pro', 'Enterprise'].map((plan) => (
+                    {['Standard', 'Pro'].map((plan) => (
                       <div key={plan} className="flex items-center space-x-2">
                         <Checkbox
                           id={plan}
@@ -750,6 +750,7 @@ export default function SuperAdminDashboard() {
                       </div>
                     ))}
                   </div>
+                  <p className="text-sm text-muted-foreground mt-1">Coupons will not apply to the Free plan</p>
                 </div>
                 <div>
                   <Label htmlFor="status">Status</Label>
