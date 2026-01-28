@@ -273,23 +273,17 @@ export default function PublicProfilePage() {
             <CardHeader>
               <CardTitle>Skills</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {skillGroups.map(([category, skills]) => (
-                <div key={category}>
-                  <p className="text-sm font-semibold text-slate-200 mb-3">{category}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {skills.map((skill) => (
-                      <span
-                        key={skill.id}
-                        className="flex items-center gap-2 rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-200 border border-slate-700/60"
-                      >
-                        {skill.name}
-                        <span className="text-[10px] text-slate-400">{skill.level}</span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {skillsList.map((skill) => (
+                  <span
+                    key={skill.id}
+                    className="rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-200 border border-slate-700/60"
+                  >
+                    {skill.name}
+                  </span>
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}

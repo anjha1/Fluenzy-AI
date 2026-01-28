@@ -85,6 +85,9 @@ export default function ProfilePage() {
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
   const [certificateUploading, setCertificateUploading] = useState(false);
   const [certificateError, setCertificateError] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -224,6 +227,45 @@ export default function ProfilePage() {
     }
   };
 
+  const uploadAvatar = async () => {
+    if (!avatarFile) return;
+    setAvatarUploading(true);
+    setAvatarError(null);
+
+    try {
+      const body = new FormData();
+      body.append("file", avatarFile);
+
+      const res = await fetch("/api/profile/avatar", {
+        method: "POST",
+        body,
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => null);
+        setAvatarError(error?.error || "Failed to upload profile image");
+      } else {
+        const payload = await res.json();
+        setProfileData((prev) =>
+          prev
+            ? {
+                ...prev,
+                user: {
+                  ...prev.user,
+                  image: payload.imageUrl,
+                },
+              }
+            : prev
+        );
+      }
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      setAvatarError("Failed to upload profile image");
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   const saveSection = async () => {
     if (!activeSection) return;
     const method = editingItem ? "PUT" : "POST";
@@ -235,6 +277,10 @@ export default function ProfilePage() {
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
+    }
+
+    if (activeSection === "skill" && !payloadData.level) {
+      payloadData.level = "Beginner";
     }
 
     const payload = {
@@ -355,13 +401,23 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300">Profile Image URL</label>
-                  <Input
-                    value={user.image || ""}
-                    onChange={(e) => updateProfile({ image: e.target.value })}
-                    className="mt-1"
-                    placeholder="https://..."
-                  />
+                  <label className="text-sm text-slate-300">Profile Photo</label>
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 mt-1">
+                    <Input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={uploadAvatar}
+                      disabled={!avatarFile || avatarUploading}
+                    >
+                      {avatarUploading ? "Uploading..." : "Upload Photo"}
+                    </Button>
+                  </div>
+                  {avatarError && <p className="text-xs text-red-400 mt-1">{avatarError}</p>}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-300">Open to Work</span>
@@ -535,7 +591,7 @@ export default function ProfilePage() {
                 <div className="flex flex-wrap gap-2">
                   {sections.skills.map((skill) => (
                     <span key={skill.id} className="flex items-center gap-2 bg-slate-800/80 text-slate-200 px-3 py-1 rounded-full text-xs">
-                      {skill.name} • {skill.level}
+                      {skill.name}
                       <button onClick={() => openDialog("skill", skill)}><Pencil className="h-3 w-3" /></button>
                       <button onClick={() => deleteSection("skill", skill.id)}><Trash2 className="h-3 w-3" /></button>
                     </span>
@@ -866,16 +922,6 @@ export default function ProfilePage() {
                 value={formData.name || ""}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
-              <Select value={formData.level || "Beginner"} onValueChange={(value) => setFormData({ ...formData, level: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Proficiency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Beginner">Beginner</SelectItem>
-                  <SelectItem value="Intermediate">Intermediate</SelectItem>
-                  <SelectItem value="Advanced">Advanced</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           )}
 
