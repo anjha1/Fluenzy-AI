@@ -3,6 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import crypto from "crypto";
+import Razorpay from "razorpay";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_API_KEY!,
+  key_secret: process.env.RAZORPAY_API_SECRET!,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +29,7 @@ export async function POST(request: NextRequest) {
       originalAmount: requestOriginalAmount,
       discountAmount: requestDiscountAmount,
       finalAmount: requestFinalAmount,
+      billingCycle: requestBillingCycle,
     } = body;
 
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
@@ -78,6 +85,7 @@ export async function POST(request: NextRequest) {
     // Calculate discount and final amount
     let discountAmount = hasRequestDiscount ? parsedDiscount : 0;
     let couponType = null;
+    let couponDiscountValue: number | null = null;
     let originalAmount = hasRequestOriginal ? parsedOriginal : planPricing.price;
     let finalAmount = hasRequestFinal ? parsedFinal : originalAmount;
 
@@ -91,8 +99,9 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      if (coupon) {
+        if (coupon) {
           couponType = coupon.discountType;
+          couponDiscountValue = coupon.discountValue;
           if (!hasRequestFinal) {
             if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
               discountAmount = originalAmount * (coupon.discountValue / 100);
@@ -162,6 +171,19 @@ export async function POST(request: NextRequest) {
       usageLimit: updatedUser.usageLimit
     });
 
+    let paymentMethod: string | undefined;
+    let paymentCurrency: string | undefined;
+    try {
+      const paymentDetails = await razorpay.payments.fetch(razorpay_payment_id);
+      paymentMethod = paymentDetails?.method;
+      paymentCurrency = paymentDetails?.currency;
+    } catch (fetchError) {
+      console.warn("Failed to fetch Razorpay payment details", fetchError);
+    }
+
+    const receiptNumber = `FLZ-INV-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+    const receiptUrl = `/api/receipt-pdf?orderId=${encodeURIComponent(razorpay_order_id)}`;
+
     // Create payment history record
     const paymentHistory = await (prisma as any).paymentHistory.create({
       data: {
@@ -171,12 +193,69 @@ export async function POST(request: NextRequest) {
         originalAmount: originalAmount,
         discountAmount: discountAmount,
         finalAmount: finalAmount,
-        paymentMethod: 'razorpay',
+        paymentMethod: paymentMethod || 'razorpay',
+        paymentCurrency: paymentCurrency || 'INR',
         status: 'paid',
         plan: plan,
+        billingCycle: requestBillingCycle || 'monthly',
         couponUsed: couponCode || null,
         couponType: couponType,
+        invoiceId: receiptNumber,
         date: new Date(),
+      },
+    });
+
+    await (prisma as any).receipt.create({
+      data: {
+        paymentHistoryId: paymentHistory.id,
+        userId: user.id,
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        invoiceNumber: receiptNumber,
+        currency: paymentCurrency || 'INR',
+        billingCycle: requestBillingCycle || 'monthly',
+        plan: plan,
+        originalAmount: originalAmount,
+        discountAmount: discountAmount,
+        finalAmount: finalAmount,
+        couponCode: couponCode || null,
+        couponType: couponType || null,
+        discountValue: couponDiscountValue,
+        validFrom: new Date(),
+        validTill: user.renewalDate || null,
+        receiptUrl: receiptUrl,
+        snapshot: {
+          receiptNumber,
+          paymentId: razorpay_payment_id,
+          orderId: razorpay_order_id,
+          invoiceDate: new Date(),
+          paymentStatus: 'Paid',
+          paymentMethod: paymentMethod || 'razorpay',
+          currency: paymentCurrency || 'INR',
+          billedTo: {
+            name: user.name,
+            email: user.email,
+            userId: user.id,
+          },
+          planDetails: {
+            plan,
+            billingCycle: requestBillingCycle || 'monthly',
+            sessionsIncluded: plan === 'Standard' ? 'Unlimited' : (plan === 'Pro' ? '100' : 'N/A'),
+            validFrom: new Date(),
+            validTill: user.renewalDate || null,
+          },
+          priceBreakdown: {
+            originalAmount,
+            discountAmount,
+            finalAmount,
+            taxes: 0,
+          },
+          coupon: couponCode ? {
+            code: couponCode,
+            type: couponType,
+            value: couponDiscountValue,
+          } : null,
+        },
       },
     });
 
@@ -192,7 +271,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Successfully upgraded to ${plan}`,
-      plan: plan
+      plan: plan,
+      receiptUrl
     });
   } catch (error) {
     console.error("Payment verification error:", error);

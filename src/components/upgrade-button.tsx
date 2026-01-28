@@ -57,6 +57,10 @@ export default function UpgradeButton() {
               });
 
               if (verifyRes.ok) {
+                const verifyData = await verifyRes.json().catch(() => ({}));
+                if (verifyData?.receiptUrl) {
+                  window.open(verifyData.receiptUrl, "_blank");
+                }
                 alert("Payment successful! You have been upgraded to Pro.");
                 window.location.reload();
               } else {

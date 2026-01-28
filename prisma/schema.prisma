@@ -54,9 +54,106 @@ model users {
   loginLogs        UserLoginLog[]
   couponUsages     CouponUsage[]
   paymentHistories PaymentHistory[]
+  profile          UserProfile?
   subscriptions    subscriptions[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+model UserProfile {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String   @unique @db.ObjectId
+  user                 users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username             String   @unique
+  headline             String?
+  bio                  String?
+  openToWork           Boolean  @default(false)
+  publicProfileEnabled Boolean  @default(false)
+  publicSections       Json?
+  skills               Skill[]
+  experiences          Experience[]
+  educations           Education[]
+  certifications       Certification[]
+  projects             Project[]
+  courses              Course[]
+  languages            Language[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Skill {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId   String   @db.ObjectId
+  profile     UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  level       String
+  createdAt   DateTime @default(now())
+}
+
+model Experience {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId   String   @db.ObjectId
+  profile     UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  role        String
+  company     String
+  startDate   DateTime
+  endDate     DateTime?
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model Education {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId   String   @db.ObjectId
+  profile     UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  degree      String
+  institution String
+  startYear   Int
+  endYear     Int?
+  grade       String?
+  createdAt   DateTime @default(now())
+}
+
+model Certification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId   String   @db.ObjectId
+  profile     UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  issuer      String
+  issueDate   DateTime
+  credentialUrl String?
+  createdAt   DateTime @default(now())
+}
+
+model Project {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId   String   @db.ObjectId
+  profile     UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  techStack   String?
+  projectUrl  String?
+  repoUrl     String?
+  createdAt   DateTime @default(now())
+}
+
+model Course {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId   String   @db.ObjectId
+  profile     UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  platform    String
+  status      String
+  createdAt   DateTime @default(now())
+}
+
+model Language {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId   String   @db.ObjectId
+  profile     UserProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  proficiency String
+  createdAt   DateTime @default(now())
 }
 
 model subscriptions {
@@ -208,6 +305,11 @@ model PaymentHistory {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   userId        String   @db.ObjectId
   user          users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentId     String?
+  orderId       String?
+  plan          String?
+  billingCycle  String?
+  paymentCurrency String?
   originalAmount Float?
   discountAmount Float    @default(0)
   finalAmount   Float
@@ -217,6 +319,33 @@ model PaymentHistory {
   couponUsed    String?  // coupon code
   couponType    String?  // percentage, flat
   date          DateTime @default(now())
+  receipt       Receipt?
+}
+
+model Receipt {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  paymentHistoryId String   @db.ObjectId
+  paymentHistory   PaymentHistory @relation(fields: [paymentHistoryId], references: [id], onDelete: Cascade)
+  userId           String   @db.ObjectId
+  orderId          String?
+  paymentId        String?
+  invoiceNumber    String
+  currency         String   @default("INR")
+  billingCycle     String?
+  plan             String?
+  originalAmount   Float?
+  discountAmount   Float    @default(0)
+  finalAmount      Float
+  couponCode       String?
+  couponType       String?
+  discountValue    Float?
+  issuedAt         DateTime @default(now())
+  validFrom        DateTime?
+  validTill        DateTime?
+  receiptUrl       String?
+  snapshot         Json?
+
+  @@unique([paymentHistoryId])
 }
 
 model PlanPricing {

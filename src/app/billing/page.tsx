@@ -251,6 +251,10 @@ export default function BillingPage() {
               });
 
               if (verifyRes.ok) {
+                const verifyData = await verifyRes.json().catch(() => ({}));
+                if (verifyData?.receiptUrl) {
+                  window.open(verifyData.receiptUrl, "_blank");
+                }
                 alert(`Payment successful! You have been upgraded to ${targetPlan}.`);
                 window.location.reload();
               } else {
