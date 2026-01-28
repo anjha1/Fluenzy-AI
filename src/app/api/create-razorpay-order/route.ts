@@ -12,6 +12,11 @@ const razorpay = new Razorpay({
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate Razorpay credentials at runtime
+    if (!process.env.RAZORPAY_API_KEY || !process.env.RAZORPAY_API_SECRET) {
+      return NextResponse.json({ error: "Razorpay credentials not configured" }, { status: 500 });
+    }
+
     const authSession = await getServerSession(authOptions);
 
     if (!authSession?.user?.email) {
