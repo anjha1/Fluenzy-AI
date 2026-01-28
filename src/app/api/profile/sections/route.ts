@@ -24,6 +24,7 @@ const normalizeUrl = (value?: string) => {
   if (!value) return "";
   const trimmed = value.trim();
   if (!trimmed) return "";
+  if (trimmed.startsWith("/")) return trimmed;
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
 };
@@ -95,6 +96,7 @@ export async function POST(request: NextRequest) {
               name: data.name,
               issuer: data.issuer,
               issueDate: new Date(data.issueDate),
+              imageUrl: normalizeUrl(data.imageUrl),
               credentialUrl: normalizeUrl(data.credentialUrl),
               skills: Array.isArray(data.skills) ? data.skills : [],
             },
@@ -201,6 +203,7 @@ export async function PUT(request: NextRequest) {
             name: data.name,
             issuer: data.issuer,
             issueDate: new Date(data.issueDate),
+            imageUrl: normalizeUrl(data.imageUrl),
             credentialUrl: normalizeUrl(data.credentialUrl),
             skills: Array.isArray(data.skills) ? data.skills : [],
           },

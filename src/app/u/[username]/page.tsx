@@ -31,7 +31,15 @@ type PublicProfileData = {
     skills: Array<{ id: string; name: string; level: string }>;
     experiences: Array<{ id: string; role: string; company: string; startDate: string; endDate?: string | null; description?: string | null }>;
     educations: Array<{ id: string; degree: string; institution: string; startYear: number; endYear?: number | null; grade?: string | null }>;
-    certifications: Array<{ id: string; name: string; issuer: string; issueDate: string; credentialUrl?: string | null; skills?: string[] }>;
+    certifications: Array<{
+      id: string;
+      name: string;
+      issuer: string;
+      issueDate: string;
+      imageUrl?: string | null;
+      credentialUrl?: string | null;
+      skills?: string[];
+    }>;
     projects: Array<{ id: string; title: string; description?: string | null; techStack?: string | null; projectUrl?: string | null; repoUrl?: string | null }>;
     courses: Array<{ id: string; name: string; platform: string; status: string }>;
     languages: Array<{ id: string; name: string; proficiency: string }>;
@@ -411,9 +419,23 @@ export default function PublicProfilePage() {
                 {sections.certifications.map((cert) => (
                   <div key={cert.id} className="rounded-2xl border border-slate-800/70 bg-slate-900/80 p-4">
                     <div className="flex items-start gap-4">
-                      <div className="h-16 w-16 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-200 font-semibold">
-                        {cert.issuer?.slice(0, 2)?.toUpperCase() || "CR"}
-                      </div>
+                      {cert.imageUrl ? (
+                        /\.pdf($|\?)/i.test(cert.imageUrl) ? (
+                          <div className="h-16 w-16 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-200 font-semibold">
+                            PDF
+                          </div>
+                        ) : (
+                          <img
+                            src={cert.imageUrl}
+                            alt={cert.name}
+                            className="h-16 w-16 rounded-xl object-cover border border-slate-700/60"
+                          />
+                        )
+                      ) : (
+                        <div className="h-16 w-16 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-200 font-semibold">
+                          {cert.issuer?.slice(0, 2)?.toUpperCase() || "CR"}
+                        </div>
+                      )}
                       <div className="flex-1">
                         <p className="text-base font-semibold text-white">{cert.name}</p>
                         <p className="text-sm text-slate-400">{cert.issuer}</p>
@@ -428,19 +450,19 @@ export default function PublicProfilePage() {
                           </a>
                         </Button>
                       )}
-                      {cert.credentialUrl && (
+                      {(cert.imageUrl || cert.credentialUrl) && (
                         <Button
                           size="sm"
                           variant="outline"
                           className="border-slate-700/60"
-                          onClick={() => setPreview({ title: cert.name, url: cert.credentialUrl || "" })}
+                          onClick={() => setPreview({ title: cert.name, url: cert.imageUrl || cert.credentialUrl || "" })}
                         >
-                          Preview
+                          Preview Certificate
                         </Button>
                       )}
-                      {cert.credentialUrl && (
+                      {(cert.imageUrl || cert.credentialUrl) && (
                         <Button size="sm" variant="outline" className="border-slate-700/60" asChild>
-                          <a href={cert.credentialUrl} target="_blank" rel="noreferrer" download>
+                          <a href={cert.imageUrl || cert.credentialUrl || "#"} target="_blank" rel="noreferrer" download>
                             Download
                           </a>
                         </Button>

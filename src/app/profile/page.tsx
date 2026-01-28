@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { CalendarDays, Copy, Download, Pencil, Trash2 } from "lucide-react";
+import { CalendarDays, Copy, Download, FileText, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 interface PlanInfo {
@@ -82,6 +82,9 @@ export default function ProfilePage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeUploading, setResumeUploading] = useState(false);
   const [resumeError, setResumeError] = useState<string | null>(null);
+  const [certificateFile, setCertificateFile] = useState<File | null>(null);
+  const [certificateUploading, setCertificateUploading] = useState(false);
+  const [certificateError, setCertificateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -181,10 +184,44 @@ export default function ProfilePage() {
     if (type === "certification" && item?.skills?.length) {
       prefilled.skillsText = item.skills.join(", ");
     }
+    if (type !== "certification") {
+      setCertificateFile(null);
+      setCertificateUploading(false);
+      setCertificateError(null);
+    }
     setActiveSection(type);
     setEditingItem(item);
     setFormData(prefilled);
     setDialogOpen(true);
+  };
+
+  const uploadCertificateImage = async () => {
+    if (!certificateFile) return;
+    setCertificateUploading(true);
+    setCertificateError(null);
+
+    try {
+      const body = new FormData();
+      body.append("file", certificateFile);
+
+      const res = await fetch("/api/profile/certifications/upload", {
+        method: "POST",
+        body,
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => null);
+        setCertificateError(error?.error || "Failed to upload certificate image");
+      } else {
+        const payload = await res.json();
+        setFormData((prev) => ({ ...prev, imageUrl: payload.imageUrl }));
+      }
+    } catch (error) {
+      console.error("Certificate image upload error:", error);
+      setCertificateError("Failed to upload certificate image");
+    } finally {
+      setCertificateUploading(false);
+    }
   };
 
   const saveSection = async () => {
@@ -582,9 +619,26 @@ export default function ProfilePage() {
                   {sections.certifications.map((cert) => (
                     <div key={cert.id} className="rounded-lg border border-slate-800 p-3">
                       <div className="flex items-center justify-between">
-                        <div>
+                        <div className="flex items-center gap-3">
+                          {cert.imageUrl ? (
+                            /\.pdf($|\?)/i.test(cert.imageUrl) ? (
+                              <div className="h-12 w-12 rounded-md bg-slate-800 flex items-center justify-center border border-slate-800">
+                                <FileText className="h-5 w-5 text-slate-300" />
+                              </div>
+                            ) : (
+                              <img
+                                src={cert.imageUrl}
+                                alt={cert.name}
+                                className="h-12 w-12 rounded-md object-cover border border-slate-800"
+                              />
+                            )
+                          ) : (
+                            <div className="h-12 w-12 rounded-md bg-slate-800" />
+                          )}
+                          <div>
                           <p className="font-semibold text-slate-100">{cert.name}</p>
                           <p className="text-sm text-slate-400">Issuer: {cert.issuer || "Microsoft"}</p>
+                          </div>
                         </div>
                         <div className="flex gap-2">
                           <Button variant="ghost" size="icon" onClick={() => openDialog("certification", cert)}><Pencil className="h-4 w-4" /></Button>
@@ -850,6 +904,37 @@ export default function ProfilePage() {
               <Input placeholder="Certificate name" value={formData.name || ""} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
               <Input placeholder="Issuer" value={formData.issuer || ""} onChange={(e) => setFormData({ ...formData, issuer: e.target.value })} />
               <Input type="date" value={formData.issueDate ? formData.issueDate.slice(0, 10) : ""} onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })} />
+              <div className="space-y-2">
+                <label className="text-sm text-slate-300">Certificate File</label>
+                <div className="flex flex-col md:flex-row md:items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf"
+                    onChange={(e) => setCertificateFile(e.target.files?.[0] || null)}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={uploadCertificateImage}
+                    disabled={!certificateFile || certificateUploading}
+                  >
+                    {certificateUploading ? "Uploading..." : "Upload Image"}
+                  </Button>
+                </div>
+                {certificateError && <p className="text-xs text-red-400">{certificateError}</p>}
+                {formData.imageUrl && (
+                  <div className="flex items-center gap-3">
+                    {/\.pdf($|\?)/i.test(formData.imageUrl) ? (
+                      <div className="h-16 w-24 rounded-md bg-slate-800 flex items-center justify-center border border-slate-800">
+                        <FileText className="h-6 w-6 text-slate-300" />
+                      </div>
+                    ) : (
+                      <img src={formData.imageUrl} alt="Certificate preview" className="h-16 w-24 rounded-md object-cover border border-slate-800" />
+                    )}
+                    <p className="text-xs text-slate-400">File uploaded</p>
+                  </div>
+                )}
+              </div>
               <Input placeholder="Credential URL" value={formData.credentialUrl || ""} onChange={(e) => setFormData({ ...formData, credentialUrl: e.target.value })} />
               <Input
                 placeholder="Skills (comma separated)"
