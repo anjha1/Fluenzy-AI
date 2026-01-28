@@ -133,8 +133,9 @@ export default function ProfilePage() {
   const { user, profile, planInfo, sections, activity, payments, resumes } = profileData;
 
   const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const publicProfileUrl = appBaseUrl
-    ? `${appBaseUrl}/u/${profile.username}`
+  const normalizedBaseUrl = appBaseUrl.replace(/\/+$/, "");
+  const publicProfileUrl = normalizedBaseUrl
+    ? `${normalizedBaseUrl}/u/${profile.username}`
     : `/u/${profile.username}`;
 
   const uploadResume = async () => {
