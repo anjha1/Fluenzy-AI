@@ -128,7 +128,7 @@ const Pricing = () => {
   const handleButtonClick = (planName: string) => {
     if (pathname === "/pricing") {
       // On pricing page
-      if (planName === "Pro") {
+      if (planName !== "Free") {
         router.push("/billing");
       } else {
         // Start Free - redirect to home or sign in

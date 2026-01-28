@@ -53,7 +53,7 @@ const TrainPage = () => {
     if (currentPlan === 'Free') {
       return {
         text: "Upgrade Plan",
-        href: "/pricing",
+        href: "/billing",
         icon: Star,
         description: "Unlock unlimited training sessions"
       };
