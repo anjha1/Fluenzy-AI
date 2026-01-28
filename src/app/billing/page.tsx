@@ -6,9 +6,11 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Crown, Star, Zap } from "lucide-react";
 import React from "react";
+import { motion } from "framer-motion";
 
 interface PlanInfo {
   plan: string;
@@ -37,6 +39,16 @@ export default function BillingPage() {
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null);
   const [plans, setPlans] = useState<Record<string, PlanData>>({});
   const [loading, setLoading] = useState(true);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [finalAmount, setFinalAmount] = useState<number | null>(null);
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponSuccessMessage, setCouponSuccessMessage] = useState("");
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [animatedPrice, setAnimatedPrice] = useState<{ [key: string]: number }>({});
+  const [priceBreakdown, setPriceBreakdown] = useState<{ [key: string]: any }>({});
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -73,14 +85,108 @@ export default function BillingPage() {
     }
   }, [session]);
 
+  // Initialize animated prices
+  useEffect(() => {
+    if (Object.keys(plans).length > 0) {
+      const initialPrices: { [key: string]: number } = {};
+      Object.keys(plans).forEach(planName => {
+        const plan = plans[planName];
+        initialPrices[planName] = billingCycle === 'annual' && planName !== 'Free'
+          ? Math.round(plan.price * 12 * 0.8)
+          : plan.price;
+      });
+      setAnimatedPrice(initialPrices);
+    }
+  }, [plans, billingCycle]);
+
+  const applyCoupon = async (targetPlan: string) => {
+    const trimmedCode = couponCode.trim();
+    if (!trimmedCode) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+
+    setCouponLoading(true);
+    setCouponError("");
+
+    try {
+      const response = await fetch('/api/coupons/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couponCode: trimmedCode, targetPlan, billingCycle }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAppliedCoupon(data.coupon);
+        setFinalAmount(data.pricing.finalAmount);
+        setCouponError("");
+        setCouponCode(""); // Clear input after successful application
+        setCouponApplied(true);
+        setCouponSuccessMessage(`Coupon "${data.coupon.code}" applied successfully!`);
+
+        // Update price breakdown for the selected plan
+        setPriceBreakdown({
+          ...priceBreakdown,
+          [targetPlan]: {
+            originalPrice: data.pricing.originalAmount,
+            discountAmount: data.pricing.discountAmount,
+            finalAmount: data.pricing.finalAmount,
+            discountType: data.coupon.discountType,
+            discountValue: data.coupon.discountValue,
+          }
+        });
+
+        // Animate price change
+        setAnimatedPrice({
+          ...animatedPrice,
+          [targetPlan]: data.pricing.finalAmount
+        });
+      } else {
+        const errorData = await response.json();
+        setCouponError(errorData.error || "Failed to apply coupon");
+        setAppliedCoupon(null);
+        setFinalAmount(null);
+        setCouponApplied(false);
+      }
+    } catch (error) {
+      console.error('Coupon apply error:', error);
+      setCouponError("Failed to apply coupon. Please try again.");
+      setAppliedCoupon(null);
+      setFinalAmount(null);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setFinalAmount(null);
+    setCouponCode("");
+    setCouponError("");
+    setCouponApplied(false);
+    setCouponSuccessMessage("");
+    setPriceBreakdown({});
+    // Reset animated prices
+    const resetPrices: { [key: string]: number } = {};
+    Object.keys(plans).forEach(planName => {
+      const plan = plans[planName];
+      resetPrices[planName] = billingCycle === 'annual' && planName !== 'Free'
+        ? Math.round(plan.price * 12 * 0.8)
+        : plan.price;
+    });
+    setAnimatedPrice(resetPrices);
+  };
+
   const handleUpgrade = async (targetPlan: string) => {
     try {
-      const couponCode = prompt('Enter coupon code (optional):', '') || '';
-
       const response = await fetch('/api/create-razorpay-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetPlan, couponCode }),
+        body: JSON.stringify({
+          targetPlan,
+          couponCode: appliedCoupon?.code || undefined
+        }),
       });
 
       if (response.ok) {
@@ -111,6 +217,7 @@ export default function BillingPage() {
                   razorpay_signature: response.razorpay_signature,
                   order_id: data.orderId,
                   plan: targetPlan,
+                  couponCode: appliedCoupon?.code || null,
                 }),
               });
 
@@ -190,6 +297,33 @@ export default function BillingPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <h1 className="text-3xl font-bold">Manage Subscription</h1>
 
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center mb-6">
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-full p-1 border border-slate-700/50">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                billingCycle === 'monthly'
+                  ? 'bg-purple-600 text-white shadow-lg'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle('annual')}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                billingCycle === 'annual'
+                  ? 'bg-purple-600 text-white shadow-lg'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              Annual
+              <span className="ml-2 bg-green-500 text-xs px-2 py-1 rounded-full text-white">Save 20%</span>
+            </button>
+          </div>
+        </div>
+
         {/* Current Plan */}
         <Card className="border-green-500/50 bg-green-500/5">
           <CardHeader>
@@ -243,9 +377,11 @@ export default function BillingPage() {
               {upgradeOptions.map((planName) => {
                 const planData = plans[planName];
                 const Icon = getPlanIcon(planName);
+                const displayPrice = finalAmount !== null && appliedCoupon ? finalAmount : (planData?.price || 0);
+
                 return (
                   <Card key={planName} className="border-purple-500/30 bg-purple-500/5">
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
@@ -253,12 +389,43 @@ export default function BillingPage() {
                           </div>
                           <div>
                             <h3 className="text-lg font-semibold">{planName}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              ₹{planData?.price || 0}/month • {
-                                planName === 'Standard' ? 'Unlimited' :
-                                planName === 'Pro' ? '100' : '3'
-                              } sessions
-                            </p>
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">
+                                {
+                                  planName === 'Standard' ? 'Unlimited' :
+                                  planName === 'Pro' ? '100' : '3'
+                                } sessions per month
+                              </p>
+
+                              <p className="text-lg font-semibold text-foreground">
+                                {appliedCoupon ? (
+                                  <>
+                                    <span className="line-through text-muted-foreground">₹{appliedCoupon.originalPrice}</span>
+                                    <span className="ml-2 text-green-600">₹{appliedCoupon.finalPrice}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <motion.span
+                                      key={animatedPrice[planName] || (billingCycle === 'annual' && planName !== 'Free' ? Math.round(planData.price * 12 * 0.8) : planData.price)}
+                                      initial={{ scale: 1 }}
+                                      animate={{ scale: [1, 1.1, 1] }}
+                                      transition={{ duration: 0.3 }}
+                                      className="text-2xl font-bold text-white"
+                                    >
+                                      ₹{animatedPrice[planName] || (billingCycle === 'annual' && planName !== 'Free' ? Math.round(planData.price * 12 * 0.8) : planData.price)}
+                                    </motion.span>
+                                    <span className="text-gray-400 ml-2">
+                                      /{billingCycle === 'annual' ? 'year' : 'month'}
+                                    </span>
+                                    {billingCycle === 'annual' && planName !== 'Free' && (
+                                      <div className="text-sm text-green-400 mt-1">
+                                        Save ₹{planData.price * 12 - Math.round(planData.price * 12 * 0.8)} annually
+                                      </div>
+                                    )}
+                                  </>
+                                )}/month
+                              </p>
+                            </div>
                           </div>
                         </div>
                         <Button
@@ -267,6 +434,94 @@ export default function BillingPage() {
                         >
                           Upgrade to {planName}
                         </Button>
+                      </div>
+
+                      {/* Coupon Section */}
+                      <div className="border-t border-purple-500/20 pt-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground">Have a coupon?</span>
+                          </div>
+
+                          {appliedCoupon ? (
+                            <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-green-700">{appliedCoupon.code}</span>
+                                <span className="text-xs text-green-600">
+                                  ({appliedCoupon.discountType === 'PERCENTAGE'
+                                    ? `${appliedCoupon.discountValue}% off`
+                                    : `₹${appliedCoupon.discountValue} off`})
+                                </span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={removeCoupon}
+                                className="text-green-700 hover:text-green-800 hover:bg-green-500/20"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-2">
+                              <Input
+                                type="text"
+                                value={couponCode}
+                                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                placeholder="Enter coupon code"
+                                disabled={couponLoading}
+                                className="flex-1"
+                              />
+                              <Button
+                                onClick={() => applyCoupon(planName)}
+                                disabled={couponLoading || !couponCode.trim() || couponApplied}
+                                size="sm"
+                                className="bg-purple-600 hover:bg-purple-700"
+                              >
+                                {couponLoading ? "Applying..." : "Apply"}
+                              </Button>
+                            </div>
+                          )}
+
+                          {couponSuccessMessage && (
+                            <p className="text-sm text-green-600">{couponSuccessMessage}</p>
+                          )}
+
+                          {couponError && (
+                            <p className="text-sm text-red-600">{couponError}</p>
+                          )}
+
+                          {/* Price Details Block */}
+                          {appliedCoupon && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="border border-gray-200 rounded-lg p-4 bg-gray-50/50"
+                            >
+                              <h4 className="text-sm font-semibold text-foreground mb-3">Price Details</h4>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span>Original Price:</span>
+                                  <span>₹{appliedCoupon.originalPrice} / {billingCycle === 'annual' ? 'year' : 'month'}</span>
+                                </div>
+                                <div className="flex justify-between text-green-400">
+                                  <span>Discount ({appliedCoupon.discountValue}{appliedCoupon.discountType === 'percentage' ? '%' : '₹'}):</span>
+                                  <span>-₹{appliedCoupon.discountAmount}</span>
+                                </div>
+                                <div className="flex justify-between font-semibold text-white border-t border-gray-600 pt-1">
+                                  <span>You Save:</span>
+                                  <span>₹{appliedCoupon.discountAmount}</span>
+                                </div>
+                                <hr className="my-2" />
+                                <div className="flex justify-between font-semibold">
+                                  <span>Final Payable:</span>
+                                  <span className="text-green-700">₹{appliedCoupon.finalPrice} / {billingCycle === 'annual' ? 'year' : 'month'}</span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

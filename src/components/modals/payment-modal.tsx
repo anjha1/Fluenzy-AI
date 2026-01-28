@@ -9,6 +9,9 @@ interface PaymentModalProps {
   onUpgrade: () => void;
   usageCount: number;
   usageLimit: number;
+  appliedCoupon?: any;
+  finalAmount?: number;
+  planPrice?: number;
 }
 
 const PaymentModal = ({
@@ -31,6 +34,7 @@ const PaymentModal = ({
         },
         body: JSON.stringify({
           targetPlan: "Pro",
+          couponCode: appliedCoupon?.code || undefined,
         }),
       });
 
@@ -68,6 +72,7 @@ const PaymentModal = ({
               razorpay_signature: response.razorpay_signature,
               order_id: data.orderId,
               plan: "Pro",
+              couponCode: appliedCoupon?.code || null,
             }),
           });
 
@@ -183,11 +188,29 @@ const PaymentModal = ({
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">Pro Plan</p>
                 <div className="flex items-center justify-center space-x-2">
-                  <span className="text-3xl font-bold text-foreground">
-                    ₹150
-                  </span>
+                  {appliedCoupon ? (
+                    <>
+                      <span className="text-2xl font-bold text-muted-foreground line-through">
+                        ₹{planPrice}
+                      </span>
+                      <span className="text-3xl font-bold text-green-600">
+                        ₹{finalAmount}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-3xl font-bold text-foreground">
+                      ₹{planPrice}
+                    </span>
+                  )}
                   <span className="text-muted-foreground">/month</span>
                 </div>
+                {appliedCoupon && (
+                  <p className="text-sm text-green-600 mt-1">
+                    Coupon "{appliedCoupon.code}" applied ({appliedCoupon.discountType === 'PERCENTAGE'
+                      ? `${appliedCoupon.discountValue}% off`
+                      : `₹${appliedCoupon.discountValue} off`})
+                  </p>
+                )}
               </div>
             </div>
 

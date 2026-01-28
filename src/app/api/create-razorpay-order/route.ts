@@ -51,48 +51,59 @@ export async function POST(request: NextRequest) {
     let appliedCoupon: any = null;
 
     if (couponCode) {
-      const coupon = await (prisma as any).coupon.findUnique({
-        where: { code: couponCode },
+      const trimmedCode = couponCode.trim().toUpperCase();
+      const coupon = await (prisma as any).coupon.findFirst({
+        where: {
+          code: {
+            equals: trimmedCode,
+            mode: 'insensitive'
+          }
+        },
       });
 
       if (!coupon) {
         return NextResponse.json({ error: "Invalid coupon code" }, { status: 400 });
       }
 
-      if (coupon.status !== 'active') {
-        return NextResponse.json({ error: "Coupon is not active" }, { status: 400 });
+      // Status validation - case insensitive
+      if (coupon.status?.toLowerCase() !== 'active') {
+        return NextResponse.json({ error: "This coupon is currently disabled" }, { status: 400 });
       }
 
+      // Date validation
       const now = new Date();
       if (coupon.startDate && now < coupon.startDate) {
-        return NextResponse.json({ error: "Coupon not yet valid" }, { status: 400 });
+        return NextResponse.json({ error: "Coupon not active yet" }, { status: 400 });
       }
       if (coupon.expiryDate && now > coupon.expiryDate) {
-        return NextResponse.json({ error: "Coupon expired" }, { status: 400 });
+        return NextResponse.json({ error: "Coupon has expired" }, { status: 400 });
       }
 
+      // Applicable plans validation
       if (coupon.applicablePlans && coupon.applicablePlans.length > 0 && !coupon.applicablePlans.includes(targetPlan)) {
-        return NextResponse.json({ error: "Coupon not applicable for this plan" }, { status: 400 });
+        return NextResponse.json({ error: "Coupon not valid for this plan" }, { status: 400 });
       }
 
-      const usageCount = await (prisma as any).couponUsage.count({
+      // Max total usage validation
+      const totalUsageCount = await (prisma as any).couponUsage.count({
         where: { couponId: coupon.id },
       });
-      if (coupon.maxUsage && usageCount >= coupon.maxUsage) {
+      if (coupon.maxUsage && totalUsageCount >= coupon.maxUsage) {
         return NextResponse.json({ error: "Coupon usage limit reached" }, { status: 400 });
       }
 
-      const userUsage = await (prisma as any).couponUsage.count({
+      // Per user limit validation
+      const userUsageCount = await (prisma as any).couponUsage.count({
         where: { couponId: coupon.id, userId: user.id },
       });
-      if (userUsage >= coupon.perUserLimit) {
-        return NextResponse.json({ error: "Coupon already used by this user" }, { status: 400 });
+      if (userUsageCount >= coupon.perUserLimit) {
+        return NextResponse.json({ error: "You have already used this coupon" }, { status: 400 });
       }
 
       appliedCoupon = coupon;
 
       // Apply discount
-      if (coupon.discountType === 'PERCENTAGE') {
+      if (coupon.discountType?.toUpperCase() === 'PERCENTAGE') {
         finalAmount = finalAmount * (1 - coupon.discountValue / 100);
       } else {
         finalAmount = Math.max(0, finalAmount - coupon.discountValue * 100);
@@ -101,8 +112,8 @@ export async function POST(request: NextRequest) {
 
     // Check for 100% discount (free upgrade)
     const isFreeUpgrade = appliedCoupon && (
-      (appliedCoupon.discountType === 'PERCENTAGE' && appliedCoupon.discountValue === 100) ||
-      (appliedCoupon.discountType === 'FLAT' && appliedCoupon.discountValue * 100 >= planPricing.price * 100)
+      (appliedCoupon.discountType?.toUpperCase() === 'PERCENTAGE' && appliedCoupon.discountValue === 100) ||
+      (appliedCoupon.discountType?.toUpperCase() === 'FLAT' && appliedCoupon.discountValue * 100 >= planPricing.price * 100)
     );
 
     if (isFreeUpgrade) {
