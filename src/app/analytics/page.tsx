@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import HeaderOffset from "@/components/HeaderOffset";
 import {
   AreaChart,
   Area,
@@ -244,7 +245,9 @@ export default function AnalyticsDashboardPage() {
   const wpmHigh = advanced.communication.idealWpmRange[1];
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-10">
+    <div className="overflow-x-hidden">
+      <HeaderOffset />
+      <div className="container mx-auto px-4 py-12 space-y-10">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
@@ -1003,8 +1006,9 @@ export default function AnalyticsDashboardPage() {
         </Card>
       </section>
 
-      <div className="flex justify-end">
-        <Button variant="outline" onClick={() => router.push("/train")}>Start Next Practice</Button>
+        <div className="flex justify-end">
+          <Button variant="outline" onClick={() => router.push("/train")}>Start Next Practice</Button>
+        </div>
       </div>
     </div>
   );
