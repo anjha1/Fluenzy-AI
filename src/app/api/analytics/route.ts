@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -133,20 +133,42 @@ const generateTips = (scores: {
   return tips;
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const searchParams = request.nextUrl.searchParams;
+    const publicUsername = searchParams.get("username");
+    const isPublic = searchParams.get("public") === "1";
+    let userId: string | null = null;
+
+    if (isPublic && publicUsername) {
+      const profile = await (prisma as any).userProfile.findFirst({
+        where: { username: publicUsername.toLowerCase() },
+        select: { userId: true, publicProfileEnabled: true, publicSections: true },
+      });
+      const publicSections = (profile?.publicSections as any) || {};
+      if (!profile?.publicProfileEnabled || !publicSections.analyticsReport) {
+        return NextResponse.json({ error: "Report not public" }, { status: 403 });
+      }
+      userId = profile.userId;
+    } else {
+      const session = await getServerSession(authOptions);
+      if (!session?.user?.email) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+
+      const user = await prisma.users.findUnique({ where: { email: session.user.email } });
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+      userId = user.id;
     }
 
-    const user = await prisma.users.findUnique({ where: { email: session.user.email } });
-    if (!user) {
+    if (!userId) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const sessions = await prisma.session.findMany({
-      where: { userId: user.id },
+      where: { userId },
       select: {
         id: true,
         module: true,

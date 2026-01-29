@@ -26,6 +26,7 @@ type PublicProfileData = {
     openToWork: boolean;
     user: { name: string; email: string; image?: string | null };
     socialLinks?: { github?: string; linkedin?: string; portfolio?: string; leetcode?: string } | null;
+    publicSections?: Record<string, boolean>;
   };
   sections: {
     skills: Array<{ id: string; name: string; level: string }>;
@@ -160,6 +161,7 @@ export default function PublicProfilePage() {
     { key: "leetcode", url: leetcodeUrl, icon: Code },
   ];
   const location = (profile as any).location as string | undefined;
+  const analyticsReportEnabled = Boolean(profile.publicSections?.analyticsReport);
 
 
   return (
@@ -235,6 +237,18 @@ export default function PublicProfilePage() {
                     Download Resume
                   </a>
                 </Button>
+                {analyticsReportEnabled && (
+                  <Button variant="outline" className="w-full border-slate-700/60" asChild>
+                    <a
+                      href={`/analytics/report?public=1&username=${encodeURIComponent(profile.username)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      View Analytics Report
+                    </a>
+                  </Button>
+                )}
                 {primaryResume && (
                   <Button
                     variant="outline"

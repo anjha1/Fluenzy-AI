@@ -112,13 +112,21 @@ function AnalyticsReportContent() {
 
   useEffect(() => {
     const load = async () => {
-      const res = await fetch("/api/analytics");
+      const params = new URLSearchParams();
+      const username = searchParams.get("username");
+      const isPublic = searchParams.get("public") === "1";
+      if (isPublic && username) {
+        params.set("public", "1");
+        params.set("username", username);
+      }
+      const query = params.toString();
+      const res = await fetch(`/api/analytics${query ? `?${query}` : ""}`);
       if (res.ok) {
         setData(await res.json());
       }
     };
     load();
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!data) return undefined;

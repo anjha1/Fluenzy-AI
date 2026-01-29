@@ -563,6 +563,7 @@ export default function ProfilePage() {
                     { key: "projects", label: "Projects" },
                     { key: "courses", label: "Courses" },
                     { key: "languages", label: "Languages" },
+                    { key: "analyticsReport", label: "Analytics Report" },
                   ].map((item) => (
                     <label key={item.key} className="flex items-center gap-2">
                       <Checkbox

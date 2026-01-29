@@ -51,6 +51,7 @@ export async function GET(
       projects: true,
       courses: true,
       languages: true,
+      analyticsReport: false,
     };
 
     const oneYearAgo = new Date();
@@ -108,6 +109,7 @@ export async function GET(
           image: profile.user.avatar,
         },
         socialLinks: (profile as any).socialLinks || null,
+        publicSections: allowed,
       },
       sections: {
         skills: allowed.skills ? profile.skills : [],

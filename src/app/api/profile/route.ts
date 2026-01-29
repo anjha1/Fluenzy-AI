@@ -114,6 +114,7 @@ export async function GET() {
               projects: true,
               courses: true,
               languages: true,
+              analyticsReport: false,
             },
           },
           include: {
@@ -325,6 +326,7 @@ export async function PUT(request: NextRequest) {
           projects: true,
           courses: true,
           languages: true,
+          analyticsReport: false,
         },
       },
     });
