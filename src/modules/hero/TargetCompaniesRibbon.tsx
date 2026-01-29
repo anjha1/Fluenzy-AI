@@ -14,18 +14,20 @@ const companies = [
 const TargetCompaniesRibbon = () => {
   return (
     <section className="py-16 bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900 border-y border-slate-700/50">
-      <div className="container mx-auto px-4">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-8"
+          className="text-center mb-10"
         >
-          <h3 className="text-xl font-semibold text-white mb-2">
-            Trusted By FAANG & Top Tech Companies
+          <h3 className="text-2xl md:text-3xl font-black mb-3">
+            <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 !bg-clip-text text-transparent">
+              Trusted By FAANG & Top Tech Companies
+            </span>
           </h3>
-          <p className="text-sm text-gray-300">
+          <p className="text-base text-gray-300 font-medium max-w-2xl mx-auto">
             Join thousands preparing for interviews at the world's leading technology companies
           </p>
         </motion.div>
@@ -44,14 +46,20 @@ const TargetCompaniesRibbon = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="flex flex-col items-center space-y-2 group"
+              className="flex flex-col items-center space-y-3 group"
             >
-              <img
-                src={company.logo}
-                alt={company.name}
-                className="h-8 w-auto transition-all duration-300 group-hover:scale-110"
-              />
-              <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
+              <div className="h-10 flex items-center justify-center">
+                <img
+                  src={company.logo}
+                  alt={company.name}
+                  className={`h-8 w-auto transition-all duration-300 group-hover:scale-110 ${
+                    company.name === "Apple" ? "invert brightness-200" : ""
+                  } ${
+                    company.name === "Amazon" ? "brightness-0 invert group-hover:brightness-100 group-hover:invert-0" : ""
+                  }`}
+                />
+              </div>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest group-hover:text-white transition-colors">
                 {company.name}
               </span>
             </motion.div>

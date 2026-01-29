@@ -72,6 +72,20 @@ const common = async ({
   }
 };
 
+// Environment Variable Validation
+const requiredEnvVars = [
+  'NEXTAUTH_SECRET',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'DATABASE_URL'
+];
+
+requiredEnvVars.forEach(varName => {
+  if (!process.env[varName]) {
+    console.error(`CRITICAL ERROR: Environment variable ${varName} is missing. NextAuth will not function correctly.`);
+  }
+});
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -110,8 +124,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || 'missing',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'missing',
       profile: async (profile) => {
         const user = await common({
           email: profile?.email!,

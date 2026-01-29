@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { Role } from "@prisma/client";
 
 export default withAuth(
-  function middleware(req) {
+  function proxy(req) {
     const token = req.nextauth.token;
     const isProRoute = req.nextUrl.pathname.startsWith("/pro") ||
                       req.nextUrl.pathname.startsWith("/api/pro");

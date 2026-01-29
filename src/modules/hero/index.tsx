@@ -29,8 +29,22 @@ const Hero = () => {
         style={{ animationDelay: "-1s" }}
       />
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
+      
+      {/* Target Background Image */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.15, scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+        className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden"
+      >
+        <img 
+          src="/images/download__2_-removebg-preview.png" 
+          alt="" 
+          className="w-full h-full object-cover opacity-100"
+        />
+      </motion.div>
 
-      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 grid lg:grid-cols-2 gap-12 items-center relative z-10">
         {/* Left Content */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}

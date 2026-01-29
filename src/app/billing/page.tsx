@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { Crown, Star, Zap } from "lucide-react";
+import { Crown, Star, Zap, Clock, MessageSquare, ShieldCheck, ArrowRight, History } from "lucide-react";
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PlanInfo {
   plan: string;
@@ -326,262 +326,262 @@ export default function BillingPage() {
   const upgradeOptions = getUpgradeOptions();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold">Manage Subscription</h1>
+    <div className="min-h-screen bg-slate-950 text-slate-200 relative overflow-hidden">
+      {/* Background radial glows */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-6 pt-32 pb-24 space-y-12">
+        {/* Header Section */}
+        <div className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20"
+          >
+            <Crown size={12} className="text-purple-400" />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-purple-400">Account Hub</span>
+          </motion.div>
+          
+          <div className="space-y-2">
+            <motion.h1 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none"
+            >
+              Subscription<span className="text-purple-500">.</span>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-slate-400 text-sm md:text-base font-medium max-w-xl leading-relaxed"
+            >
+              Manage your professional growth access and usage limits.
+            </motion.p>
+          </div>
+        </div>
 
         {/* Billing Toggle */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-full p-1 border border-slate-700/50">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex justify-center"
+        >
+          <div className="bg-slate-900/50 backdrop-blur-2xl rounded-2xl p-1.5 border border-white/5 shadow-2xl relative flex">
+            <motion.div
+              layoutId="toggle-active"
+              className="absolute inset-y-1.5 rounded-xl bg-purple-600 shadow-[0_0_20px_rgba(147,51,234,0.3)]"
+              style={{
+                width: billingCycle === 'monthly' ? '90px' : '150px',
+                left: billingCycle === 'monthly' ? '6px' : '102px'
+              }}
+              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+            />
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                billingCycle === 'monthly'
-                  ? 'bg-purple-600 text-white shadow-lg'
-                  : 'text-gray-300 hover:text-white'
+              className={`relative z-10 w-[90px] py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
+                billingCycle === 'monthly' ? 'text-white' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setBillingCycle('annual')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                billingCycle === 'annual'
-                  ? 'bg-purple-600 text-white shadow-lg'
-                  : 'text-gray-300 hover:text-white'
+              className={`relative z-10 w-[150px] py-2.5 text-xs font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-2 ${
+                billingCycle === 'annual' ? 'text-white' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
               Annual
-              <span className="ml-2 bg-green-500 text-xs px-2 py-1 rounded-full text-white">Save 20%</span>
+              <span className={`text-[9px] px-1.5 py-0.5 rounded-md ${billingCycle === 'annual' ? 'bg-white/20' : 'bg-green-500/10 text-green-400'}`}>-20%</span>
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Current Plan */}
-        <Card className="border-green-500/50 bg-green-500/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                {React.createElement(getPlanIcon(planInfo.plan), { size: 16, className: "text-green-400" })}
-              </div>
-              Current Plan - {planInfo.planName}
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Monthly Price</p>
-                <p className="text-2xl font-bold">
-                  {planInfo.price > 0 ? `₹${planInfo.price}` : 'Free'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Monthly Limit</p>
-                <p className="text-2xl font-bold">
-                  {planInfo.isUnlimited ? 'Unlimited' : planInfo.monthlyLimit}
-                </p>
-              </div>
+        {/* Current Plan Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4 }}
+          className="relative group h-full"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-purple-600/20 blur-[60px] opacity-20 group-hover:opacity-40 transition-opacity rounded-[3rem]" />
+          <div className="relative bg-slate-900/40 backdrop-blur-3xl border border-white/10 p-10 rounded-[3rem] shadow-2xl overflow-hidden">
+            {/* Background Texture */}
+            <div className="absolute top-0 right-0 w-1/2 h-full opacity-5 pointer-events-none select-none">
+              <Zap size={400} className="text-white transform translate-x-1/2 -rotate-12" />
             </div>
 
-            <div>
-              <p className="text-sm text-muted-foreground">Current Usage</p>
-              <p className="text-lg font-semibold">
-                {planInfo.currentUsage} / {planInfo.isUnlimited ? 'Unlimited' : planInfo.monthlyLimit}
-              </p>
+            <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white shadow-2xl shadow-green-500/20">
+                    {React.createElement(getPlanIcon(planInfo.plan), { size: 32 })}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-3xl font-black text-white tracking-tighter">{planInfo.planName}</h3>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 uppercase tracking-widest text-[10px] py-1 px-3">Active</Badge>
+                    </div>
+                    <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Your current commitment</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/5">
+                  <div className="space-y-1">
+                    <p className="text-slate-500 font-black uppercase tracking-widest text-[9px]">Renewal Cycle</p>
+                    <p className="text-xl font-black text-white">{billingCycle === 'annual' ? 'Annual' : 'Monthly'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-slate-500 font-black uppercase tracking-widest text-[9px]">Next Billing</p>
+                    <p className="text-xl font-black text-white">
+                      {planInfo.renewalDate ? new Date(planInfo.renewalDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : 'Lifetime'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-950/40 rounded-[2.5rem] p-8 border border-white/5 flex flex-col items-center text-center space-y-6">
+                <div className="relative w-32 h-32">
+                  <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="16" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+                    <motion.circle 
+                      cx="18" cy="18" r="16" fill="transparent" 
+                      stroke="#10b981" 
+                      strokeWidth="3"
+                      strokeDasharray="100"
+                      strokeDashoffset={100 - (planInfo.isUnlimited ? 0 : (planInfo.currentUsage / planInfo.monthlyLimit! * 100))}
+                      strokeLinecap="round"
+                      initial={{ strokeDashoffset: 100 }}
+                      animate={{ strokeDashoffset: 100 - (planInfo.isUnlimited ? 0 : (planInfo.currentUsage / planInfo.monthlyLimit! * 100)) }}
+                      transition={{ duration: 1.5, delay: 0.5 }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-3xl font-black text-white leading-none">{planInfo.currentUsage} <span className="text-slate-500 text-sm">/ {planInfo.isUnlimited ? '∞' : planInfo.monthlyLimit}</span></span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-white font-black uppercase tracking-widest text-xs">Usage Performance</h4>
+                  <p className="text-slate-500 text-[10px] font-bold">You have {planInfo.isUnlimited ? 'unlimited' : `${(planInfo.monthlyLimit! - planInfo.currentUsage)} sessions`} remaining this period.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Upgrade Options Section */}
+        {upgradeOptions.length > 0 && (
+          <div className="space-y-8">
+            <div className="flex items-center gap-3">
+               <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-blue-500 rounded-full" />
+               <h3 className="text-xl font-black text-white tracking-tight uppercase tracking-[0.1em]">Available Elevations</h3>
             </div>
 
-            {planInfo.renewalDate && (
-              <div>
-                <p className="text-sm text-muted-foreground">Next Billing Date</p>
-                <p className="text-lg font-semibold">
-                  {new Date(planInfo.renewalDate).toLocaleDateString()}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Upgrade Options */}
-        {upgradeOptions.length > 0 ? (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Available Upgrades</h2>
-            <div className="grid gap-4">
-              {upgradeOptions.map((planName) => {
+            <div className="grid gap-6">
+              {upgradeOptions.map((planName, index) => {
                 const planData = plans[planName];
                 const Icon = getPlanIcon(planName);
-                const displayPrice = finalAmount !== null && appliedCoupon ? finalAmount : (planData?.price || 0);
-
+                const isPro = planName === 'Pro';
+                
                 return (
-                  <Card key={planName} className="border-purple-500/30 bg-purple-500/5">
-                    <CardContent className="p-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                            <Icon size={24} className="text-purple-400" />
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-semibold">{planName}</h3>
-                            <div className="space-y-1">
-                              <p className="text-sm text-muted-foreground">
-                                {
-                                  planName === 'Standard' ? 'Unlimited' :
-                                  planName === 'Pro' ? '100' : '3'
-                                } sessions per month
-                              </p>
+                  <motion.div
+                    key={planName}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + (index * 0.1) }}
+                    className="group relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-all rounded-[2rem] -z-10 blur-xl" />
+                    <div className="bg-slate-900/40 backdrop-blur-2xl border border-white/5 p-8 rounded-[2rem] shadow-xl hover:border-purple-500/30 transition-all flex flex-col md:flex-row items-center justify-between gap-8">
+                      <div className="flex items-center gap-6">
+                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${isPro ? 'from-purple-500 to-indigo-600' : 'from-blue-500 to-cyan-600'} flex items-center justify-center text-white shadow-2xl group-hover:scale-110 transition-transform`}>
+                          <Icon size={24} />
+                        </div>
+                        <div>
+                          <h4 className="text-xl font-black text-white tracking-tight mb-1">{planName} Efficiency</h4>
+                          <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px]">
+                            {planName === 'Standard' ? 'Unlimited sessions with detailed audits' : 'Extended limits for growing professionals'}
+                          </p>
+                        </div>
+                      </div>
 
-                              <p className="text-lg font-semibold text-foreground">
-                                {priceBreakdown[planName] ? (
-                                  <>
-                                    <span className="line-through text-muted-foreground">₹{priceBreakdown[planName].originalPrice}</span>
-                                    <span className="ml-2 text-green-600">₹{priceBreakdown[planName].finalAmount}</span>
-                                    <span className="text-gray-400 ml-2">
-                                      /{billingCycle === 'annual' ? 'year' : 'month'}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <motion.span
-                                      key={animatedPrice[planName] || (billingCycle === 'annual' && planName !== 'Free' ? Math.round(planData.price * 12 * 0.8) : planData.price)}
-                                      initial={{ scale: 1 }}
-                                      animate={{ scale: [1, 1.1, 1] }}
-                                      transition={{ duration: 0.3 }}
-                                      className="text-2xl font-bold text-white"
-                                    >
-                                      ₹{animatedPrice[planName] || (billingCycle === 'annual' && planName !== 'Free' ? Math.round(planData.price * 12 * 0.8) : planData.price)}
-                                    </motion.span>
-                                    <span className="text-gray-400 ml-2">
-                                      /{billingCycle === 'annual' ? 'year' : 'month'}
-                                    </span>
-                                    {billingCycle === 'annual' && planName !== 'Free' && (
-                                      <div className="text-sm text-green-400 mt-1">
-                                        Save ₹{planData.price * 12 - Math.round(planData.price * 12 * 0.8)} annually
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                              </p>
-                            </div>
+                      <div className="flex flex-col md:flex-row items-center gap-8">
+                        <div className="text-center md:text-right">
+                          <p className="text-slate-500 font-black uppercase tracking-widest text-[9px] mb-1">Investment</p>
+                          <div className="flex items-baseline gap-2">
+                             <span className="text-3xl font-black text-white">₹{animatedPrice[planName] || (billingCycle === 'annual' ? Math.round(planData.price * 12 * 0.8) : planData.price)}</span>
+                             <span className="text-slate-500 font-bold text-xs">/{billingCycle === 'annual' ? 'yr' : 'mo'}</span>
                           </div>
                         </div>
+
                         <Button
                           onClick={() => handleUpgrade(planName)}
-                          className="bg-purple-600 hover:bg-purple-700"
+                          className="bg-white text-black hover:bg-slate-200 px-8 py-6 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl transition-all active:scale-95 border-none"
                         >
-                          Upgrade to {planName}
+                          Upgrade Now
                         </Button>
                       </div>
+                    </div>
 
-                      {/* Coupon Section */}
-                      <div className="border-t border-purple-500/20 pt-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-foreground">Have a coupon?</span>
-                          </div>
-
-                          {appliedCoupon[planName] ? (
-                            <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-green-700">{appliedCoupon[planName].code}</span>
-                                <span className="text-xs text-green-600">
-                                  ({appliedCoupon[planName].discountType === 'PERCENTAGE'
-                                    ? `${appliedCoupon[planName].discountValue}% off`
-                                    : `₹${appliedCoupon[planName].discountValue} off`})
-                                </span>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeCoupon(planName)}
-                                className="text-green-700 hover:text-green-800 hover:bg-green-500/20"
-                              >
-                                Remove
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex gap-2">
-                              <Input
-                                type="text"
-                                value={couponCode[planName] || ''}
-                                onChange={(e) => setCouponCode({ ...couponCode, [planName]: e.target.value.toUpperCase() })}
-                                placeholder="Enter coupon code"
-                                disabled={couponLoading[planName]}
-                                className="flex-1"
-                              />
-                              <Button
-                                onClick={() => applyCoupon(planName)}
-                                disabled={couponLoading[planName] || !couponCode[planName]?.trim() || couponApplied[planName]}
-                                size="sm"
-                                className="bg-purple-600 hover:bg-purple-700"
-                              >
-                                {couponLoading[planName] ? "Applying..." : "Apply"}
-                              </Button>
-                            </div>
-                          )}
-
-                          {couponSuccessMessage[planName] && (
-                            <p className="text-sm text-green-600">{couponSuccessMessage[planName]}</p>
-                          )}
-
-                          {couponError[planName] && (
-                            <p className="text-sm text-red-600">{couponError[planName]}</p>
-                          )}
-
-                          {/* Price Details Block */}
-                          {appliedCoupon[planName] && priceBreakdown[planName] && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="border border-gray-200 rounded-lg p-4 bg-gray-50/50"
+                    {/* Simple Coupon Entry Refinement */}
+                    <div className="mt-4 ml-8 mr-8 flex items-center justify-between">
+                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Have a growth voucher?</p>
+                       {!appliedCoupon[planName] ? (
+                         <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={couponCode[planName] || ''}
+                              onChange={(e) => setCouponCode({ ...couponCode, [planName]: e.target.value.toUpperCase() })}
+                              placeholder="CODE"
+                              className="bg-transparent border-b border-white/10 text-[10px] font-black text-purple-400 placeholder-slate-700 focus:outline-none focus:border-purple-500 w-20 text-center uppercase tracking-widest"
+                            />
+                            <button 
+                              onClick={() => applyCoupon(planName)}
+                              className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-500 hover:text-purple-400 transition-colors"
                             >
-                              <h4 className="text-sm font-semibold text-foreground mb-3">Price Details</h4>
-                              <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                  <span>Original Price:</span>
-                                  <span>₹{priceBreakdown[planName].originalPrice} / {billingCycle === 'annual' ? 'year' : 'month'}</span>
-                                </div>
-                                <div className="flex justify-between text-green-400">
-                                  <span>Discount ({priceBreakdown[planName].discountValue}{priceBreakdown[planName].discountType === 'PERCENTAGE' ? '%' : '₹'}):</span>
-                                  <span>-₹{priceBreakdown[planName].discountAmount}</span>
-                                </div>
-                                <div className="flex justify-between font-semibold text-white border-t border-gray-600 pt-1">
-                                  <span>You Save:</span>
-                                  <span>₹{priceBreakdown[planName].discountAmount}</span>
-                                </div>
-                                <hr className="my-2" />
-                                <div className="flex justify-between font-semibold">
-                                  <span>Final Payable:</span>
-                                  <span className="text-green-700">₹{priceBreakdown[planName].finalAmount} / {billingCycle === 'annual' ? 'year' : 'month'}</span>
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                              Apply
+                            </button>
+                         </div>
+                       ) : (
+                         <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-500">Voucher Active: {appliedCoupon[planName].code}</span>
+                            <button onClick={() => removeCoupon(planName)} className="text-[10px] font-black text-slate-500 hover:text-white underline underline-offset-4">Reset</button>
+                         </div>
+                       )}
+                    </div>
+                  </motion.div>
                 );
               })}
             </div>
           </div>
-        ) : (
-          <Card className="border-amber-500/30 bg-amber-500/5">
-            <CardContent className="p-6 text-center">
-              <Crown className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">You're on the Highest Plan!</h3>
-              <p className="text-muted-foreground">
-                You have access to unlimited training sessions. No further upgrades available.
-              </p>
-            </CardContent>
-          </Card>
         )}
 
-        {/* Back to App */}
-        <div className="flex justify-center">
-          <Button variant="outline" asChild>
-            <Link href="/">Back to App</Link>
-          </Button>
+        {/* Highest Plan Empty State */}
+        {!upgradeOptions.length && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-slate-900/40 backdrop-blur-3xl border border-white/5 p-12 rounded-[3rem] text-center space-y-6"
+          >
+            <div className="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto text-amber-500 ring-4 ring-amber-500/5 shadow-2xl shadow-amber-500/10">
+              <Crown size={40} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-white tracking-tight uppercase tracking-widest mb-2">Elite Status</h3>
+              <p className="text-slate-400 font-medium max-w-sm mx-auto">You're currently enjoying our most powerful training capabilities. No further upgrades required.</p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Footer Navigation */}
+        <div className="flex items-center justify-center pt-12 border-t border-white/5">
+           <Link href="/train" className="group flex items-center gap-3 text-slate-500 hover:text-white transition-all text-sm font-black uppercase tracking-[0.2em]">
+              <ArrowRight size={14} className="rotate-180 group-hover:-translate-x-2 transition-transform" />
+              Return to Module Center
+           </Link>
         </div>
       </div>
     </div>

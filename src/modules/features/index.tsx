@@ -7,61 +7,73 @@ const features = [
   {
     icon: BookOpen,
     title: "English Learning",
-    description:
-      "Enhance your professional communication with AI-driven conversations, instant grammar feedback, and targeted fluency exercises that prepare you for global workplaces.",
-    gradient: "from-blue-500 to-cyan-500",
+    description: "Enhance your professional communication with AI-driven conversations, instant grammar feedback, and targeted fluency exercises.",
+    image: "/images/EnglishLearning.jpg",
+    mesh: "radial-gradient(at 0% 0%, #1e3a8a 0px, transparent 50%), radial-gradient(at 100% 100%, #0891b2 0px, transparent 50%)",
+    accent: "bg-cyan-500",
+    border: "border-cyan-500/30",
     delay: 0.1,
   },
   {
     icon: MessageSquare,
     title: "Daily Conversation",
-    description:
-      "Build confidence in everyday workplace interactions through realistic role-playing scenarios, networking simulations, and team collaboration practice with AI mentors.",
-    gradient: "from-purple-500 to-pink-500",
+    description: "Build confidence in everyday workplace interactions through realistic role-playing scenarios and networking simulations.",
+    image: "/images/DailyConversation.jpg",
+    mesh: "radial-gradient(at 0% 0%, #4c1d95 0px, transparent 50%), radial-gradient(at 100% 100%, #9d174d 0px, transparent 50%)",
+    accent: "bg-pink-500",
+    border: "border-pink-500/30",
     delay: 0.2,
   },
   {
     icon: UserPlus,
     title: "HR Interview Coach",
-    description:
-      "Ace your HR interviews with comprehensive preparation covering behavioral questions, situational judgment, and personality assessments guided by AI experts.",
-    gradient: "from-orange-500 to-red-500",
+    description: "Ace your HR interviews with comprehensive preparation covering behavioral questions and situational judgment.",
+    image: "/images/HRInterviewCoach.jpg",
+    mesh: "radial-gradient(at 0% 0%, #7c2d12 0px, transparent 50%), radial-gradient(at 100% 100%, #991b1b 0px, transparent 50%)",
+    accent: "bg-orange-600",
+    border: "border-orange-500/30",
     delay: 0.3,
   },
   {
     icon: Code,
     title: "Technical Mastery",
-    description:
-      "Sharpen your technical skills with adaptive coding challenges, system design simulations, and algorithmic problem-solving powered by intelligent AI tutors.",
-    gradient: "from-green-500 to-emerald-500",
+    description: "Sharpen your technical skills with adaptive coding challenges and system design simulations powered by AI tutors.",
+    image: "/images/TechnicalMastery.jpg",
+    mesh: "radial-gradient(at 0% 0%, #064e3b 0px, transparent 50%), radial-gradient(at 100% 100%, #065f46 0px, transparent 50%)",
+    accent: "bg-emerald-600",
+    border: "border-emerald-500/30",
     delay: 0.4,
   },
   {
     icon: Building2,
     title: "Company Tracks",
-    description:
-      "Get insider preparation for top companies with customized interview questions, case studies, and cultural insights tailored to your target employers.",
-    gradient: "from-cyan-500 to-blue-500",
+    description: "Get insider preparation for top companies with customized interview questions and cultural insights.",
+    image: "/images/CompanyTracks.jpg",
+    mesh: "radial-gradient(at 0% 0%, #164e63 0px, transparent 50%), radial-gradient(at 100% 100%, #1e40af 0px, transparent 50%)",
+    accent: "bg-blue-600",
+    border: "border-blue-500/30",
     delay: 0.5,
   },
   {
     icon: Users,
     title: "GD Agent",
-    description:
-      "Excel in group discussions with AI-moderated practice sessions, leadership role-playing, and constructive feedback on your communication and collaboration skills.",
-    gradient: "from-pink-500 to-purple-500",
+    description: "Excel in group discussions with AI-moderated practice sessions and leadership role-playing simulations.",
+    image: "/images/GDAgent.jpg",
+    mesh: "radial-gradient(at 0% 0%, #831843 0px, transparent 50%), radial-gradient(at 100% 100%, #5b21b6 0px, transparent 50%)",
+    accent: "bg-purple-600",
+    border: "border-purple-500/30",
     delay: 0.6,
   },
 ];
 
 const Features = () => {
   return (
-    <section id="features" className="py-12 relative overflow-hidden bg-gradient-to-b from-slate-800 to-slate-900">
+    <section id="features" className="py-24 relative overflow-hidden bg-[#050508]">
       {/* Background effects */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[150px]" />
+      <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[150px]" />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <FeatureCard key={feature.title} feature={feature} index={index} />
@@ -73,7 +85,7 @@ const Features = () => {
 };
 
 function FeatureCard({ feature, index }: { feature: any; index: number }) {
-  const { icon: Icon, title, description, gradient, delay } = feature;
+  const { icon: Icon, title, description, image, mesh, accent, border, delay } = feature;
 
   return (
     <motion.div
@@ -81,30 +93,46 @@ function FeatureCard({ feature, index }: { feature: any; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay }}
-      whileHover={{ scale: 1.05, y: -8, boxShadow: "0 25px 50px -12px rgba(147, 51, 234, 0.4)" }}
+      whileHover={{ y: -8 }}
       className="group cursor-pointer"
     >
-      <div className="h-full glass rounded-2xl p-8 border border-card-border/50 hover:border-purple-500/60 transition-all duration-300 shadow-xl hover:shadow-purple-500/25 relative overflow-hidden">
-        {/* Subtle glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+      <div 
+        className={`h-full relative overflow-hidden rounded-[32px] p-8 border ${border} transition-all duration-500 hover:shadow-2xl`}
+        style={{ background: `linear-gradient(135deg, rgba(15, 15, 25, 0.95), rgba(5, 5, 10, 0.98)), ${mesh}` }}
+      >
+        {/* User provided background image with alpha */}
+        <div 
+          className="absolute inset-0 opacity-10 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+          style={{ 
+            backgroundImage: `url(${image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        />
+
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
 
         <div className="relative z-10">
-          <div className="relative mb-6">
+          <div className="relative mb-8">
             <div
-              className={`w-16 h-16 rounded-xl bg-gradient-to-br ${gradient} p-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}
+              className={`w-14 h-14 rounded-2xl ${accent} flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl`}
             >
-              <Icon className="w-full h-full text-white" />
+              <Icon className="w-7 h-7 text-white" />
             </div>
           </div>
 
-          <h3 className="text-xl font-bold mb-3 text-white group-hover:text-purple-100 transition-colors duration-300">
+          <h3 className="text-2xl font-black mb-4 text-white tracking-tight group-hover:text-purple-100 transition-colors duration-300">
             {title}
           </h3>
 
-          <p className="text-base text-gray-300 leading-relaxed group-hover:text-gray-100 transition-colors duration-300 max-w-xs">
+          <p className="text-slate-400 font-medium leading-relaxed group-hover:text-slate-200 transition-colors duration-300">
             {description}
           </p>
         </div>
+
+        {/* Bottom indicator */}
+        <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:w-full transition-all duration-700" />
       </div>
     </motion.div>
   );

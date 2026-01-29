@@ -11,85 +11,130 @@ import {
   ShieldCheck,
   Users,
   Lock,
-  CheckCircle
+  CheckCircle,
+  Sparkles
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ModuleType } from '../types';
 
-const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdvanced, canUse, remaining, isLocked, planName, limit }: any) => {
+const ModuleCard = ({ type, title, description, icon: Icon, color, delay, isAdvanced, canUse, remaining, isLocked, planName, limit, bgImage }: any) => {
   const router = useRouter();
 
-  const handleUpgrade = () => {
+  const handleUpgrade = (e: React.MouseEvent) => {
+    e.stopPropagation();
     router.push('/billing');
   };
 
   const handleStart = () => {
     if (isLocked) return;
-
     try {
-      if (type === ModuleType.ENGLISH_LEARNING) {
-        router.push('/train/english');
-      } else if (type === ModuleType.HR_INTERVIEW) {
-        router.push('/train/hr');
-      } else if (type === ModuleType.COMPANY_WISE_HR) {
-        router.push('/train/company');
-      } else if (type === ModuleType.GD_DISCUSSION) {
-        router.push('/train/gd');
-      } else if (type === ModuleType.CONVERSATION_PRACTICE) {
-        router.push(`/train/session/${type}`);
-      } else if (type === ModuleType.TECH_INTERVIEW) {
-        router.push('/train/technical');
-      } else if (type === ModuleType.FULL_MOCK) {
-        router.push('/train/mock');
-      } else {
-        router.push(`/train/session/${type}`);
-      }
-    } catch (error) {
-      console.error('Navigation error:', error);
-      // Fallback navigation
+      const routes: Record<string, string> = {
+        [ModuleType.ENGLISH_LEARNING]: '/train/english',
+        [ModuleType.HR_INTERVIEW]: '/train/hr',
+        [ModuleType.COMPANY_WISE_HR]: '/train/company',
+        [ModuleType.GD_DISCUSSION]: '/train/gd',
+        [ModuleType.TECH_INTERVIEW]: '/train/technical',
+        [ModuleType.FULL_MOCK]: '/train/mock',
+      };
+      router.push(routes[type] || `/train/session/${type}`);
+    } catch (e) {
       window.location.href = '/train';
     }
   };
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -8, transition: { duration: 0.3 } }}
       onClick={handleStart}
-      className={`group relative min-h-[280px] bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-lg p-6 rounded-3xl border border-slate-700/50 shadow-xl ${isLocked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-2xl hover:shadow-purple-500/10 hover:border-purple-500/30 hover:scale-[1.02] cursor-pointer'} transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 fill-mode-both ${delay}`}
+      className={`group relative min-h-[340px] flex flex-col bg-slate-900/40 backdrop-blur-xl p-8 rounded-[2.5rem] border border-slate-700/50 shadow-2xl transition-all duration-500 overflow-hidden ${
+        isLocked ? 'opacity-70 cursor-not-allowed' : 'hover:border-purple-500/50 cursor-pointer'
+      }`}
     >
-      <div className="relative mb-6">
-        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg ${!isLocked && 'group-hover:shadow-xl transition-all duration-300 group-hover:scale-110'}`}>
-          {isLocked ? <Lock size={32} className="text-white" /> : <Icon size={32} className="text-white" />}
+      {/* Background Image Layer */}
+      {bgImage && (
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={bgImage} 
+            alt="" 
+            className="w-full h-full object-cover opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent" />
         </div>
-        <div className={`absolute -inset-2 bg-gradient-to-br ${color} opacity-20 blur-lg rounded-2xl ${!isLocked && 'group-hover:opacity-30'} transition-opacity duration-300`} />
+      )}
+
+      {/* Glossy Overlay */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Animated Glow */}
+      {!isLocked && (
+        <div className={`absolute -inset-2 z-[2] bg-gradient-to-br ${color} opacity-0 blur-3xl group-hover:opacity-10 transition-opacity duration-500`} />
+      )}
+
+      <div className="relative z-10 flex-1">
+        <div className="flex justify-between items-start mb-8">
+          <div className="relative">
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg relative z-10`}
+            >
+              {isLocked ? <Lock size={30} className="text-white/90" /> : <Icon size={30} className="text-white" />}
+            </motion.div>
+            <div className={`absolute -inset-1 bg-gradient-to-br ${color} opacity-40 blur-md rounded-2xl transition-all duration-500 group-hover:blur-lg`} />
+          </div>
+
+          <div className="flex flex-col items-end gap-2">
+            <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full tracking-wider border ${
+              isLocked 
+                ? 'bg-red-500/10 text-red-400 border-red-500/20' 
+                : isAdvanced 
+                  ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
+                  : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+            }`}>
+              {isLocked ? 'Premium' : isAdvanced ? 'Advanced' : 'Free'}
+            </span>
+          </div>
+        </div>
+
+        <h3 className="text-2xl font-bold text-white mb-3 flex items-center gap-2 group-hover:text-purple-300 transition-colors">
+          {title}
+          {isAdvanced && <Sparkles size={18} className="text-amber-400" />}
+        </h3>
+        <p className="text-slate-400 text-sm leading-relaxed mb-8 group-hover:text-slate-300 transition-colors font-medium">
+          {description}
+        </p>
       </div>
 
-      <h3 className="text-xl font-black text-white mb-3 flex items-center gap-2">
-        {title}
-        {isAdvanced && <ShieldCheck size={20} className="text-blue-400" />}
-        {title === 'GD Agent' && <CheckCircle size={20} className="text-blue-400" />}
-      </h3>
-      <p className="text-slate-300 text-sm leading-relaxed mb-6 line-clamp-2">{description}</p>
-
-      <div className="flex items-center justify-between mt-auto">
-        <div className={`font-bold text-sm ${isLocked ? 'text-red-400 cursor-pointer hover:text-red-300' : 'text-purple-400 group-hover:text-purple-300'} transition-colors`} onClick={isLocked ? handleUpgrade : undefined}>
-          {isLocked ? 'Free limit reached. Upgrade to continue.' : 'Start Training →'}
-          {!isLocked && <ArrowRight size={16} className="ml-2 inline group-hover:translate-x-1 transition-transform" />}
+      <div className="mt-auto relative z-10 pt-6 border-t border-slate-800/50 flex items-center justify-between">
+        <div 
+          className={`flex items-center gap-2 font-bold text-sm transition-all duration-300 ${
+            isLocked ? 'text-red-400 hover:text-red-300' : 'text-purple-400 group-hover:text-white'
+          }`}
+          onClick={isLocked ? handleUpgrade : undefined}
+        >
+          <span>{isLocked ? 'Upgrade to Unlock' : 'Start Session'}</span>
+          {!isLocked && (
+            <motion.div
+              animate={{ x: [0, 5, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <ArrowRight size={18} />
+            </motion.div>
+          )}
         </div>
+
         <div className="text-right">
-          <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
-            {planName ? `${planName} uses` : 'Free uses'}
-          </div>
-          <div className={`text-sm font-black ${isLocked ? 'text-red-400' : remaining === 'Unlimited' ? 'text-green-400' : 'text-white'}`}>
-            {remaining === 'Unlimited' ? '∞' : `${remaining ?? 0} / ${limit || 3}`}
-          </div>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mb-0.5">
+            {planName || 'Usage'}
+          </p>
+          <p className={`text-lg font-black tabular-nums ${isLocked ? 'text-red-400' : remaining === 'Unlimited' ? 'text-emerald-400' : 'text-white'}`}>
+            {remaining === 'Unlimited' ? '∞' : `${remaining ?? 0}/${limit || 3}`}
+          </p>
         </div>
       </div>
-
-      <div className="absolute top-4 right-4">
-        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest shadow-sm ${isLocked ? 'bg-red-900/50 text-red-300 border border-red-700/50' : isAdvanced ? 'bg-blue-900/50 text-blue-300 border border-blue-700/50' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'}`}>
-          {isLocked ? 'Locked' : isAdvanced ? 'Advanced' : 'Available'}
-        </span>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -146,6 +191,7 @@ const LearningPath: React.FC = () => {
       icon: BookOpen,
       color: 'bg-indigo-500',
       delay: 'delay-0',
+      bgImage: '/images/EnglishLearning.jpg',
       ...getModuleUsage(ModuleType.ENGLISH_LEARNING),
       planName: usageData?.planName,
       limit: usageData?.limit
@@ -157,6 +203,7 @@ const LearningPath: React.FC = () => {
       icon: MessageSquare,
       color: 'bg-sky-500',
       delay: 'delay-100',
+      bgImage: '/images/DailyConversation.jpg',
       ...getModuleUsage(ModuleType.CONVERSATION_PRACTICE),
       planName: usageData?.planName,
       limit: usageData?.limit
@@ -168,6 +215,7 @@ const LearningPath: React.FC = () => {
       icon: UserPlus,
       color: 'bg-pink-500',
       delay: 'delay-200',
+      bgImage: '/images/HRInterviewCoach.jpg',
       ...getModuleUsage(ModuleType.HR_INTERVIEW),
       planName: usageData?.planName,
       limit: usageData?.limit
@@ -179,6 +227,7 @@ const LearningPath: React.FC = () => {
       icon: Code,
       color: 'bg-emerald-500',
       delay: 'delay-300',
+      bgImage: '/images/TechnicalMastery.jpg',
       ...getModuleUsage(ModuleType.TECH_INTERVIEW),
       planName: usageData?.planName,
       limit: usageData?.limit
@@ -191,6 +240,7 @@ const LearningPath: React.FC = () => {
       color: 'bg-amber-500',
       delay: 'delay-400',
       isAdvanced: true,
+      bgImage: '/images/CompanyTracks.jpg',
       ...getModuleUsage(ModuleType.COMPANY_WISE_HR),
       planName: usageData?.planName,
       limit: usageData?.limit
@@ -202,6 +252,7 @@ const LearningPath: React.FC = () => {
       icon: Users,
       color: 'bg-purple-500',
       delay: 'delay-500',
+      bgImage: '/images/GDAgent.jpg',
       ...getModuleUsage(ModuleType.GD_DISCUSSION),
       planName: usageData?.planName,
       limit: usageData?.limit
@@ -209,16 +260,26 @@ const LearningPath: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 md:space-y-8 pb-8">
-      <div className="text-center">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight">Select Training Module</h1>
-        <p className="text-slate-300 mt-2 text-base md:text-lg leading-relaxed">Choose where you want to focus today. Your AI coach is ready.</p>
-      </div>
+    <div className="space-y-12 pb-12">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center max-w-3xl mx-auto"
+      >
+        <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+          Training Modules
+        </h1>
+        <p className="text-slate-400 text-lg md:text-xl font-medium leading-relaxed">
+          The most advanced AI coaching system for your career growth.
+        </p>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {modules.map((m) => (
-          <ModuleCard key={m.type} {...m} />
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <AnimatePresence mode="popLayout">
+          {modules.map((m, index) => (
+            <ModuleCard key={m.type} {...m} />
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );

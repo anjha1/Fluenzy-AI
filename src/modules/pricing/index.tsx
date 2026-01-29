@@ -29,6 +29,10 @@ const planFeatures = {
     popular: false,
     icon: Star,
     period: "forever",
+    image: "/images/StandardandProPlan.jpg",
+    mesh: "radial-gradient(at 0% 0%, #1e293b 0px, transparent 50%), radial-gradient(at 100% 100%, #334155 0px, transparent 50%)",
+    accent: "bg-slate-500",
+    border: "border-slate-500/30",
   },
   Standard: {
     description: "Unlimited training for serious candidates",
@@ -45,22 +49,30 @@ const planFeatures = {
     popular: true,
     icon: Crown,
     period: "per month",
+    image: "/images/StandardandProPlan.jpg",
+    mesh: "radial-gradient(at 0% 0%, #4c1d95 0px, transparent 50%), radial-gradient(at 100% 100%, #8b5cf6 0px, transparent 50%)",
+    accent: "bg-purple-500",
+    border: "border-purple-500/30",
   },
   Pro: {
-    description: "Premium training with detailed analytics",
+    description: "Enterprise-grade training for peak performance",
     features: [
-      "100 interview sessions per month",
-      "Advanced AI feedback & analytics",
-      "All training modules unlocked",
-      "Priority support",
-      "Progress tracking dashboard",
-      "Company-specific preparation",
-      "Group discussion practice",
+      "Unlimited interview sessions",
+      "Real-time posture & tone analysis",
+      "Personalized growth roadmap",
+      "Dedicated success manager",
+      "Unlimited group discussions",
+      "Custom company tracks",
+      "Expert human review (1/mo)",
     ],
     cta: "Go Pro",
     popular: false,
     icon: Zap,
     period: "per month",
+    image: "/images/StandardandProPlan.jpg",
+    mesh: "radial-gradient(at 0% 0%, #1e3a8a 0px, transparent 50%), radial-gradient(at 100% 100%, #0ea5e9 0px, transparent 50%)",
+    accent: "bg-blue-500",
+    border: "border-blue-500/30",
   },
 };
 
@@ -85,24 +97,37 @@ const Pricing = () => {
         const response = await fetch('/api/admin/plan-pricing');
         if (response.ok) {
           const pricingData = await response.json();
+          
+          if (Object.keys(pricingData).length === 0) {
+            throw new Error("Empty pricing data");
+          }
 
-          // Convert to array and merge with features
-          const plansArray = Object.entries(pricingData).map(([planName, data]: [string, any]) => ({
-            name: planName,
-            price: data.price,
-            currency: data.currency,
-            ...planFeatures[planName as keyof typeof planFeatures],
-          }));
+          const plansArray = Object.entries(pricingData).map(([planName, data]: [string, any]) => {
+            // Find matched feature data case-insensitively
+            const matchedFeatureKey = Object.keys(planFeatures).find(
+              key => key.toLowerCase() === planName.toLowerCase()
+            ) as keyof typeof planFeatures;
+            
+            const featureData = planFeatures[matchedFeatureKey] || planFeatures.Free;
+
+            return {
+              name: planName.charAt(0).toUpperCase() + planName.slice(1),
+              price: data.price,
+              currency: data.currency,
+              ...featureData,
+            };
+          });
 
           setPlans(plansArray);
+        } else {
+          throw new Error("Failed to fetch");
         }
       } catch (error) {
         console.error('Error fetching plans:', error);
-        // Fallback to default plans
         setPlans([
           { name: "Free", price: 0, currency: "INR", ...planFeatures.Free },
-          { name: "Standard", price: 150, currency: "INR", ...planFeatures.Standard },
-          { name: "Pro", price: 20, currency: "INR", ...planFeatures.Pro },
+          { name: "Standard", price: 299, currency: "INR", ...planFeatures.Standard },
+          { name: "Pro", price: 999, currency: "INR", ...planFeatures.Pro },
         ]);
       } finally {
         setLoading(false);
@@ -112,7 +137,6 @@ const Pricing = () => {
     fetchPlans();
   }, []);
 
-  // Initialize animated prices
   useEffect(() => {
     if (plans.length > 0) {
       const initialPrices: { [key: string]: number } = {};
@@ -127,20 +151,12 @@ const Pricing = () => {
 
   const handleButtonClick = (planName: string) => {
     if (pathname === "/pricing") {
-      // On pricing page
       if (planName !== "Free") {
         router.push("/billing");
       } else {
-        // Start Free - redirect to home or sign in
-        if (session?.user) {
-          router.push("/");
-        } else {
-          // Sign in logic, but since it's client, maybe just redirect to home
-          router.push("/");
-        }
+        router.push("/");
       }
     } else {
-      // On home page - scroll to editor
       const element = document.getElementById("editor");
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
@@ -172,7 +188,6 @@ const Pricing = () => {
 
       if (response.ok) {
         setCouponData(data);
-        // Update price breakdown for the selected plan
         setPriceBreakdown({
           ...priceBreakdown,
           [selectedPlan]: {
@@ -183,7 +198,6 @@ const Pricing = () => {
             discountValue: data.coupon.discountValue,
           }
         });
-        // Animate price change
         setAnimatedPrice({
           ...animatedPrice,
           [selectedPlan]: data.pricing.finalAmount
@@ -198,28 +212,13 @@ const Pricing = () => {
     }
   };
 
-  const clearCoupon = () => {
-    setCouponCode('');
-    setCouponData(null);
-    setCouponError('');
-    setPriceBreakdown({});
-    // Reset animated prices
-    const resetPrices: { [key: string]: number } = {};
-    plans.forEach(plan => {
-      resetPrices[plan.name] = billingCycle === 'annual' && plan.name !== 'Free'
-        ? Math.round(plan.price * 12 * 0.8)
-        : plan.price;
-    });
-    setAnimatedPrice(resetPrices);
-  };
-
   return (
-    <section id="pricing" className="py-24 relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-800">
+    <section id="pricing" className="py-24 relative overflow-hidden bg-[#0a0a0f]">
       {/* Background effects */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[150px]" />
+      <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[150px]" />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -227,231 +226,173 @@ const Pricing = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-full px-6 py-3 mb-6 border border-purple-500/30 backdrop-blur-sm">
+          <div className="inline-flex items-center space-x-2 bg-white/5 rounded-full px-6 py-3 mb-6 border border-white/10 backdrop-blur-md">
             <Zap className="h-5 w-5 text-purple-400" />
-            <span className="font-medium text-purple-200">Flexible Pricing</span>
+            <span className="font-bold text-sm tracking-widest uppercase text-white/80">Premium Access</span>
           </div>
 
-          <h2 className="text-4xl lg:text-6xl font-bold mb-6">
-            <span className="text-white">Start Training </span>
+          <h2 className="text-5xl lg:text-7xl font-black mb-6 tracking-tighter">
+            <span className="text-white">Start Your </span>
             <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 !bg-clip-text text-transparent">
-              Free Today
+              Success Story
             </span>
           </h2>
 
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-slate-800/50 backdrop-blur-sm rounded-full p-1 border border-slate-700/50">
+          <div className="flex items-center justify-center mb-8">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-2 border border-white/10 flex items-center shadow-2xl">
               <button
                 onClick={() => setBillingCycle('monthly')}
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                className={`px-8 py-3 rounded-xl text-sm font-black tracking-widest uppercase transition-all duration-500 ${
                   billingCycle === 'monthly'
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'text-gray-300 hover:text-white'
+                    ? 'bg-white text-slate-900 shadow-[0_0_20px_rgba(255,255,255,0.3)]'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setBillingCycle('annual')}
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                className={`px-8 py-3 rounded-xl text-sm font-black tracking-widest uppercase transition-all duration-500 flex items-center ${
                   billingCycle === 'annual'
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'text-gray-300 hover:text-white'
+                    ? 'bg-white text-slate-900 shadow-[0_0_20px_rgba(255,255,255,0.3)]'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Annual
-                <span className="ml-2 bg-green-500 text-xs px-2 py-1 rounded-full text-white">Save 20%</span>
+                <span className="ml-2 bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-1 rounded-lg border border-emerald-500/20">
+                  Save 20%
+                </span>
               </button>
             </div>
           </div>
 
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Start your journey with our free plan featuring AI-powered training. Upgrade anytime to access unlimited sessions and premium features.
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto font-medium">
+            Start your journey with our free plan. Upgrade to unlock unlimited AI-powered training sessions.
           </p>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {loading ? (
-            <div className="col-span-3 text-center py-12">Loading plans...</div>
+            <div className="col-span-3 text-center py-12 text-slate-500 font-bold uppercase tracking-widest">Initialising Engine...</div>
           ) : (
             plans?.map((plan: any, index: number) => (
               <motion.div
                 key={plan.name}
-                initial={{ opacity: 0, y: 50 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: index * 0.2 }}
-                whileHover={{ scale: 1.02, y: -5 }}
+                whileHover={{ y: -10 }}
                 className={`relative group ${plan.popular ? "lg:-mt-8" : ""}`}
               >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                  <div className="bg-gradient-primary px-6 py-2 rounded-full text-sm font-bold text-background">
-                    Most Popular
-                  </div>
-                </div>
-              )}
-
-              <div
-                className={`h-full glass rounded-3xl p-8 border transition-all duration-500 relative overflow-hidden ${
-                  plan.popular
-                    ? "border-purple-500/60 shadow-2xl shadow-purple-500/30 glow-border"
-                    : "border-card-border/50 hover:border-purple-500/60 shadow-2xl hover:shadow-purple-500/30"
-                }`}
-              >
-                {/* Glow effect for popular plan */}
                 {plan.popular && (
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-3xl" />
-                )}
-                <div className="text-center mb-8">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 bg-gradient-to-br ${plan.popular ? "from-purple-500 to-blue-500" : "from-slate-600 to-slate-500"} group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                    <plan.icon className="w-8 h-8 text-white" />
-                  </div>
-
-                  <h3 className="text-2xl font-bold mb-2 text-white">
-                    {plan.name}
-                  </h3>
-                  <p className="text-gray-300 mb-4">
-                    {plan.description}
-                  </p>
-
-                  <div className="mb-6">
-                    <motion.span
-                      key={animatedPrice[plan.name] || (billingCycle === 'annual' && plan.name !== 'Free' ? Math.round(plan.price * 12 * 0.8) : plan.price)}
-                      initial={{ scale: 1 }}
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 0.3 }}
-                      className="text-5xl font-bold text-white group-hover:text-cyan-200 transition-colors duration-300"
-                    >
-                      {animatedPrice[plan.name] || (billingCycle === 'annual' && plan.name !== 'Free' ? Math.round(plan.price * 12 * 0.8) : plan.price)}
-                    </motion.span>
-                    <span className="text-gray-400 ml-2">
-                      /{billingCycle === 'annual' ? 'year' : plan.period}
-                    </span>
-                    {billingCycle === 'annual' && plan.name !== 'Free' && (
-                      <div className="text-sm text-green-400 mt-1">
-                        Save ₹{plan.price * 12 - Math.round(plan.price * 12 * 0.8)} annually
-                      </div>
-                    )}
-
-                    {/* Price Breakdown for Paid Plans with Coupon */}
-                    {plan.price > 0 && priceBreakdown[plan.name] && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mt-4 p-3 bg-slate-800/50 rounded-lg border border-purple-500/30"
-                      >
-                        <div className="text-sm text-gray-300 space-y-1">
-                          <div className="flex justify-between">
-                            <span>Original Price:</span>
-                            <span>₹{priceBreakdown[plan.name].originalPrice}</span>
-                          </div>
-                          <div className="flex justify-between text-green-400">
-                            <span>Discount ({priceBreakdown[plan.name].discountValue}{priceBreakdown[plan.name].discountType === 'percentage' ? '%' : '₹'}):</span>
-                            <span>-₹{priceBreakdown[plan.name].discountAmount}</span>
-                          </div>
-                          <div className="flex justify-between font-semibold text-white border-t border-gray-600 pt-1">
-                            <span>You Save:</span>
-                            <span>₹{priceBreakdown[plan.name].discountAmount}</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* Coupon Input for Paid Plans */}
-                    {plan.price > 0 && (
-                      <div className="mt-4 space-y-2">
-                        <div className="flex space-x-2">
-                          <input
-                            type="text"
-                            placeholder="Enter coupon code"
-                            value={selectedPlan === plan.name ? couponCode : ''}
-                            onChange={(e) => {
-                              setCouponCode(e.target.value);
-                              setSelectedPlan(plan.name);
-                            }}
-                            className="flex-1 px-3 py-2 bg-slate-800/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none"
-                          />
-                          <Button
-                            onClick={applyCoupon}
-                            disabled={applyingCoupon || !couponCode.trim() || selectedPlan !== plan.name}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg disabled:opacity-50"
-                          >
-                            {applyingCoupon ? 'Applying...' : 'Apply'}
-                          </Button>
-                        </div>
-                        {couponError && selectedPlan === plan.name && (
-                          <p className="text-red-400 text-sm">{couponError}</p>
-                        )}
-                        {couponData && selectedPlan === plan.name && (
-                          <p className="text-green-400 text-sm">Coupon applied successfully!</p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Message for Free Plan */}
-                    {plan.price === 0 && (
-                      <div className="mt-4 text-sm text-gray-400">
-                        Coupons are applicable only on paid plans.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-4 mb-8">
-                  {plan?.features?.map((feature: string, idx: number) => (
-                    <div key={`feature-${plan.name}-${idx}`} className={"flex items-center space-x-3"}>
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center">
-                        <Check className="w-3 h-3 text-purple-400" />
-                      </div>
-                      <span className="text-gray-200">{feature}</span>
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 z-20">
+                    <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-2xl border border-white/20">
+                      Most Popular
                     </div>
-                  ))}
+                  </div>
+                )}
 
-                  {plan?.limitations?.map((limitation: string, idx: number) => (
-                    <div
-                      key={`limitation-${plan.name}-${idx}`}
-                      className="flex items-center space-x-3"
-                    >
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center">
-                        <div className="w-3 h-0.5 bg-gray-400" />
-                      </div>
-                      <span className="text-gray-400">
-                        {limitation}
+                <div 
+                  className={`h-full relative overflow-hidden rounded-[40px] p-8 border transition-all duration-500 ${
+                    plan.popular ? "border-purple-500/50 shadow-[0_0_50px_rgba(168,85,247,0.15)]" : "border-white/10"
+                  }`}
+                  style={{ background: `linear-gradient(135deg, rgba(15, 15, 25, 0.98), rgba(5, 5, 10, 0.99)), ${plan.mesh}` }}
+                >
+                  {/* User provided background image with alpha */}
+                  <div 
+                    className="absolute inset-0 opacity-10 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+                    style={{ 
+                      backgroundImage: `url(${plan.image})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
+                  />
+
+                  {/* Texture Overlay */}
+                  <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+
+                  <div className="text-center mb-10 relative z-10">
+                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 ${plan.accent || 'bg-slate-500'} shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                      {plan.icon ? <plan.icon className="w-8 h-8 text-white" /> : <Star className="w-8 h-8 text-white" />}
+                    </div>
+
+                    <h3 className="text-3xl font-black text-white mb-2 tracking-tight">
+                      {plan.name}
+                    </h3>
+                    <p className="text-slate-400 font-medium text-sm">
+                      {plan.description}
+                    </p>
+
+                    <div className="mt-8 flex items-end justify-center">
+                      <motion.span
+                        key={animatedPrice[plan.name]}
+                        className="text-6xl font-black text-white tracking-tighter"
+                      >
+                        ₹{animatedPrice[plan.name] || plan.price}
+                      </motion.span>
+                      <span className="text-slate-500 font-bold mb-2 ml-2 tracking-widest uppercase text-xs">
+                        /{billingCycle === 'annual' ? 'year' : plan.period}
                       </span>
                     </div>
-                  ))}
-                </div>
 
-                <Button
-                  className={`w-full font-semibold py-4 rounded-xl transition-all duration-300 relative overflow-hidden ${
-                    plan.popular
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-purple-500/50 glow-effect"
-                      : "glass border border-card-border/50 hover:border-purple-500/60 text-gray-200 hover:text-white backdrop-blur-sm"
-                  }`}
-                  onClick={() => handleButtonClick(plan.name)}
-                >
-                  {plan.cta}
-                </Button>
+                    {billingCycle === 'annual' && plan.name !== 'Free' && (
+                      <div className="text-[10px] font-black text-emerald-400 mt-2 uppercase tracking-widest">
+                        Save ₹{plan.price * 12 - Math.round(plan.price * 12 * 0.8)} ANNUALLY
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-4 mb-10 relative z-10">
+                    {plan?.features?.map((feature: string, idx: number) => (
+                      <div key={idx} className="flex items-center space-x-3 group/item">
+                        <div className={`flex-shrink-0 w-5 h-5 rounded-full ${plan.accent.replace('bg-', 'bg-')}/20 flex items-center justify-center border border-white/5`}>
+                          <Check className={`w-3 h-3 ${plan.accent.replace('bg-', 'text-')}`} />
+                        </div>
+                        <span className="text-slate-300 font-medium text-sm group-hover/item:text-white transition-colors">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {plan.price > 0 && (
+                    <div className="mb-8 relative z-10">
+                      <div className="flex bg-white/5 rounded-2xl p-1 border border-white/5 group-focus-within:border-purple-500/50 transition-all">
+                        <input
+                          type="text"
+                          placeholder="Coupon"
+                          value={selectedPlan === plan.name ? couponCode : ''}
+                          onChange={(e) => {
+                            setCouponCode(e.target.value);
+                            setSelectedPlan(plan.name);
+                          }}
+                          className="w-full px-4 bg-transparent text-white placeholder-slate-600 focus:outline-none text-sm font-bold uppercase tracking-widest"
+                        />
+                        <button
+                          onClick={applyCoupon}
+                          disabled={applyingCoupon || !couponCode.trim() || selectedPlan !== plan.name}
+                          className="bg-white/10 hover:bg-white/20 text-white rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-30"
+                        >
+                          {applyingCoupon ? '...' : 'Apply'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <Button
+                    className={`w-full py-8 rounded-[24px] text-sm font-black uppercase tracking-[0.2em] transition-all duration-500 relative z-10 ${
+                      plan.popular
+                        ? "bg-white text-slate-900 hover:scale-[1.02] shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
+                        : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
+                    }`}
+                    onClick={() => handleButtonClick(plan.name)}
+                  >
+                    {plan.cta}
+                  </Button>
                 </div>
               </motion.div>
             ))
           )}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-center mt-12"
-        >
-          <p className="text-gray-300">
-            Start training free today. Upgrade when you're ready to unlock unlimited AI-powered interview preparation.
-          </p>
-        </motion.div>
       </div>
     </section>
   );

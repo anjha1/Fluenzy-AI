@@ -46,7 +46,7 @@ const HistoryPage = () => {
       <div className="absolute inset-0 bg-gradient-radial from-purple-900/10 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-gradient-radial from-blue-900/5 via-transparent to-transparent" />
 
-      <div className="relative z-10 max-w-7xl mx-auto p-4 md:p-8 lg:p-12">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 lg:px-12 pt-24 md:pt-32 pb-12">
         <HistoryView user={user} />
       </div>
     </div>

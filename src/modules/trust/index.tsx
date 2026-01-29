@@ -15,7 +15,7 @@ const TrustSection = () => {
   return (
     <div className="py-10 bg-slate-950 border-y border-slate-800 overflow-hidden relative">
       <div className="text-center mb-6">
-        <p className="text-slate-400 text-sm uppercase tracking-widest font-semibold">
+        <p className="inline-block bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 !bg-clip-text text-transparent text-sm uppercase tracking-widest font-black">
           Trusted by FAANG & Top Tech Companies
         </p>
       </div>
@@ -41,7 +41,11 @@ const TrustSection = () => {
               <img
                 src={company.logo}
                 alt={company.name}
-                className="h-8 w-auto opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300 cursor-pointer"
+                className={`h-8 w-auto opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300 cursor-pointer ${
+                  company.name === "Apple" ? "invert brightness-200" : ""
+                } ${
+                  company.name === "Amazon" ? "invert brightness-200 hover:invert-0 hover:brightness-100" : ""
+                }`}
               />
             </div>
           ))}
