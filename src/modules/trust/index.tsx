@@ -13,7 +13,7 @@ const companies = [
 
 const TrustSection = () => {
   return (
-    <div className="py-10 bg-slate-950 border-y border-slate-800 overflow-hidden relative">
+    <div className="py-10 bg-slate-950 border-y border-slate-800 overflow-hidden relative bg-module-overlay">
       <div className="text-center mb-6">
         <p className="inline-block bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 !bg-clip-text text-transparent text-sm uppercase tracking-widest font-black">
           Trusted by FAANG & Top Tech Companies

@@ -74,7 +74,7 @@ const feedbackMetrics = [
 
 const FeedbackSection = () => {
   return (
-    <section className="py-24 relative overflow-hidden bg-[#07070a]">
+    <section className="py-24 relative overflow-hidden bg-[#07070a] bg-module-overlay">
       {/* Background effects */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px]" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px]" />

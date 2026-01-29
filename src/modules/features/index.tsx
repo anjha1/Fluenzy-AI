@@ -68,7 +68,7 @@ const features = [
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 relative overflow-hidden bg-[#050508]">
+    <section id="features" className="py-24 relative overflow-hidden bg-[#050508] bg-module-overlay">
       {/* Background effects */}
       <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[150px]" />
       <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[150px]" />

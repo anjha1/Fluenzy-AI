@@ -33,12 +33,12 @@ const Hero = () => {
       {/* Target Background Image */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.15, scale: 1 }}
+        animate={{ opacity: 0.2, scale: 1.1 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
         className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none overflow-hidden"
       >
         <img 
-          src="/images/download__2_-removebg-preview.png" 
+          src="/images/360_F_1409155154_pALBjHEVKuYFUrl9HJ9Q3zgpCuaHyFpI-removebg-preview.png" 
           alt="" 
           className="w-full h-full object-cover opacity-100"
         />
