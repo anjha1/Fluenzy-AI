@@ -11,10 +11,19 @@ const normalizeScore = (value?: number | null) => {
   return Math.max(0, Math.min(100, value));
 };
 
+const clamp = (value: number, min = 0, max = 100) => Math.max(min, Math.min(max, value));
+
 const average = (values: Array<number | null | undefined>) => {
   const filtered = values.filter((v): v is number => typeof v === "number" && !Number.isNaN(v));
   if (!filtered.length) return null;
   return filtered.reduce((sum, v) => sum + v, 0) / filtered.length;
+};
+
+const stdDev = (values: number[]) => {
+  if (!values.length) return 0;
+  const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+  return Math.sqrt(variance);
 };
 
 const formatDateKey = (value: Date) => value.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
@@ -25,7 +34,51 @@ const getDurationMinutes = (start?: Date | null, end?: Date | null, stored?: num
   return Math.max(0, Math.round((end.getTime() - start.getTime()) / 60000));
 };
 
-const extractGrammarIssues = (feedbacks: string[]) => {
+const fillerWords = ["uh", "um", "like", "you know", "basically", "actually", "so", "kind of", "sort of", "hmm", "er", "ah"];
+
+const countFillerWords = (text: string) => {
+  const lower = text.toLowerCase();
+  const counts = new Map<string, number>();
+  let total = 0;
+  fillerWords.forEach((word) => {
+    const pattern = new RegExp(`\\b${word.replace(" ", "\\s+")}\\b`, "g");
+    const matches = lower.match(pattern);
+    if (matches?.length) {
+      counts.set(word, (counts.get(word) || 0) + matches.length);
+      total += matches.length;
+    }
+  });
+  return { total, counts };
+};
+
+const countWords = (text: string) => {
+  if (!text) return 0;
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+};
+
+const pearsonCorrelation = (x: number[], y: number[]) => {
+  if (x.length !== y.length || x.length < 2) return 0;
+  const meanX = x.reduce((sum, v) => sum + v, 0) / x.length;
+  const meanY = y.reduce((sum, v) => sum + v, 0) / y.length;
+  let num = 0;
+  let denomX = 0;
+  let denomY = 0;
+  for (let i = 0; i < x.length; i += 1) {
+    const dx = x[i] - meanX;
+    const dy = y[i] - meanY;
+    num += dx * dy;
+    denomX += dx * dx;
+    denomY += dy * dy;
+  }
+  if (!denomX || !denomY) return 0;
+  return num / Math.sqrt(denomX * denomY);
+};
+
+const extractGrammarIssueCounts = (feedbacks: string[]) => {
   const patterns: Array<[RegExp, string]> = [
     [/subject[-\s]?verb/i, "Subject-verb agreement"],
     [/tense/i, "Verb tense"],
@@ -46,8 +99,10 @@ const extractGrammarIssues = (feedbacks: string[]) => {
   return Array.from(counts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 4)
-    .map(([label]) => label);
+    .map(([label, count]) => ({ label, count }));
 };
+
+const extractGrammarIssues = (feedbacks: string[]) => extractGrammarIssueCounts(feedbacks).map((item) => item.label);
 
 const generateTips = (scores: {
   communicationScore: number | null;
@@ -299,6 +354,205 @@ export async function GET() {
       technicalScore,
     });
 
+    const combinedAnswerText = transcripts.map((t) => t.userAnswer || "").join(" ");
+    const totalWords = countWords(combinedAnswerText);
+    const fillerStats = countFillerWords(combinedAnswerText);
+    const fillerRate = totalWords ? (fillerStats.total / totalWords) * 100 : 0;
+    const speakingWpm = totalDurationMinutes ? Number((totalWords / totalDurationMinutes).toFixed(1)) : 0;
+    const idealWpmRange: [number, number] = [120, 160];
+    const speakingPaceScore = clamp(100 - Math.abs(speakingWpm - 140) * 1.5);
+
+    const sentences = combinedAnswerText
+      .split(/[.!?]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const sentenceLengths = sentences.map((s) => countWords(s));
+    const goodSentences = sentenceLengths.filter((len) => len >= 8 && len <= 24).length;
+    const sentenceStructureScore = sentences.length ? clamp((goodSentences / sentences.length) * 100) : 0;
+
+    const confidenceValues = transcripts
+      .map((t) => normalizeScore(t.confidenceScore))
+      .filter((v): v is number => typeof v === "number");
+    const toneConsistency = clamp(100 - stdDev(confidenceValues) * 1.8);
+    const hesitationIndex = clamp(fillerRate * 2 + (100 - (confidenceScore ?? 0)) * 0.35);
+
+    const mostRecentSession = sessions[0];
+    const recentSessionTranscripts = mostRecentSession
+      ? transcripts.filter((t) => t.sessionId === mostRecentSession.id).sort((a, b) => a.turnNumber - b.turnNumber)
+      : [];
+    const confidenceTimeline = recentSessionTranscripts.map((t) => ({
+      turn: t.turnNumber,
+      confidence: normalizeScore(t.confidenceScore) || 0,
+    }));
+
+    const sessionConfidenceTrend = sessions.map((s) => {
+      const sessionItems = transcripts.filter((t) => t.sessionId === s.id);
+      return {
+        date: formatDateKey(s.startTime),
+        confidence: Math.round((average(sessionItems.map((t) => normalizeScore(t.confidenceScore))) || 0) * 10) / 10,
+      };
+    });
+
+    const grammarIssueCounts = extractGrammarIssueCounts(feedbacks);
+    const grammarIssueFrequency = totalQuestions ? Number(((feedbacks.length / totalQuestions) * 100).toFixed(1)) : 0;
+    const grammarSeries = trends.map((t) => t.grammar);
+    const grammarVelocity = grammarSeries.length > 1 ? Number(((grammarSeries[grammarSeries.length - 1] - grammarSeries[0]) / (grammarSeries.length - 1)).toFixed(2)) : 0;
+
+    const grammarScoresOrdered = transcripts
+      .map((t) => ({ score: normalizeScore(t.grammarScore) || 0, date: t.createdAt }))
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .map((t) => t.score);
+    const sliceSize = Math.max(1, Math.floor(grammarScoresOrdered.length * 0.3));
+    const grammarBefore = average(grammarScoresOrdered.slice(0, sliceSize)) || 0;
+    const grammarAfter = average(grammarScoresOrdered.slice(-sliceSize)) || 0;
+
+    const confidenceVsDifficulty: Array<{ difficulty: number; confidence: number }> = [];
+    const accuracyScores: number[] = [];
+    const confidenceForAccuracy: number[] = [];
+
+    transcripts.forEach((t) => {
+      const baseScore = normalizeScore(t.perQuestionScore ?? t.relevanceScore);
+      const confidenceValue = normalizeScore(t.confidenceScore);
+      if (baseScore != null && confidenceValue != null) {
+        const difficulty = clamp(100 - baseScore);
+        confidenceVsDifficulty.push({ difficulty, confidence: confidenceValue });
+        accuracyScores.push(baseScore);
+        confidenceForAccuracy.push(confidenceValue);
+      }
+    });
+
+    const difficultyDistribution = confidenceVsDifficulty.reduce(
+      (acc, item) => {
+        if (item.difficulty <= 33) acc.easy += 1;
+        else if (item.difficulty <= 66) acc.medium += 1;
+        else acc.hard += 1;
+        return acc;
+      },
+      { easy: 0, medium: 0, hard: 0 }
+    );
+
+    const fatigueSessions = sessions.filter((s) => {
+      const list = transcripts.filter((t) => t.sessionId === s.id).sort((a, b) => a.turnNumber - b.turnNumber);
+      if (list.length < 6) return false;
+      const third = Math.floor(list.length / 3) || 1;
+      const early = list.slice(0, third);
+      const late = list.slice(-third);
+      const earlyConfidence = average(early.map((t) => normalizeScore(t.confidenceScore) || 0)) || 0;
+      const lateConfidence = average(late.map((t) => normalizeScore(t.confidenceScore) || 0)) || 0;
+      const earlyWords = average(early.map((t) => countWords(t.userAnswer || ""))) || 0;
+      const lateWords = average(late.map((t) => countWords(t.userAnswer || ""))) || 0;
+      return lateConfidence + 8 < earlyConfidence && lateWords > earlyWords * 1.1;
+    }).length;
+    const fatigueRiskPercent = sessions.length ? Number(((fatigueSessions / sessions.length) * 100).toFixed(1)) : 0;
+
+    const confidenceAccuracyCorrelation = Number(pearsonCorrelation(confidenceForAccuracy, accuracyScores).toFixed(2));
+
+    const moduleAccuracyMap = new Map<string, number[]>();
+    const sessionMap = new Map(sessions.map((s) => [s.id, s]));
+    transcripts.forEach((t) => {
+      const sessionItem = sessionMap.get(t.sessionId);
+      if (!sessionItem) return;
+      const module = sessionItem.module;
+      const score = normalizeScore(t.perQuestionScore ?? t.relevanceScore ?? sessionItem.aggregateScore);
+      if (score == null) return;
+      if (!moduleAccuracyMap.has(module)) moduleAccuracyMap.set(module, []);
+      moduleAccuracyMap.get(module)!.push(score);
+    });
+    const accuracyByType = Array.from(moduleAccuracyMap.entries()).map(([type, scores]) => ({
+      type,
+      accuracy: Number((average(scores) || 0).toFixed(1)),
+    }));
+
+    const sessionGroupMap = new Map<string, typeof sessions>();
+    sessions.forEach((s) => {
+      const key = `${s.module}|${s.targetCompany || ""}|${s.role || ""}`;
+      if (!sessionGroupMap.has(key)) sessionGroupMap.set(key, []);
+      sessionGroupMap.get(key)!.push(s);
+    });
+    let successGroups = 0;
+    let totalGroups = 0;
+    sessionGroupMap.forEach((list) => {
+      if (list.length < 2) return;
+      totalGroups += 1;
+      const sorted = [...list].sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+      const firstScore = normalizeScore(sorted[0].aggregateScore) || 0;
+      const lastScore = normalizeScore(sorted[sorted.length - 1].aggregateScore) || 0;
+      if (lastScore > firstScore) successGroups += 1;
+    });
+    const reattemptSuccessRate = totalGroups ? Number(((successGroups / totalGroups) * 100).toFixed(1)) : 0;
+
+    const predictedConfidence = clamp(100 - fillerRate * 2 - Math.max(0, 70 - sentenceStructureScore) * 0.6);
+
+    const companyReadiness = Array.from(companyCounts.entries()).map(([name, count]) => {
+      const companySessions = sessions.filter((s) => s.targetCompany === name);
+      const companySessionIds = new Set(companySessions.map((s) => s.id));
+      const companyTranscripts = transcripts.filter((t) => companySessionIds.has(t.sessionId));
+      const companyConfidence = average(companyTranscripts.map((t) => normalizeScore(t.confidenceScore))) || 0;
+      const companyGrammar = average(companyTranscripts.map((t) => normalizeScore(t.grammarScore))) || 0;
+      const companyTechnical = average(companyTranscripts.map((t) => normalizeScore(t.technicalAccuracyScore))) || 0;
+      const companyCommunication = average(companyTranscripts.map((t) => normalizeScore(t.clarityScore))) || 0;
+      const companyWords = companyTranscripts.map((t) => t.userAnswer || "").join(" ");
+      const companyVocabulary = (() => {
+        const words = companyWords
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, " ")
+          .split(/\s+/)
+          .filter(Boolean);
+        if (!words.length) return 0;
+        return clamp((new Set(words).size / words.length) * 160);
+      })();
+      const readinessScore = clamp(average([companyCommunication, companyConfidence, companyGrammar, companyTechnical, companyVocabulary]) || 0);
+      const skillScores = [
+        { label: "Communication", score: companyCommunication },
+        { label: "Confidence", score: companyConfidence },
+        { label: "Grammar", score: companyGrammar },
+        { label: "Technical", score: companyTechnical },
+        { label: "Vocabulary", score: companyVocabulary },
+      ];
+      const missingSkills = skillScores.sort((a, b) => a.score - b.score).slice(0, 2).map((item) => item.label);
+      return { name, count, score: Number(readinessScore.toFixed(1)), missingSkills };
+    });
+
+    const compositeTrend = trends.map((t) => (t.communication + t.confidence + t.grammar + t.technical) / 4);
+    const compositeVelocity = compositeTrend.length > 1 ? (compositeTrend[compositeTrend.length - 1] - compositeTrend[0]) / (compositeTrend.length - 1) : 0;
+    const readinessTimelineWeeks = compositeVelocity > 0
+      ? Math.max(0, Math.ceil((80 - (overallScore ?? 0)) / compositeVelocity / 7))
+      : null;
+
+    const strengths = [
+      { label: "Communication", score: communicationScore ?? 0 },
+      { label: "Confidence", score: confidenceScore ?? 0 },
+      { label: "Grammar", score: grammarScore ?? 0 },
+      { label: "Vocabulary", score: vocabularyScore ?? 0 },
+      { label: "Technical", score: technicalScore ?? 0 },
+    ]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 2)
+      .map((item) => item.label);
+
+    const weaknesses = [
+      { label: "Communication", score: communicationScore ?? 0 },
+      { label: "Confidence", score: confidenceScore ?? 0 },
+      { label: "Grammar", score: grammarScore ?? 0 },
+      { label: "Vocabulary", score: vocabularyScore ?? 0 },
+      { label: "Technical", score: technicalScore ?? 0 },
+    ]
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 2)
+      .map((item) => item.label);
+
+    const plan7Day = [
+      `Day 1: Focus on ${focusAreas[0] || "Communication"} with 3 short mock answers.`,
+      "Day 2: Reduce filler words by practicing structured openings and closings.",
+      "Day 3: Do one timed HR session and review confidence dips.",
+      `Day 4: Grammar drill on ${grammarIssueCounts[0]?.label || "tense"}.`,
+      "Day 5: Technical explanation practice with 2-minute limits.",
+      "Day 6: Mock session with feedback review and retake 1 question.",
+      "Day 7: Full mock interview and compare confidence vs accuracy.",
+    ];
+
+    const nextSessionFocus = focusAreas.length ? `${focusAreas[0]} Booster` : "Communication Booster";
+
     return NextResponse.json({
       summary: {
         communicationScore: communicationScore ?? 0,
@@ -332,6 +586,67 @@ export async function GET() {
       },
       charts: {
         accuracyVsSpeed,
+      },
+      advanced: {
+        communication: {
+          fillerRate: Number(fillerRate.toFixed(1)),
+          fillerWords: Array.from(fillerStats.counts.entries()).map(([word, count]) => ({ word, count })),
+          speakingWpm,
+          idealWpmRange,
+          speakingPaceScore: Number(speakingPaceScore.toFixed(1)),
+          sentenceStructureScore: Number(sentenceStructureScore.toFixed(1)),
+          toneConsistency: Number(toneConsistency.toFixed(1)),
+          hesitationIndex: Number(hesitationIndex.toFixed(1)),
+          confidenceTimeline,
+          sessionConfidenceTrend,
+        },
+        grammar: {
+          categories: grammarIssueCounts,
+          errorFrequency: grammarIssueFrequency,
+          improvementVelocity: grammarVelocity,
+          beforeAfter: {
+            before: Number(grammarBefore.toFixed(1)),
+            after: Number(grammarAfter.toFixed(1)),
+          },
+        },
+        confidence: {
+          confidenceVsDifficulty,
+          fatigueRiskPercent,
+          confidenceVsAccuracyCorrelation: confidenceAccuracyCorrelation,
+          sessionTrend: sessionConfidenceTrend,
+          predictedVsActual: {
+            predicted: Number(predictedConfidence.toFixed(1)),
+            actual: Number((confidenceScore ?? 0).toFixed(1)),
+          },
+        },
+        questions: {
+          difficultyDistribution: [
+            { label: "Easy", count: difficultyDistribution.easy },
+            { label: "Medium", count: difficultyDistribution.medium },
+            { label: "Hard", count: difficultyDistribution.hard },
+          ],
+          accuracyByType,
+          reattemptSuccessRate,
+        },
+        company: {
+          readiness: companyReadiness,
+          recommendations: [
+            `${nextSessionFocus} recommended based on your weakest area.`,
+            "Revisit least practiced modules to balance your interview readiness.",
+          ],
+          readinessTimelineWeeks,
+        },
+        coach: {
+          readinessSummary: readinessTimelineWeeks == null
+            ? "Maintain current momentum to improve readiness."
+            : readinessTimelineWeeks === 0
+            ? "You are interview-ready. Keep polishing your responses."
+            : `Estimated interview readiness in ${readinessTimelineWeeks} weeks with consistent practice.`,
+          strengths,
+          weaknesses,
+          plan7Day,
+          nextSessionFocus,
+        },
       },
     });
   } catch (error) {
