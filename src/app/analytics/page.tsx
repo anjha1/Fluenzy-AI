@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -174,6 +174,7 @@ const ProgressRing = ({ value, label }: { value: number; label: string }) => {
 };
 
 const Heatmap = ({ activity }: { activity: Array<{ date: string; count: number }> }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const activityMap = useMemo(() => new Map(activity.map((item) => [item.date, item.count])), [activity]);
   const today = new Date();
   const days: Array<{ date: string; count: number }> = [];
@@ -184,20 +185,75 @@ const Heatmap = ({ activity }: { activity: Array<{ date: string; count: number }
     days.push({ date: key, count: activityMap.get(key) || 0 });
   }
   const max = Math.max(1, ...days.map((d) => d.count));
+  const [layout, setLayout] = useState({ cols: 14, size: 12, gap: 4, rows: 8 });
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    const updateLayout = () => {
+      const { width, height } = element.getBoundingClientRect();
+      if (!width || !height) return;
+
+      const total = days.length;
+      const minCols = 10;
+      const maxCols = 24;
+      const ratio = width / height;
+      let cols = Math.round(Math.sqrt(total * ratio));
+      cols = Math.max(minCols, Math.min(maxCols, cols));
+      let rows = Math.ceil(total / cols);
+
+      const minGap = 2;
+      const maxGap = 6;
+      const gap = Math.max(minGap, Math.min(maxGap, Math.floor(width / cols * 0.18)));
+      const sizeW = (width - gap * (cols - 1)) / cols;
+      const sizeH = (height - gap * (rows - 1)) / rows;
+      const size = Math.max(8, Math.floor(Math.min(sizeW, sizeH)));
+
+      rows = Math.ceil(total / cols);
+      setLayout({ cols, size, gap, rows });
+    };
+
+    updateLayout();
+    const resizeObserver = new ResizeObserver(updateLayout);
+    resizeObserver.observe(element);
+    window.addEventListener("resize", updateLayout);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, [days.length]);
 
   return (
-    <div className="grid grid-cols-16 gap-1">
-      {days.map((day) => {
-        const intensity = day.count / max;
-        const bg = intensity === 0
-          ? "bg-slate-800/40"
-          : intensity > 0.7
-          ? "bg-emerald-500"
-          : intensity > 0.4
-          ? "bg-emerald-400"
-          : "bg-emerald-300/80";
-        return <div key={day.date} className={`h-4 w-4 rounded-sm ${bg}`} title={`${day.date}: ${day.count}`} />;
-      })}
+    <div ref={containerRef} className="h-full w-full">
+      <div
+        className="mx-auto grid"
+        style={{
+          gridTemplateColumns: `repeat(${layout.cols}, ${layout.size}px)`,
+          gap: `${layout.gap}px`,
+          width: `${layout.cols * layout.size + (layout.cols - 1) * layout.gap}px`,
+        }}
+      >
+        {days.map((day) => {
+          const intensity = day.count / max;
+          const bg = intensity === 0
+            ? "bg-slate-800/40"
+            : intensity > 0.7
+            ? "bg-emerald-500"
+            : intensity > 0.4
+            ? "bg-emerald-400"
+            : "bg-emerald-300/80";
+          return (
+            <div
+              key={day.date}
+              className={`rounded-full ${bg}`}
+              style={{ width: layout.size, height: layout.size }}
+              title={`${day.date}: ${day.count}`}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -928,7 +984,7 @@ export default function AnalyticsDashboardPage() {
               <Flame className="h-4 w-4 text-amber-400" /> Activity Heatmap
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-[320px] flex items-center justify-center">
+            <CardContent className="h-[320px] p-4">
             <Heatmap activity={activity} />
           </CardContent>
         </Card>
