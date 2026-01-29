@@ -9,11 +9,12 @@ import Footer from '@/components/footer';
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideFooter = ['/train', '/history', '/features', '/pricing'].some(path => pathname.startsWith(path));
+  const hideNav = pathname.startsWith('/analytics/report');
   return (
     <>
-      <Navbar />
+      {!hideNav && <Navbar />}
       {children}
-      {!hideFooter && <Footer />}
+      {!hideFooter && !hideNav && <Footer />}
     </>
   );
 }

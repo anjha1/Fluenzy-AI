@@ -196,7 +196,7 @@ const Heatmap = ({ activity }: { activity: Array<{ date: string; count: number }
           : intensity > 0.4
           ? "bg-emerald-400"
           : "bg-emerald-300/80";
-        return <div key={day.date} className={`h-3 w-3 rounded-sm ${bg}`} title={`${day.date}: ${day.count}`} />;
+        return <div key={day.date} className={`h-4 w-4 rounded-sm ${bg}`} title={`${day.date}: ${day.count}`} />;
       })}
     </div>
   );
@@ -239,7 +239,9 @@ export default function AnalyticsDashboardPage() {
   }
 
   const { summary, distributions, trends, activity, insights, charts, advanced } = data;
-  const handleExport = () => window.print();
+  const handleExport = () => {
+    window.open("/analytics/report?print=1", "_blank", "noopener,noreferrer");
+  };
   const focusLabel = advanced.coach.nextSessionFocus || "Focused Practice";
   const wpmLow = advanced.communication.idealWpmRange[0];
   const wpmHigh = advanced.communication.idealWpmRange[1];
@@ -433,6 +435,53 @@ export default function AnalyticsDashboardPage() {
                 <Line type="monotone" dataKey="confidence" stroke="#a855f7" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="grammar" stroke="#22c55e" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="technical" stroke="#f97316" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-2 animate-in fade-in slide-in-from-bottom-2">
+        <Card className="border-slate-800/70 bg-slate-900/60">
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-sky-400" /> Communication Skills Snapshot
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-[240px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={[
+                  { name: "Communication", value: Math.round(summary.communicationScore) },
+                  { name: "Confidence", value: Math.round(summary.confidenceScore) },
+                  { name: "Grammar", value: Math.round(summary.grammarScore) },
+                  { name: "Vocabulary", value: Math.round(summary.vocabularyScore) },
+                ]}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} domain={[0, 100]} />
+                <ChartTooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b" }} />
+                <Bar dataKey="value" fill="#38bdf8" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-800/70 bg-slate-900/60">
+          <CardHeader>
+            <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
+              <ArrowUpRight className="h-4 w-4 text-amber-400" /> Accuracy vs Speed
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-[240px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={charts.accuracyVsSpeed}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                <XAxis dataKey="duration" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                <ChartTooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b" }} />
+                <Line type="monotone" dataKey="score" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -872,14 +921,14 @@ export default function AnalyticsDashboardPage() {
         </Card>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
+      <section className="grid gap-6 lg:grid-cols-2">
         <Card className="border-slate-800/70 bg-slate-900/60">
           <CardHeader>
             <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
               <Flame className="h-4 w-4 text-amber-400" /> Activity Heatmap
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="h-[320px] flex items-center justify-center">
             <Heatmap activity={activity} />
           </CardContent>
         </Card>
@@ -890,7 +939,7 @@ export default function AnalyticsDashboardPage() {
               <Mic2 className="h-4 w-4 text-emerald-400" /> Communication vs Confidence
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-[260px]">
+          <CardContent className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={[{ name: "Communication", value: summary.communicationScore }, { name: "Confidence", value: summary.confidenceScore }]}>
                 <defs>
@@ -908,24 +957,6 @@ export default function AnalyticsDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800/70 bg-slate-900/60">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
-              <ArrowUpRight className="h-4 w-4 text-sky-400" /> Accuracy vs Speed
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={charts.accuracyVsSpeed}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                <XAxis dataKey="duration" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                <ChartTooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b" }} />
-                <Line type="monotone" dataKey="score" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
