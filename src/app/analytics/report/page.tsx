@@ -648,9 +648,7 @@ export default function AnalyticsReportPage() {
         </div>
       </div>
 
-      <footer className="print-footer hidden print:flex">
-        <span className="print-page-number" />
-      </footer>
+
 
       <style jsx global>{`
         @media print {
@@ -665,20 +663,6 @@ export default function AnalyticsReportPage() {
           html, body {
             margin: 0;
             padding: 0;
-          }
-          .print-footer {
-            position: fixed;
-            bottom: 12px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: flex-end;
-            padding: 0 24px;
-            font-size: 12px;
-            color: #94a3b8;
-          }
-          .print-page-number::after {
-            content: "Page " counter(page) " of " counter(pages);
           }
           .print\:break-inside-avoid {
             break-inside: avoid;
