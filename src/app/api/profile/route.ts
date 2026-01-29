@@ -32,6 +32,41 @@ const generateUsername = async (email: string) => {
   return `${candidate}-${Date.now().toString(36).slice(-4)}`;
 };
 
+const suggestUsernames = async (requested: string, userId: string) => {
+  const base = requested.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+  if (!base) return [];
+
+  const suggestions = new Set<string>();
+  const seedCandidates = [
+    `${base}1`,
+    `${base}01`,
+    `${base}123`,
+    `${base}-${new Date().getFullYear()}`,
+    `${base}_ai`,
+  ];
+
+  for (const candidate of seedCandidates) {
+    const existing = await (prisma as any).userProfile.findFirst({
+      where: { username: candidate, userId: { not: userId } },
+    });
+    if (!existing) suggestions.add(candidate);
+    if (suggestions.size >= 5) break;
+  }
+
+  let attempts = 0;
+  while (suggestions.size < 5 && attempts < 20) {
+    const suffix = Math.floor(100 + Math.random() * 900);
+    const candidate = `${base}${suffix}`;
+    const existing = await (prisma as any).userProfile.findFirst({
+      where: { username: candidate, userId: { not: userId } },
+    });
+    if (!existing) suggestions.add(candidate);
+    attempts += 1;
+  }
+
+  return Array.from(suggestions);
+};
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -258,7 +293,8 @@ export async function PUT(request: NextRequest) {
         },
       });
       if (existing) {
-        return NextResponse.json({ error: "Username already taken" }, { status: 400 });
+        const suggestions = await suggestUsernames(normalizedUsername, user.id);
+        return NextResponse.json({ error: "Username already taken", suggestions }, { status: 400 });
       }
     }
 

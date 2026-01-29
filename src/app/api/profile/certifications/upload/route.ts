@@ -8,7 +8,7 @@ import path from "path";
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf"];
+const ALLOWED_TYPES = ["application/pdf"];
 
 const sanitizeFileName = (name: string) => name.replace(/[^a-z0-9._-]/gi, "_");
 
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: "Only PNG, JPG, WEBP, or PDF files are allowed" }, { status: 400 });
+      return NextResponse.json({ error: "Only PDF files are allowed" }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {

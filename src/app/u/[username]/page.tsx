@@ -568,7 +568,11 @@ export default function PublicProfilePage() {
           </DialogHeader>
           {preview?.url && (
             <div className="mt-2 rounded-xl border border-slate-800 overflow-hidden">
-              <iframe src={preview.url} title={preview.title} className="h-[70vh] w-full" />
+              {preview.url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                <img src={preview.url} alt={preview.title} className="w-full h-auto max-h-[70vh] object-contain" />
+              ) : (
+                <iframe src={preview.url} title={preview.title} className="h-[70vh] w-full" />
+              )}
             </div>
           )}
         </DialogContent>

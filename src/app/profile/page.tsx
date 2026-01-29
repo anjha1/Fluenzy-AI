@@ -88,6 +88,8 @@ export default function ProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [usernameSuggestions, setUsernameSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -335,7 +337,19 @@ export default function ProfilePage() {
           image: updates.image ?? user.image,
         }),
       });
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) {
+        if (updates.username) {
+          setUsernameError(payload?.error || "Username not available");
+          setUsernameSuggestions(payload?.suggestions || []);
+        }
+        return;
+      }
       if (res.ok) {
+        if (updates.username) {
+          setUsernameError(null);
+          setUsernameSuggestions([]);
+        }
         const refreshed = await fetch("/api/profile");
         if (refreshed.ok) {
           setProfileData(await refreshed.json());
@@ -464,6 +478,22 @@ export default function ProfilePage() {
                     onChange={(e) => updateProfile({ username: e.target.value })}
                     className="mt-1"
                   />
+                  {usernameError && <p className="text-xs text-red-400 mt-1">{usernameError}</p>}
+                  {usernameSuggestions.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {usernameSuggestions.map((suggestion) => (
+                        <Button
+                          key={suggestion}
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-700/60"
+                          onClick={() => updateProfile({ username: suggestion })}
+                        >
+                          {suggestion}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm text-slate-300">Social Links</label>
@@ -951,11 +981,11 @@ export default function ProfilePage() {
               <Input placeholder="Issuer" value={formData.issuer || ""} onChange={(e) => setFormData({ ...formData, issuer: e.target.value })} />
               <Input type="date" value={formData.issueDate ? formData.issueDate.slice(0, 10) : ""} onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })} />
               <div className="space-y-2">
-                <label className="text-sm text-slate-300">Certificate File</label>
+                <label className="text-sm text-slate-300">Certificate PDF</label>
                 <div className="flex flex-col md:flex-row md:items-center gap-2">
                   <Input
                     type="file"
-                    accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf"
+                    accept="application/pdf"
                     onChange={(e) => setCertificateFile(e.target.files?.[0] || null)}
                   />
                   <Button
@@ -964,7 +994,7 @@ export default function ProfilePage() {
                     onClick={uploadCertificateImage}
                     disabled={!certificateFile || certificateUploading}
                   >
-                    {certificateUploading ? "Uploading..." : "Upload Image"}
+                    {certificateUploading ? "Uploading..." : "Upload PDF"}
                   </Button>
                 </div>
                 {certificateError && <p className="text-xs text-red-400">{certificateError}</p>}
