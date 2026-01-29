@@ -103,6 +103,12 @@ const Navbar = () => {
                 >
                   Pricing
                 </Link>
+                <Link
+                  href="/analytics"
+                  className={`text-foreground hover:text-primary transition-colors font-medium ${pathname === '/analytics' ? 'text-primary' : ''}`}
+                >
+                  Analytics Dashboard
+                </Link>
               </>
             ) : (
               <>
@@ -212,6 +218,12 @@ const Navbar = () => {
                   className={`block w-full text-left text-foreground hover:text-primary transition-colors font-medium ${pathname === '/pricing' ? 'text-primary' : ''}`}
                 >
                   Pricing
+                </Link>
+                <Link
+                  href="/analytics"
+                  className={`block w-full text-left text-foreground hover:text-primary transition-colors font-medium ${pathname === '/analytics' ? 'text-primary' : ''}`}
+                >
+                  Analytics Dashboard
                 </Link>
               </>
             )}
