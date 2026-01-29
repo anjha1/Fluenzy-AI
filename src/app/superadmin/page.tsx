@@ -60,6 +60,22 @@ interface Coupon {
   usages: CouponUsage[];
 }
 
+const toLocalInputValue = (value?: string | null) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const offset = date.getTimezoneOffset() * 60000;
+  const local = new Date(date.getTime() - offset);
+  return local.toISOString().slice(0, 16);
+};
+
+const toUtcISOStringFromLocalInput = (value?: string) => {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
+};
+
 interface PaymentAnalytics {
   paymentHistories: any[];
   revenue: { total: number; monthly: any[] };
@@ -306,8 +322,8 @@ export default function SuperAdminDashboard() {
       discountValue: coupon.discountValue.toString(),
       maxUsage: coupon.maxUsage?.toString() || '',
       perUserLimit: coupon.perUserLimit.toString(),
-      startDate: coupon.startDate ? new Date(coupon.startDate).toISOString().slice(0, 16) : '',
-      expiryDate: coupon.expiryDate ? new Date(coupon.expiryDate).toISOString().slice(0, 16) : '',
+      startDate: toLocalInputValue(coupon.startDate),
+      expiryDate: toLocalInputValue(coupon.expiryDate),
       applicablePlans: coupon.applicablePlans,
       status: coupon.status,
     });
@@ -322,6 +338,8 @@ export default function SuperAdminDashboard() {
         discountValue: parseFloat(couponForm.discountValue),
         maxUsage: couponForm.maxUsage ? parseInt(couponForm.maxUsage) : null,
         perUserLimit: parseInt(couponForm.perUserLimit),
+        startDate: toUtcISOStringFromLocalInput(couponForm.startDate),
+        expiryDate: toUtcISOStringFromLocalInput(couponForm.expiryDate),
         id: editingCoupon?.id,
       };
 
