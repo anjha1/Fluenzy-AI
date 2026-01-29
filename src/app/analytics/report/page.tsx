@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -95,7 +95,7 @@ const getStatusColor = (status: string) => {
   return "bg-amber-100 text-amber-700";
 };
 
-export default function AnalyticsReportPage() {
+function AnalyticsReportContent() {
   const searchParams = useSearchParams();
   const [data, setData] = useState<AnalyticsResponse | null>(null);
 
@@ -678,5 +678,13 @@ export default function AnalyticsReportPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function AnalyticsReportPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950" /> }>
+      <AnalyticsReportContent />
+    </Suspense>
   );
 }
