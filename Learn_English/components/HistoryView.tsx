@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Calendar, History, ChevronRight, FileText, CheckCircle2, X, MessageSquare, Mic2, ThumbsUp, TrendingUp, ShieldCheck, XCircle, AlertCircle, ArrowRight, Clock, Zap, Users, User, Building, Filter
@@ -79,7 +79,11 @@ const SessionDetailModal = ({ session, user, onClose }: { session: SessionRecord
               <div className="flex justify-center gap-4">
                 <div className="text-center">
                   <Clock size={20} className="text-slate-400 mx-auto mb-1" />
-                  <p className="text-white font-black">{session.durationMinutes}m</p>
+                  <p className="text-white font-black">
+                    {session.durationMinutes === null || session.durationMinutes === undefined
+                      ? '—'
+                      : `${session.durationMinutes}m`}
+                  </p>
                   <p className="text-slate-400 text-xs uppercase tracking-widest">Duration</p>
                 </div>
                 <div className="text-center">
@@ -134,23 +138,40 @@ const HistoryView: React.FC<{ user: UserProfile }> = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ company: '', date: '', score: '' });
 
+  const fetchSessions = useCallback(async () => {
+    try {
+      const response = await fetch('/api/sessions');
+      if (response.ok) {
+        const data = await response.json();
+        setSessions(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch sessions:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        const response = await fetch('/api/sessions');
-        if (response.ok) {
-          const data = await response.json();
-          setSessions(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch sessions:', error);
-      } finally {
-        setLoading(false);
+    fetchSessions();
+  }, [fetchSessions]);
+
+  useEffect(() => {
+    const handleFocus = () => fetchSessions();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchSessions();
       }
     };
 
-    fetchSessions();
-  }, []);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [fetchSessions]);
 
   const fetchSessionDetails = async (sessionId: string) => {
     try {
@@ -213,6 +234,12 @@ const HistoryView: React.FC<{ user: UserProfile }> = ({ user }) => {
         {filteredSessions.map((record) => {
           const score = Math.round((record.aggregateScore || 0) * 100);
           const isGood = score >= 60;
+          const durationMinutes =
+            record.durationMinutes !== undefined && record.durationMinutes !== null
+              ? record.durationMinutes
+              : record.duration !== undefined
+              ? record.duration
+              : null;
           return (
             <div key={record.sessionId} onClick={() => fetchSessionDetails(record.sessionId)} className="group bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all cursor-pointer flex flex-col gap-4">
               <div className="flex items-center gap-4">
@@ -225,7 +252,10 @@ const HistoryView: React.FC<{ user: UserProfile }> = ({ user }) => {
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
                   <p className="text-slate-300 text-sm"><Calendar size={14} className="inline mr-1" />{new Date(record.createdAt).toLocaleDateString()}</p>
-                  <p className="text-slate-300 text-sm"><Clock size={14} className="inline mr-1" />{record.durationMinutes || 0} min</p>
+                  <p className="text-slate-300 text-sm">
+                    <Clock size={14} className="inline mr-1" />
+                    {durationMinutes === null ? '—' : `${durationMinutes} min`}
+                  </p>
                 </div>
                 <div className="relative w-16 h-16">
                   <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">

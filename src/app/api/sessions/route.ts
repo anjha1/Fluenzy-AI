@@ -4,6 +4,19 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { calculateInterviewScore } from '@/lib/utils';
 
+const getDurationMinutes = (
+  start?: Date | null,
+  end?: Date | null,
+  stored?: number | null
+) => {
+  if (typeof stored === 'number' && stored > 0) return stored;
+  if (!start || !end) return null;
+  const diffMs = end.getTime() - start.getTime();
+  if (diffMs <= 0) return 0;
+  const minutes = Math.round(diffMs / 60000);
+  return minutes > 0 ? minutes : 1;
+};
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -110,6 +123,8 @@ export async function GET(request: NextRequest) {
         sessionId: true,
         module: true,
         createdAt: true,
+        startTime: true,
+        endTime: true,
         aggregateScore: true,
         status: true,
         targetCompany: true,
@@ -118,7 +133,12 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json(sessions);
+    const formattedSessions = sessions.map((session: any) => ({
+      ...session,
+      durationMinutes: getDurationMinutes(session.startTime, session.endTime, session.duration)
+    }));
+
+    return NextResponse.json(formattedSessions);
   } catch (error) {
     console.error('Sessions fetch error:', error);
     return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });

@@ -73,7 +73,7 @@ export interface SessionRecord {
   date: string;
   startTime: string;
   endTime: string;
-  durationMinutes: number;
+  durationMinutes: number | null;
   type: ModuleType;
   topic: string;
   score: number;

@@ -3,6 +3,19 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
+const getDurationMinutes = (
+  start?: Date | null,
+  end?: Date | null,
+  stored?: number | null
+) => {
+  if (typeof stored === 'number' && stored > 0) return stored;
+  if (!start || !end) return null;
+  const diffMs = end.getTime() - start.getTime();
+  if (diffMs <= 0) return 0;
+  const minutes = Math.round(diffMs / 60000);
+  return minutes > 0 ? minutes : 1;
+};
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
@@ -44,7 +57,7 @@ export async function GET(
       date: sessionData.startTime.toLocaleDateString(),
       startTime: sessionData.startTime.toLocaleTimeString(),
       endTime: sessionData.endTime?.toLocaleTimeString() || '',
-      durationMinutes: sessionData.duration || 0,
+      durationMinutes: getDurationMinutes(sessionData.startTime, sessionData.endTime, sessionData.duration),
       type: sessionData.module,
       topic: `${sessionData.module} - ${sessionData.targetCompany || 'General'} ${sessionData.role || ''}`,
       score: Math.round((sessionData.aggregateScore || 0) * 100), // Convert to percentage
