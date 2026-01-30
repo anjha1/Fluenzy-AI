@@ -451,17 +451,40 @@ export default function PublicProfileClient({ initialData, username }: PublicPro
                         ))}
                       </div>
                     ) : null}
-                    {cert.credentialUrl && (
-                      <a
-                        href={cert.credentialUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-3 inline-flex text-xs text-slate-300 hover:text-white"
-                      >
-                        View Credential
-                        <ExternalLink className="ml-1 h-3 w-3" />
-                      </a>
-                    )}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {cert.imageUrl && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-700/60"
+                          onClick={() =>
+                            setPreview({
+                              title: `${cert.name} Certificate`,
+                              url: cert.imageUrl as string,
+                            })
+                          }
+                        >
+                          <FileText className="mr-2 h-4 w-4" />
+                          Preview Certificate
+                        </Button>
+                      )}
+                      {cert.credentialUrl && (
+                        <Button size="sm" variant="outline" className="border-slate-700/60" asChild>
+                          <a href={cert.credentialUrl} target="_blank" rel="noreferrer">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            View Credential
+                          </a>
+                        </Button>
+                      )}
+                      {cert.imageUrl && (
+                        <Button size="sm" variant="outline" className="border-slate-700/60" asChild>
+                          <a href={cert.imageUrl} download>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download Certificate
+                          </a>
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
