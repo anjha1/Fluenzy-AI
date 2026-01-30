@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.fluenzyai.app"),
   title: "FluenzyAI: AI Interview Coach & English Practice",
   description: "Master AI-powered interview preparation and English fluency training with FluenzyAI. Practice HR interviews, technical questions, group discussions, and spoken English to boost your career success.",
   keywords: "AI interview practice, AI interview coach, English speaking practice with AI, mock interview AI, group discussion AI, HR interview preparation, technical interview practice, spoken English for jobs, interview preparation platform",
@@ -97,6 +98,23 @@ export default function RootLayout({
               "publisher": {
                 "@type": "Organization",
                 "name": "FluenzyAI"
+              }
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "FluenzyAI",
+              "url": "https://www.fluenzyai.app",
+              "logo": "https://www.fluenzyai.app/image/final_logo-removebg-preview.png",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer support",
+                "email": "support@fluenzyai.app"
               }
             })
           }}

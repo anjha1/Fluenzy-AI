@@ -1,3 +1,4 @@
+/*
 "use client";
 
 export const dynamic = "force-dynamic";
@@ -592,5 +593,373 @@ export default function PublicProfilePage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+*/
+
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import path from "path";
+import { stat } from "fs/promises";
+import prisma from "@/lib/prisma";
+import PublicProfileClient, { PublicProfileData } from "./PublicProfileClient";
+
+export const dynamic = "force-dynamic";
+
+const baseUrl = "https://www.fluenzyai.app";
+
+type Params = { params: { username: string } };
+
+const toIstDateKey = (date: Date) => {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return formatter.format(date);
+};
+
+const getPublicProfile = async (username: string): Promise<PublicProfileData | null> => {
+  const profile = await (prisma as any).userProfile.findFirst({
+    where: { username: username.toLowerCase() },
+    include: {
+      skills: true,
+      experiences: true,
+      educations: true,
+      certifications: true,
+      projects: true,
+      courses: true,
+      languages: true,
+      user: true,
+    },
+  });
+
+  if (!profile || !profile.publicProfileEnabled) {
+    return null;
+  }
+
+  const allowed = (profile.publicSections as any) || {
+    skills: true,
+    experience: true,
+    education: true,
+    certifications: true,
+    projects: true,
+    courses: true,
+    languages: true,
+    analyticsReport: false,
+  };
+
+  const oneYearAgo = new Date();
+  oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+
+  const sessions = await prisma.session.findMany({
+    where: {
+      userId: profile.userId,
+      startTime: { gte: oneYearAgo },
+    },
+    select: { startTime: true },
+  });
+
+  const activity: Record<string, number> = {};
+  sessions.forEach((sessionItem) => {
+    const key = toIstDateKey(sessionItem.startTime);
+    activity[key] = (activity[key] || 0) + 1;
+  });
+
+  const resumes = await (prisma as any).resume.findMany({
+    where: { userId: profile.userId },
+    orderBy: { uploadedAt: "desc" },
+    take: 5,
+  });
+
+  const resumesWithSize = await Promise.all(
+    resumes.map(async (resume: any) => {
+      let fileSize: number | null = null;
+      try {
+        const localPath = path.join(process.cwd(), "public", resume.fileUrl.replace(/^\/+/, ""));
+        const stats = await stat(localPath);
+        fileSize = stats.size;
+      } catch (error) {
+        fileSize = null;
+      }
+      return {
+        id: resume.id,
+        fileName: resume.fileName,
+        fileUrl: resume.fileUrl,
+        uploadedAt: resume.uploadedAt,
+        fileSize,
+      };
+    })
+  );
+
+  return {
+    profile: {
+      username: profile.username,
+      headline: profile.headline,
+      bio: profile.bio,
+      openToWork: profile.openToWork,
+      user: {
+        name: profile.user.name,
+        email: profile.user.email,
+        image: profile.user.avatar,
+      },
+      socialLinks: (profile as any).socialLinks || null,
+      publicSections: allowed,
+    },
+    sections: {
+      skills: allowed.skills ? profile.skills : [],
+      experiences: allowed.experience ? profile.experiences : [],
+      educations: allowed.education ? profile.educations : [],
+      certifications: allowed.certifications ? profile.certifications : [],
+      projects: allowed.projects ? profile.projects : [],
+      courses: allowed.courses ? profile.courses : [],
+      languages: allowed.languages ? profile.languages : [],
+    },
+    activity,
+    resumes: resumesWithSize,
+  };
+};
+
+const buildProfileSummary = (data: PublicProfileData) => {
+  const skillsCount = data.sections.skills.length;
+  const experienceCount = data.sections.experiences.length;
+  const projectCount = data.sections.projects.length;
+  const certificationCount = data.sections.certifications.length;
+  const educationCount = data.sections.educations.length;
+  const courseCount = data.sections.courses.length;
+  const languageCount = data.sections.languages.length;
+  const skillNames = data.sections.skills.slice(0, 6).map((skill) => skill.name).join(", ");
+
+  return {
+    headline: data.profile.headline || "Professional profile",
+    counts: {
+      skillsCount,
+      experienceCount,
+      projectCount,
+      certificationCount,
+      educationCount,
+      courseCount,
+      languageCount,
+    },
+    skillNames,
+  };
+};
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const username = params.username?.toLowerCase();
+  if (!username) {
+    return {
+      title: "Public Profile - FluenzyAI",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const data = await getPublicProfile(username);
+  if (!data) {
+    return {
+      title: "Profile Not Available - FluenzyAI",
+      description: "This public profile is not available on FluenzyAI.",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const name = data.profile.user?.name || data.profile.username;
+  const description = data.profile.headline
+    ? `${data.profile.headline} · Public profile on FluenzyAI.`
+    : `View ${name}'s public profile on FluenzyAI.`;
+  const canonical = `${baseUrl}/u/${data.profile.username}`;
+
+  return {
+    title: `${name} | Public Profile - FluenzyAI`,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title: `${name} | Public Profile - FluenzyAI`,
+      description,
+      url: canonical,
+      type: "profile",
+      images: [
+        {
+          url: "https://www.fluenzyai.app/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${name} on FluenzyAI`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${name} | Public Profile - FluenzyAI`,
+      description,
+      images: ["https://www.fluenzyai.app/og-image.jpg"],
+    },
+  };
+}
+
+export default async function PublicProfilePage({ params }: Params) {
+  const username = params.username?.toLowerCase();
+  if (!username) {
+    notFound();
+  }
+
+  const data = await getPublicProfile(username);
+  if (!data) {
+    notFound();
+  }
+
+  const { headline, counts, skillNames } = buildProfileSummary(data);
+  const canonical = `${baseUrl}/u/${data.profile.username}`;
+  const name = data.profile.user?.name || data.profile.username;
+  const summaryIntro = `${name} is a FluenzyAI learner focused on building real interview readiness. This profile highlights progress across mock interviews with AI, HR interview preparation, and technical interview training, with an emphasis on measurable improvement.`;
+
+  return (
+    <>
+      <PublicProfileClient initialData={data} username={username} />
+      <section className="bg-slate-950 text-slate-200">
+        <div className="container mx-auto px-4 py-12 space-y-8">
+          <nav aria-label="Breadcrumb" className="text-sm text-slate-400">
+            <ol className="flex flex-wrap gap-2">
+              <li>
+                <a href="/" className="hover:text-slate-200">Home</a>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li className="text-slate-300">Public Profile</li>
+            </ol>
+          </nav>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-semibold text-white">Public profile overview</h2>
+            <p className="text-base leading-relaxed text-slate-300">
+              {summaryIntro}
+            </p>
+            <p className="text-base leading-relaxed text-slate-300">
+              The profile currently includes {counts.skillsCount} skill entries, {counts.experienceCount} experience records, and
+              {" "}{counts.projectCount} project highlights, along with {counts.educationCount} education credentials and
+              {" "}{counts.certificationCount} certifications. {headline} This balance of professional summary and detailed achievements
+              makes the profile useful to recruiters searching for clear evidence of progress. When available, core skills such as
+              {" "}{skillNames || "strategic communication, software development, and analytical thinking"} showcase the candidate’s
+              strengths and reinforce readiness for interviews.
+            </p>
+            <p className="text-base leading-relaxed text-slate-300">
+              FluenzyAI profiles emphasize interview outcomes. The combination of work history, projects, and learning milestones
+              helps demonstrate competence in both technical interview training and HR interview preparation. Language and course
+              sections highlight continuous learning, which is often a key differentiator in competitive hiring cycles. This public
+              profile remains indexable so recruiters can discover verified learning progress, while candidates can connect their
+              practice to real job opportunities.
+            </p>
+            <p className="text-base leading-relaxed text-slate-300">
+              To understand the platform behind this profile, explore the features page for module details or review pricing to choose
+              a plan that supports consistent mock interviews with AI. If you are interested in improving your own interview outcomes,
+              you can start training directly from the home page.
+            </p>
+            <div className="flex flex-wrap gap-3 text-sm">
+              <a href="/features" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
+                Explore Features
+              </a>
+              <a href="/pricing" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
+                View Pricing
+              </a>
+              <a href="/train" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
+                Start Training
+              </a>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-white">Profile FAQs</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100">What does a public profile show?</h3>
+                <p className="text-sm text-slate-300">
+                  Public profiles summarize interview readiness with verified skills, projects, and achievements supported by FluenzyAI
+                  training sessions.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100">Is this profile related to FluenzyAI analytics?</h3>
+                <p className="text-sm text-slate-300">
+                  When enabled, the profile can link to the analytics report that tracks communication, confidence, and technical
+                  interview training progress.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100">Can recruiters use this to evaluate interview readiness?</h3>
+                <p className="text-sm text-slate-300">
+                  Yes. The profile provides a structured view of skills, projects, and learning milestones that support HR interview
+                  preparation and technical interview evaluation.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-100">How can I build a similar profile?</h3>
+                <p className="text-sm text-slate-300">
+                  Start with mock interviews with AI, complete training modules, and publish your profile from your FluenzyAI account.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ProfilePage",
+            "mainEntity": {
+              "@type": "Person",
+              "name": name,
+              "description": data.profile.headline || data.profile.bio || "FluenzyAI public profile",
+              "url": canonical
+            }
+          })
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What does a public profile show?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Public profiles summarize interview readiness with verified skills, projects, and achievements supported by FluenzyAI training sessions."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is this profile related to FluenzyAI analytics?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "When enabled, the profile can link to the analytics report that tracks communication, confidence, and technical interview training progress."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can recruiters use this to evaluate interview readiness?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. The profile provides a structured view of skills, projects, and learning milestones that support HR interview preparation and technical interview evaluation."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How can I build a similar profile?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Start with mock interviews with AI, complete training modules, and publish your profile from your FluenzyAI account."
+                }
+              }
+            ]
+          })
+        }}
+      />
+    </>
   );
 }
