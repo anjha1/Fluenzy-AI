@@ -40,75 +40,81 @@ const SessionDetailModal = ({ session, user, onClose }: { session: SessionRecord
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-slate-900/80 backdrop-blur-lg animate-in fade-in duration-300">
-      <div className="bg-slate-900 w-full max-w-6xl max-h-[95vh] rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 border border-white/10">
-        <div className="px-12 py-10 bg-slate-800/50 border-b border-white/10 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-6">
-            <div className="p-4 rounded-3xl bg-blue-600 text-white shadow-xl"><Building size={28} /></div>
-            <div>
-              <h2 className="text-3xl font-black text-white tracking-tight">{session.company || 'General'} - {session.role || 'N/A'}</h2>
-              <div className="flex items-center gap-3 mt-1 text-slate-400 font-bold text-sm uppercase tracking-widest">
-                  <Calendar size={14} /> {session.date}
+    <div className="fixed inset-0 z-[100] flex items-start justify-center px-3 sm:px-4 md:px-8 bg-slate-900/80 backdrop-blur-lg animate-in fade-in duration-300 overflow-y-auto">
+      <div className="w-full max-w-6xl pt-24">
+        <div className="bg-slate-950 w-full rounded-2xl sm:rounded-3xl shadow-2xl border border-white/10">
+          <div className="px-5 sm:px-8 py-4 sm:py-5 bg-slate-900/70 border-b border-white/10 relative">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start sm:items-center gap-4">
+                <div className="p-3 rounded-2xl bg-blue-600 text-white shadow-lg"><Building size={22} /></div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    {session.company || 'General'} <span className="text-slate-400">—</span> {session.role || 'N/A'}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-400 font-semibold">
+                    <span className="inline-flex items-center gap-2"><Calendar size={14} /> {session.date}</span>
+                    <span className="text-slate-500">•</span>
+                    <span>{session.startTime || '—'}{session.endTime ? ` - ${session.endTime}` : ''}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="relative h-12 w-12">
+                  <svg className="h-12 w-12 -rotate-90" viewBox="0 0 36 36">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="100, 100" className="text-slate-700" />
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={`${displayScore}, 100`} className="text-blue-400" />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">{displayScore}%</span>
+                  </div>
+                </div>
+                <button onClick={onClose} className="p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition"><X size={18} className="text-white" /></button>
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="p-4 hover:bg-white/10 rounded-full bg-white/5 border border-white/10 shadow-sm transition-all"><X size={24} className="text-white" /></button>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-12 space-y-12 scrollbar-hide">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-800/50 p-6 rounded-3xl border border-white/10 text-center">
-              <div className="relative w-20 h-20 mx-auto mb-4">
-                <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray="100, 100" className="text-slate-600" />
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={`${displayScore}, 100`} className="text-blue-400" />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-white font-black text-lg">{displayScore}%</span>
-                </div>
-              </div>
-              <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Overall Score</p>
+          <div className="px-5 sm:px-8 py-6 sm:py-8 space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col gap-2">
+              <span className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Overall Score</span>
+              <span className="text-2xl font-bold text-white">{displayScore}%</span>
+              <span className="text-xs text-slate-500">Performance snapshot</span>
             </div>
-            <div className="bg-slate-800/50 p-6 rounded-3xl border border-white/10 text-center">
-              <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-black text-sm uppercase tracking-widest ${displayScore >= 80 ? 'bg-green-500/20 text-green-300' : displayScore >= 60 ? 'bg-blue-500/20 text-blue-300' : displayScore === 0 ? 'bg-red-500/20 text-red-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
+            <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col gap-2">
+              <span className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Status</span>
+              <span className={`inline-flex w-fit px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${displayScore >= 80 ? 'bg-green-500/20 text-green-300' : displayScore >= 60 ? 'bg-blue-500/20 text-blue-300' : displayScore === 0 ? 'bg-red-500/20 text-red-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
                 {displayStatus}
-              </div>
-              <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Status</p>
+              </span>
+              <span className="text-xs text-slate-500">Assessment result</span>
             </div>
-            <div className="bg-slate-800/50 p-6 rounded-3xl border border-white/10 text-center">
-              <div className="flex justify-center gap-4">
-                <div className="text-center">
-                  <Clock size={20} className="text-slate-400 mx-auto mb-1" />
-                  <p className="text-white font-black">
-                    {session.durationMinutes === null || session.durationMinutes === undefined
-                      ? '—'
-                      : `${session.durationMinutes}m`}
-                  </p>
-                  <p className="text-slate-400 text-xs uppercase tracking-widest">Duration</p>
-                </div>
-                <div className="text-center">
-                  <MessageSquare size={20} className="text-slate-400 mx-auto mb-1" />
-                  <p className="text-white font-black">{session.transcript.length}</p>
-                  <p className="text-slate-400 text-xs uppercase tracking-widest">Questions</p>
-                </div>
-              </div>
+            <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col gap-2">
+              <span className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Duration</span>
+              <span className="text-2xl font-bold text-white">
+                {session.durationMinutes === null || session.durationMinutes === undefined ? '—' : `${session.durationMinutes}m`}
+              </span>
+              <span className="text-xs text-slate-500">Active speaking time</span>
+            </div>
+            <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col gap-2">
+              <span className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Questions</span>
+              <span className="text-2xl font-bold text-white">{session.transcript.length}</span>
+              <span className="text-xs text-slate-500">Total prompts</span>
             </div>
           </div>
 
-          <section className="space-y-10">
-            <h3 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-               <div className="p-2 bg-blue-600 text-white rounded-xl"><MessageSquare size={24}/></div>
-                Conversation Log
-            </h3>
-            <div className="space-y-6">
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-600 text-white rounded-xl"><MessageSquare size={18} /></div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">Conversation Log</h3>
+            </div>
+            <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-4 sm:p-5 space-y-4">
               {session.transcript.map((turn, idx) => (
                 <div key={idx} className={`flex ${turn.speaker.includes('You') ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-md ${turn.speaker.includes('You') ? 'order-2' : 'order-1'}`}>
-                    <div className={`p-4 rounded-2xl font-medium leading-relaxed ${turn.speaker.includes('You') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-none' : 'bg-slate-700 text-slate-200 rounded-bl-none'}`}>
-                      "{turn.text}"
+                  <div className={`max-w-full sm:max-w-xl ${turn.speaker.includes('You') ? 'order-2' : 'order-1'}`}>
+                    <div className={`px-4 py-3 rounded-2xl text-sm sm:text-base leading-relaxed ${turn.speaker.includes('You') ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none'}`}>
+                      {turn.text}
                     </div>
                     {turn.speaker.includes('You') && turn.ideal && (
-                      <div className="mt-2 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded-xl text-yellow-200 text-sm">
+                      <div className="mt-2 p-3 bg-yellow-500/15 border border-yellow-500/30 rounded-xl text-yellow-200 text-xs sm:text-sm">
                         <strong>Suggested Improvement:</strong> {turn.ideal}
                       </div>
                     )}
@@ -117,16 +123,19 @@ const SessionDetailModal = ({ session, user, onClose }: { session: SessionRecord
               ))}
             </div>
           </section>
-        </div>
 
-        <div className="px-12 py-10 bg-slate-800/50 border-t border-white/10 flex justify-between items-center z-20">
-            <div className="flex items-center gap-3"><ShieldCheck className="text-emerald-400" /><p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Encrypted Career Archive</p></div>
-            <div className="flex gap-4">
-               <button onClick={onClose} className="px-8 font-black uppercase text-[11px] tracking-widest text-slate-400 hover:text-white transition-colors">Close</button>
-               <button onClick={handleDownloadPDF} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-5 rounded-full font-black uppercase text-[11px] tracking-widest shadow-2xl transition-all transform hover:scale-105">Download Audit PDF</button>
+          <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3 text-slate-400 text-xs font-semibold uppercase tracking-widest">
+              <ShieldCheck className="text-emerald-400" size={16} /> Encrypted Career Archive
             </div>
+            <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+              <button onClick={onClose} className="px-5 py-2.5 rounded-full border border-white/10 text-slate-300 hover:text-white hover:border-white/20 transition w-full sm:w-auto">Close</button>
+              <button onClick={handleDownloadPDF} className="px-6 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg w-full sm:w-auto">Download Audit PDF</button>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };
