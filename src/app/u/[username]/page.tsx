@@ -608,7 +608,7 @@ export const dynamic = "force-dynamic";
 
 const baseUrl = "https://www.fluenzyai.app";
 
-type Params = { params: { username: string } };
+type Params = { params: Promise<{ username: string }> };
 
 const toIstDateKey = (date: Date) => {
   const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -747,7 +747,8 @@ const buildProfileSummary = (data: PublicProfileData) => {
 };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const username = params.username?.toLowerCase();
+  const { username: rawUsername } = await params;
+  const username = rawUsername?.toLowerCase();
   if (!username) {
     return {
       title: "Public Profile - FluenzyAI",
@@ -800,7 +801,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function PublicProfilePage({ params }: Params) {
-  const username = params.username?.toLowerCase();
+  const { username: rawUsername } = await params;
+  const username = rawUsername?.toLowerCase();
   if (!username) {
     notFound();
   }
