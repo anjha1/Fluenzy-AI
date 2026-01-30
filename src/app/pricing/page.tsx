@@ -48,8 +48,9 @@ export default function PricingPage() {
         </div>
       </section>
       <Pricing />
-      <section className="bg-slate-950 text-slate-200">
-        <div className="container mx-auto px-4 py-12 space-y-8">
+      <section className="relative overflow-hidden bg-slate-950 text-slate-200">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-950 to-slate-950" />
+        <div className="container mx-auto px-4 py-16 space-y-12 relative z-10">
           <nav aria-label="Breadcrumb" className="text-sm text-slate-400">
             <ol className="flex flex-wrap gap-2">
               <li>
@@ -59,8 +60,10 @@ export default function PricingPage() {
               <li className="text-slate-300">Pricing</li>
             </ol>
           </nav>
-          <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-semibold text-white">Pricing built for continuous interview practice</h2>
+
+          <div className="space-y-5 max-w-4xl">
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Plans & Pricing</p>
+            <h2 className="text-3xl md:text-4xl font-semibold text-white">Pricing built for continuous interview practice</h2>
             <p className="text-base leading-relaxed text-slate-300">
               FluenzyAI offers flexible pricing so you can match your preparation intensity to your goals. Whether you are starting
               with mock interviews with AI or preparing for a high-stakes transition, each plan includes core AI Interview Coach
@@ -68,59 +71,67 @@ export default function PricingPage() {
               practice with AI that mirrors real interview scenarios. This makes FluenzyAI a practical AI interview preparation
               platform for candidates who want consistent progress rather than sporadic practice.
             </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              The Free plan helps you explore the experience, while Standard and Pro plans unlock more advanced analytics, additional
-              training sessions, and deeper feedback loops. If you are focused on FAANG interview practice, the higher tiers provide
-              the repetition and insights required to refine problem-solving and communication at scale. Each plan is structured to
-              support daily practice and measurable improvement across HR interview preparation, technical interview training, and
-              mock interviews with AI.
-            </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              Choose a plan that aligns with your schedule and hiring timeline. You can upgrade as your goals evolve, and you will
-              keep your training history so progress is never lost. For a full overview of features and module coverage, visit the
-              features page or return to the home page for a complete platform summary.
-            </p>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <a href="/features" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                View Features
-              </a>
-              <a href="/" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Back to Home
-              </a>
-              <a href="/train" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Start Training
-              </a>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-purple-500/10">
+              <h3 className="text-lg font-semibold text-white">Plans for every preparation timeline</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                The Free plan helps you explore the experience, while Standard and Pro plans unlock more advanced analytics, additional
+                training sessions, and deeper feedback loops. If you are focused on FAANG interview practice, the higher tiers provide
+                the repetition and insights required to refine problem-solving and communication at scale. Each plan is structured to
+                support daily practice and measurable improvement across HR interview preparation, technical interview training, and
+                mock interviews with AI.
+              </p>
             </div>
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-purple-500/10">
+              <h3 className="text-lg font-semibold text-white">Upgrade without losing momentum</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                Choose a plan that aligns with your schedule and hiring timeline. You can upgrade as your goals evolve, and you will
+                keep your training history so progress is never lost. For a full overview of features and module coverage, visit the
+                features page or return to the home page for a complete platform summary.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <a href="/train" className="rounded-full bg-gradient-to-r from-purple-500 to-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950">
+              Start Training
+            </a>
+            <a href="/features" className="rounded-full border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400">
+              View Features
+            </a>
+            <a href="/" className="rounded-full border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400">
+              Back to Home
+            </a>
           </div>
 
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold text-white">Pricing FAQs</h2>
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Which plan is best for FAANG interview practice?</h3>
-                <p className="text-sm text-slate-300">
-                  Standard and Pro plans are ideal for FAANG interview practice because they provide more sessions, deeper analytics,
-                  and advanced mock interviews with AI.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Do all plans include English speaking practice with AI?</h3>
-                <p className="text-sm text-slate-300">
-                  Yes. Every plan includes English speaking practice with AI, grammar feedback, and communication improvement tools.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Can I upgrade my plan later?</h3>
-                <p className="text-sm text-slate-300">
-                  You can upgrade at any time without losing your practice history, analytics, or completed training sessions.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Is there a free option to test the platform?</h3>
-                <p className="text-sm text-slate-300">
-                  The Free plan lets you explore the AI Interview Coach, sample mock interviews with AI, and begin HR interview preparation.
-                </p>
-              </div>
+              {[
+                {
+                  q: "Which plan is best for FAANG interview practice?",
+                  a: "Standard and Pro plans are ideal for FAANG interview practice because they provide more sessions, deeper analytics, and advanced mock interviews with AI.",
+                },
+                {
+                  q: "Do all plans include English speaking practice with AI?",
+                  a: "Yes. Every plan includes English speaking practice with AI, grammar feedback, and communication improvement tools.",
+                },
+                {
+                  q: "Can I upgrade my plan later?",
+                  a: "You can upgrade at any time without losing your practice history, analytics, or completed training sessions.",
+                },
+                {
+                  q: "Is there a free option to test the platform?",
+                  a: "The Free plan lets you explore the AI Interview Coach, sample mock interviews with AI, and begin HR interview preparation.",
+                },
+              ].map((item) => (
+                <details key={item.q} className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-5">
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-100">{item.q}</summary>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-300">{item.a}</p>
+                </details>
+              ))}
             </div>
           </div>
         </div>

@@ -75,6 +75,14 @@ const splitBullets = (text?: string | null) => {
     .slice(0, 4);
 };
 
+const activityCellClass = (count: number) => {
+  if (!count) return "bg-slate-800/80";
+  if (count <= 1) return "bg-emerald-900/70";
+  if (count <= 2) return "bg-emerald-700/80";
+  if (count <= 4) return "bg-emerald-500/80";
+  return "bg-emerald-400/90";
+};
+
 const categorizeSkill = (name: string) => {
   const value = name.toLowerCase();
   if (/(ai|ml|machine|deep|nlp|llm|pytorch|tensorflow|vision|genai)/.test(value)) return "AI";
@@ -114,17 +122,27 @@ export default function PublicProfileClient({ initialData, username }: PublicPro
   const activityMap = data?.activity || {};
   const skillsList = data?.sections?.skills || [];
 
-  const heatmapDays = useMemo(() => {
-    const days: { key: string; count: number }[] = [];
-    const start = new Date();
-    start.setDate(start.getDate() - 140);
-    for (let i = 0; i <= 140; i += 1) {
-      const date = new Date(start);
-      date.setDate(start.getDate() + i);
-      const key = date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
-      days.push({ key, count: activityMap?.[key] || 0 });
+  const heatmapMonths = useMemo(() => {
+    const months: Array<{ label: string; days: { key: string; count: number }[] }> = [];
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+
+    for (let m = 0; m < 12; m += 1) {
+      const monthDate = new Date(start.getFullYear(), start.getMonth() + m, 1);
+      const monthLabel = monthDate.toLocaleString("en-US", { month: "short" });
+      const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+      const days: { key: string; count: number }[] = [];
+
+      for (let d = 1; d <= daysInMonth; d += 1) {
+        const date = new Date(monthDate.getFullYear(), monthDate.getMonth(), d);
+        const key = date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+        days.push({ key, count: activityMap?.[key] || 0 });
+      }
+
+      months.push({ label: monthLabel, days });
     }
-    return days;
+
+    return months;
   }, [activityMap]);
 
   const skillGroups = useMemo(() => {
@@ -495,16 +513,25 @@ export default function PublicProfileClient({ initialData, username }: PublicPro
             <CardTitle>Practice Consistency</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-7 gap-2">
-              {heatmapDays.map((day) => (
-                <div
-                  key={day.key}
-                  className={`h-4 rounded ${day.count ? "bg-emerald-500/70" : "bg-slate-800"}`}
-                  title={`${day.key}: ${day.count} session${day.count === 1 ? "" : "s"}`}
-                />
-              ))}
+            <div className="mx-auto w-fit">
+              <div className="flex flex-wrap justify-center gap-6">
+                {heatmapMonths.map((month, monthIndex) => (
+                  <div key={`month-${month.label}-${monthIndex}`} className="flex flex-col items-center gap-2">
+                    <span className="text-[11px] text-slate-500">{month.label}</span>
+                    <div className="grid grid-cols-5 gap-1">
+                      {month.days.map((day) => (
+                        <div
+                          key={day.key}
+                          className={`h-2.5 w-2.5 rounded-[3px] ${activityCellClass(day.count)}`}
+                          title={`${day.key}: ${day.count} session${day.count === 1 ? "" : "s"}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <p className="mt-3 text-xs text-slate-500">Activity for the last 20 weeks.</p>
+            <p className="mt-3 text-xs text-slate-500">Activity for the last 12 months.</p>
           </CardContent>
         </Card>
 

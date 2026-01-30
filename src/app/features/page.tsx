@@ -53,8 +53,9 @@ export default function FeaturesPage() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
         <Features />
       </div>
-      <section className="bg-slate-950 text-slate-200">
-        <div className="container mx-auto px-4 py-12 space-y-8">
+      <section className="relative overflow-hidden bg-slate-950 text-slate-200">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-950 to-slate-950" />
+        <div className="container mx-auto px-4 py-16 space-y-12 relative z-10">
           <nav aria-label="Breadcrumb" className="text-sm text-slate-400">
             <ol className="flex flex-wrap gap-2">
               <li>
@@ -64,8 +65,10 @@ export default function FeaturesPage() {
               <li className="text-slate-300">Features</li>
             </ol>
           </nav>
-          <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-semibold text-white">An AI Interview Coach built for real-world practice</h2>
+
+          <div className="space-y-5 max-w-4xl">
+            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Feature Overview</p>
+            <h2 className="text-3xl md:text-4xl font-semibold text-white">An AI Interview Coach built for real-world practice</h2>
             <p className="text-base leading-relaxed text-slate-300">
               FluenzyAI combines an AI Interview Preparation Platform with structured English speaking practice so candidates can
               improve both content and delivery. Each feature module supports a specific interview stage, from HR interview preparation
@@ -73,63 +76,71 @@ export default function FeaturesPage() {
               This layered approach makes FluenzyAI useful for entry-level roles and advanced FAANG interview practice alike because
               you can focus on the exact skill set each hiring round evaluates.
             </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              The mock interviews with AI simulate realistic conversation flow so you can practice concise answers, stronger structure,
-              and calm pacing. The English speaking practice with AI emphasizes pronunciation, grammar clarity, and vocabulary choice,
-              while the HR interview preparation modules help you refine leadership stories, conflict resolution responses, and career
-              motivation narratives. For technical interview training, the AI Interview Coach blends problem-solving prompts with
-              follow-up questions that mirror actual onsite interviews.
-            </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              Features are designed for crawlability and discoverability, with clear descriptions and internal navigation. You can move
-              between feature details, pricing, and training without friction. This structure ensures that important pages remain
-              indexable and meaningful for Google, while users get a quick overview of the core capabilities. Explore the pricing page
-              to match a plan to your preparation intensity or jump back to the home page for a complete platform overview.
-            </p>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <a href="/pricing" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Compare Plans
-              </a>
-              <a href="/" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Back to Home
-              </a>
-              <a href="/train" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Start Training
-              </a>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-purple-500/10">
+              <h3 className="text-lg font-semibold text-white">Mock interviews with AI that feel real</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                The mock interviews with AI simulate realistic conversation flow so you can practice concise answers, stronger structure,
+                and calm pacing. The English speaking practice with AI emphasizes pronunciation, grammar clarity, and vocabulary choice,
+                while the HR interview preparation modules help you refine leadership stories, conflict resolution responses, and career
+                motivation narratives. For technical interview training, the AI Interview Coach blends problem-solving prompts with
+                follow-up questions that mirror actual onsite interviews.
+              </p>
             </div>
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-purple-500/10">
+              <h3 className="text-lg font-semibold text-white">Built for discoverability and crawl depth</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                Features are designed for crawlability and discoverability, with clear descriptions and internal navigation. You can move
+                between feature details, pricing, and training without friction. This structure ensures that important pages remain
+                indexable and meaningful for Google, while users get a quick overview of the core capabilities. Explore the pricing page
+                to match a plan to your preparation intensity or jump back to the home page for a complete platform overview.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <a href="/train" className="rounded-full bg-gradient-to-r from-purple-500 to-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950">
+              Start Training
+            </a>
+            <a href="/pricing" className="rounded-full border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400">
+              Compare Plans
+            </a>
+            <a href="/blog/prepare-for-faang-interviews-with-ai" className="rounded-full border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400">
+              Read our complete AI-powered FAANG interview guide
+            </a>
+            <a href="/u/anjha1" className="rounded-full border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400">
+              Achhuta Nand Jha – AI Interview Profile
+            </a>
           </div>
 
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold text-white">Feature FAQs</h2>
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">What makes FluenzyAI different from other interview platforms?</h3>
-                <p className="text-sm text-slate-300">
-                  FluenzyAI blends mock interviews with AI, English speaking practice, and HR interview preparation into one workflow,
-                  so you can improve both content and delivery instead of practicing in silos.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Does FluenzyAI support technical interview training?</h3>
-                <p className="text-sm text-slate-300">
-                  Yes. The technical module covers coding prompts, system design thinking, and follow-up questions that mirror
-                  FAANG interview practice formats.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Can I use the platform for HR interview preparation?</h3>
-                <p className="text-sm text-slate-300">
-                  The HR interview preparation tracks focus on storytelling, situational judgment, and communication clarity with
-                  targeted feedback and improvement tips.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">How do the modules improve English fluency?</h3>
-                <p className="text-sm text-slate-300">
-                  You receive grammar feedback, vocabulary suggestions, and pacing insights through English speaking practice with AI
-                  that mirrors real interview scenarios.
-                </p>
-              </div>
+              {[
+                {
+                  q: "What makes FluenzyAI different from other interview platforms?",
+                  a: "FluenzyAI blends mock interviews with AI, English speaking practice, and HR interview preparation into one workflow, so you can improve both content and delivery instead of practicing in silos.",
+                },
+                {
+                  q: "Does FluenzyAI support technical interview training?",
+                  a: "Yes. The technical module covers coding prompts, system design thinking, and follow-up questions that mirror FAANG interview practice formats.",
+                },
+                {
+                  q: "Can I use the platform for HR interview preparation?",
+                  a: "The HR interview preparation tracks focus on storytelling, situational judgment, and communication clarity with targeted feedback and improvement tips.",
+                },
+                {
+                  q: "How do the modules improve English fluency?",
+                  a: "You receive grammar feedback, vocabulary suggestions, and pacing insights through English speaking practice with AI that mirrors real interview scenarios.",
+                },
+              ].map((item) => (
+                <details key={item.q} className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-5">
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-100">{item.q}</summary>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-300">{item.a}</p>
+                </details>
+              ))}
             </div>
           </div>
         </div>

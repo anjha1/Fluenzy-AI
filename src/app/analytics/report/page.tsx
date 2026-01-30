@@ -646,7 +646,7 @@ function AnalyticsReportContent() {
           </Card>
         </section>
 
-        <section className="mt-12 space-y-6 text-slate-200 print:hidden">
+        <section className="mt-12 space-y-10 text-slate-200 print:hidden">
           <nav aria-label="Breadcrumb" className="text-sm text-slate-400">
             <ol className="flex flex-wrap gap-2">
               <li>
@@ -657,69 +657,75 @@ function AnalyticsReportContent() {
             </ol>
           </nav>
           <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-white">How to use your interview analytics report</h2>
-            <p className="text-base leading-relaxed text-slate-300">
+            <h2 className="text-2xl md:text-3xl font-semibold text-white">How to use your interview analytics report</h2>
+            <p className="text-base leading-relaxed text-slate-300 max-w-3xl">
               The FluenzyAI analytics report turns each mock interview with AI into actionable coaching insights. Instead of guessing
               whether you are improving, this report highlights progress in communication, confidence, grammar, and technical interview
               training. Use the overview scores to understand your current readiness, then drill into the trend charts to see which
               skills are improving over time. This is especially valuable for candidates preparing for FAANG interview practice or
               high-volume recruiting cycles, because measurable improvement helps you prioritize where to focus next.
             </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              The report is also a practical tool for HR interview preparation. Communication scores, vocabulary usage, and filler word
-              metrics reveal how clearly you convey behavioral stories. When paired with English speaking practice with AI, you can
-              refine pacing, tone, and structure to deliver stronger answers. For technical interview training, look for consistency in
-              accuracy versus speed and identify sessions where confidence dips. These indicators help you plan the next round of
-              practice with the AI Interview Coach.
-            </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              If you want to build a complete preparation plan, combine this report with the feature modules and pricing options.
-              Visit the features page for a module overview, or review pricing to select a plan that supports consistent practice.
-              Every improvement cycle should end with a review of these analytics so you can adjust goals and track measurable gains.
-            </p>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <a href="/features" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Explore Features
-              </a>
-              <a href="/pricing" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                View Pricing
-              </a>
-              <a href="/train" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Start Training
-              </a>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-purple-500/10">
+              <h3 className="text-lg font-semibold text-white">Connect communication to outcomes</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                The report is also a practical tool for HR interview preparation. Communication scores, vocabulary usage, and filler word
+                metrics reveal how clearly you convey behavioral stories. When paired with English speaking practice with AI, you can
+                refine pacing, tone, and structure to deliver stronger answers. For technical interview training, look for consistency in
+                accuracy versus speed and identify sessions where confidence dips. These indicators help you plan the next round of
+                practice with the AI Interview Coach.
+              </p>
             </div>
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-purple-500/10">
+              <h3 className="text-lg font-semibold text-white">Build a complete preparation plan</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                If you want to build a complete preparation plan, combine this report with the feature modules and pricing options.
+                Visit the features page for a module overview, or review pricing to select a plan that supports consistent practice.
+                Every improvement cycle should end with a review of these analytics so you can adjust goals and track measurable gains.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <a href="/train" className="rounded-full bg-gradient-to-r from-purple-500 to-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950">
+              Start Training
+            </a>
+            <a href="/features" className="rounded-full border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400">
+              Explore Features
+            </a>
+            <a href="/pricing" className="rounded-full border border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-slate-400">
+              View Pricing
+            </a>
           </div>
 
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold text-white">Analytics report FAQs</h2>
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">What does the overall score represent?</h3>
-                <p className="text-sm text-slate-300">
-                  The overall score summarizes communication, confidence, grammar accuracy, and technical performance across your
-                  recent mock interviews with AI.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">How should I use the trends?</h3>
-                <p className="text-sm text-slate-300">
-                  Trends show how your skills move over time, making it easier to decide whether to focus on English speaking practice
-                  with AI or deeper technical interview training in your next sessions.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Is this report useful for HR interview preparation?</h3>
-                <p className="text-sm text-slate-300">
-                  Yes. The communication and confidence metrics directly map to HR interview preparation and behavioral interview
-                  clarity.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">How often should I review my analytics?</h3>
-                <p className="text-sm text-slate-300">
-                  Review after every few sessions to track improvements and set the next practice goal within the AI Interview Coach.
-                </p>
-              </div>
+              {[
+                {
+                  q: "What does the overall score represent?",
+                  a: "The overall score summarizes communication, confidence, grammar accuracy, and technical performance across your recent mock interviews with AI.",
+                },
+                {
+                  q: "How should I use the trends?",
+                  a: "Trends show how your skills move over time, making it easier to decide whether to focus on English speaking practice with AI or deeper technical interview training in your next sessions.",
+                },
+                {
+                  q: "Is this report useful for HR interview preparation?",
+                  a: "Yes. The communication and confidence metrics directly map to HR interview preparation and behavioral interview clarity.",
+                },
+                {
+                  q: "How often should I review my analytics?",
+                  a: "Review after every few sessions to track improvements and set the next practice goal within the AI Interview Coach.",
+                },
+              ].map((item) => (
+                <details key={item.q} className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-5">
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-100">{item.q}</summary>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-300">{item.a}</p>
+                </details>
+              ))}
             </div>
           </div>
         </section>

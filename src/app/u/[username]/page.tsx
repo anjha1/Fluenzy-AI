@@ -721,30 +721,6 @@ const getPublicProfile = async (username: string): Promise<PublicProfileData | n
   };
 };
 
-const buildProfileSummary = (data: PublicProfileData) => {
-  const skillsCount = data.sections.skills.length;
-  const experienceCount = data.sections.experiences.length;
-  const projectCount = data.sections.projects.length;
-  const certificationCount = data.sections.certifications.length;
-  const educationCount = data.sections.educations.length;
-  const courseCount = data.sections.courses.length;
-  const languageCount = data.sections.languages.length;
-  const skillNames = data.sections.skills.slice(0, 6).map((skill) => skill.name).join(", ");
-
-  return {
-    headline: data.profile.headline || "Professional profile",
-    counts: {
-      skillsCount,
-      experienceCount,
-      projectCount,
-      certificationCount,
-      educationCount,
-      courseCount,
-      languageCount,
-    },
-    skillNames,
-  };
-};
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { username: rawUsername } = await params;
@@ -812,10 +788,8 @@ export default async function PublicProfilePage({ params }: Params) {
     notFound();
   }
 
-  const { headline, counts, skillNames } = buildProfileSummary(data);
   const canonical = `${baseUrl}/u/${data.profile.username}`;
   const name = data.profile.user?.name || data.profile.username;
-  const summaryIntro = `${name} is a FluenzyAI learner focused on building real interview readiness. This profile highlights progress across mock interviews with AI, HR interview preparation, and technical interview training, with an emphasis on measurable improvement.`;
 
   return (
     <>
@@ -832,74 +806,63 @@ export default async function PublicProfilePage({ params }: Params) {
             </ol>
           </nav>
 
-          <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-semibold text-white">Public profile overview</h2>
-            <p className="text-base leading-relaxed text-slate-300">
-              {summaryIntro}
-            </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              The profile currently includes {counts.skillsCount} skill entries, {counts.experienceCount} experience records, and
-              {" "}{counts.projectCount} project highlights, along with {counts.educationCount} education credentials and
-              {" "}{counts.certificationCount} certifications. {headline} This balance of professional summary and detailed achievements
-              makes the profile useful to recruiters searching for clear evidence of progress. When available, core skills such as
-              {" "}{skillNames || "strategic communication, software development, and analytical thinking"} showcase the candidate’s
-              strengths and reinforce readiness for interviews.
-            </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              FluenzyAI profiles emphasize interview outcomes. The combination of work history, projects, and learning milestones
-              helps demonstrate competence in both technical interview training and HR interview preparation. Language and course
-              sections highlight continuous learning, which is often a key differentiator in competitive hiring cycles. This public
-              profile remains indexable so recruiters can discover verified learning progress, while candidates can connect their
-              practice to real job opportunities.
-            </p>
-            <p className="text-base leading-relaxed text-slate-300">
-              To understand the platform behind this profile, explore the features page for module details or review pricing to choose
-              a plan that supports consistent mock interviews with AI. If you are interested in improving your own interview outcomes,
-              you can start training directly from the home page.
-            </p>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <a href="/features" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Explore Features
-              </a>
-              <a href="/pricing" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                View Pricing
-              </a>
-              <a href="/train" className="rounded-full border border-slate-700 px-4 py-2 text-slate-200 hover:border-slate-400">
-                Start Training
-              </a>
-            </div>
+          <div className="rounded-2xl border border-slate-800/70 bg-slate-900/60 p-5 md:p-6 shadow-lg shadow-slate-900/30">
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base md:text-lg font-semibold text-white">
+                <span>What this Fluenzy AI public profile represents</span>
+                <span className="text-slate-400 transition group-open:rotate-90">▸</span>
+              </summary>
+              <p className="mt-3 text-sm md:text-base leading-relaxed text-slate-300">
+                Fluenzy AI public profiles provide a structured, recruiter-friendly snapshot of a learner&apos;s interview preparation
+                journey. Each section is generated from verified training data, project work, and skill progress within the platform.
+                Recruiters can use this profile to evaluate readiness across communication, HR, and technical interview preparation.
+                Learners can publish their profile from Fluenzy AI to share measurable progress with hiring teams.
+              </p>
+            </details>
           </div>
 
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold text-white">Profile FAQs</h2>
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">What does a public profile show?</h3>
-                <p className="text-sm text-slate-300">
+              <details className="group rounded-2xl border border-slate-800/70 bg-slate-900/50 p-4 md:p-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm md:text-base font-semibold text-slate-100">
+                  <span>What does a public profile show?</span>
+                  <span className="text-slate-400 transition group-open:rotate-90">▸</span>
+                </summary>
+                <p className="mt-3 text-sm text-slate-300">
                   Public profiles summarize interview readiness with verified skills, projects, and achievements supported by FluenzyAI
                   training sessions.
                 </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Is this profile related to FluenzyAI analytics?</h3>
-                <p className="text-sm text-slate-300">
+              </details>
+              <details className="group rounded-2xl border border-slate-800/70 bg-slate-900/50 p-4 md:p-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm md:text-base font-semibold text-slate-100">
+                  <span>Is this profile related to FluenzyAI analytics?</span>
+                  <span className="text-slate-400 transition group-open:rotate-90">▸</span>
+                </summary>
+                <p className="mt-3 text-sm text-slate-300">
                   When enabled, the profile can link to the analytics report that tracks communication, confidence, and technical
                   interview training progress.
                 </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">Can recruiters use this to evaluate interview readiness?</h3>
-                <p className="text-sm text-slate-300">
+              </details>
+              <details className="group rounded-2xl border border-slate-800/70 bg-slate-900/50 p-4 md:p-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm md:text-base font-semibold text-slate-100">
+                  <span>Can recruiters use this to evaluate interview readiness?</span>
+                  <span className="text-slate-400 transition group-open:rotate-90">▸</span>
+                </summary>
+                <p className="mt-3 text-sm text-slate-300">
                   Yes. The profile provides a structured view of skills, projects, and learning milestones that support HR interview
                   preparation and technical interview evaluation.
                 </p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-100">How can I build a similar profile?</h3>
-                <p className="text-sm text-slate-300">
+              </details>
+              <details className="group rounded-2xl border border-slate-800/70 bg-slate-900/50 p-4 md:p-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm md:text-base font-semibold text-slate-100">
+                  <span>How can I build a similar profile?</span>
+                  <span className="text-slate-400 transition group-open:rotate-90">▸</span>
+                </summary>
+                <p className="mt-3 text-sm text-slate-300">
                   Start with mock interviews with AI, complete training modules, and publish your profile from your FluenzyAI account.
                 </p>
-              </div>
+              </details>
             </div>
           </div>
         </div>
