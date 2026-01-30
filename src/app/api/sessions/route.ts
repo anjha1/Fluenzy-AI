@@ -118,7 +118,14 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json(sessions);
+    // Map duration to durationMinutes for frontend consistency
+    const formattedSessions = sessions.map((session: any) => ({
+      ...session,
+      durationMinutes: session.duration,
+      type: session.module
+    }));
+
+    return NextResponse.json(formattedSessions);
   } catch (error) {
     console.error('Sessions fetch error:', error);
     return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });

@@ -384,7 +384,7 @@ const HistoryView: React.FC<{ user: UserProfile }> = ({ user }) => {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Clock size={12} className="text-blue-500" />
-                      {record.durationMinutes || 0}m
+                      {record.durationMinutes || record.duration || 0}m
                     </div>
                   </div>
                   
