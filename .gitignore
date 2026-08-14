@@ -117,3 +117,10 @@ desktop.ini
 *.txt
 !README.md
 !DOCUMENTATION.md
+!public/ads.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
