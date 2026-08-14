@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import Script from "next/script";
 import "./globals.css";
 import Provider from "./providers";
 import LayoutWrapper from "../components/LayoutWrapper";
@@ -99,6 +100,11 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         {/* Razorpay Checkout Script */}
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6401601872924423"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script
           type="application/ld+json"
