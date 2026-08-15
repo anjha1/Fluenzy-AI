@@ -125,6 +125,10 @@ interface User {
   usageCount: number;
   usageLimit: number;
   disabled?: boolean;
+  profile?: {
+    publicProfileEnabled: boolean;
+    username: string | null;
+  } | null;
 }
 
 export default function SuperAdminDashboard() {
@@ -206,6 +210,15 @@ export default function SuperAdminDashboard() {
   const [portalStaffResetLoading, setPortalStaffResetLoading] = useState(false);
   // ─────────────────────────────────────────────────────────────────────
 
+  // ── Public Students state ─────────────────────────────────────────────
+  const [publicStudents, setPublicStudents] = useState<any[]>([]);
+  const [psTotal, setPsTotal] = useState(0);
+  const [psTotalPages, setPsTotalPages] = useState(1);
+  const [psPage, setPsPage] = useState(1);
+  const [psSearch, setPsSearch] = useState('');
+  const [psLoading, setPsLoading] = useState(false);
+  // ─────────────────────────────────────────────────────────────────────
+
   const [planPricing, setPlanPricing] = useState({
     Free: { name: 'Free', price: 0, currency: 'INR', status: 'active', updatedAt: null as Date | null },
     Standard: { name: 'Standard', price: 150, currency: 'INR', status: 'active', updatedAt: null as Date | null },
@@ -237,6 +250,35 @@ export default function SuperAdminDashboard() {
     } catch (error) {
       console.error("Failed to fetch users:", error);
     }
+  };
+
+  const fetchPublicStudents = async (page = 1, search = '') => {
+    setPsLoading(true);
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: '20' });
+      if (search) params.set('search', search);
+      const res = await fetch(`/api/admin/public-profiles?${params}`);
+      if (res.ok) {
+        const d = await res.json();
+        setPublicStudents(d.students);
+        setPsTotal(d.total);
+        setPsTotalPages(d.totalPages);
+        setPsPage(page);
+      }
+    } catch (e) {
+      console.error('Failed to fetch public students:', e);
+    } finally {
+      setPsLoading(false);
+    }
+  };
+
+  const downloadPublicStudentsCSV = () => {
+    const a = document.createElement('a');
+    a.href = '/api/admin/public-profiles/export';
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const fetchAnalytics = async () => {
@@ -634,22 +676,31 @@ export default function SuperAdminDashboard() {
   };
 
   const ADMIN_NAV = [
-    { key: 'users',         label: 'User Management',  icon: '👥' },
-    { key: 'analytics',    label: 'Usage Analytics',   icon: '📊' },
-    { key: 'login-logs',   label: 'Login Logs',        icon: '🔐' },
-    { key: 'coupons',      label: 'Coupons',           icon: '🏷️' },
-    { key: 'payments',     label: 'Payments',          icon: '💳' },
-    { key: 'plan-settings',label: 'Plan Settings',     icon: '⚙️' },
-    { key: 'plan-pricing', label: 'Plan Pricing',      icon: '💰' },
-    { key: 'logs',         label: 'System Logs',       icon: '📋' },
-    { key: 'latest-topics',label: 'Latest Topics',     icon: '📰' },
-    { key: 'email-management', label: 'Email Management', icon: '✉️' },
-    { key: 'notifications',    label: 'Notifications',    icon: '🔔' },
-    { key: 'college-partners', label: 'College Partners', icon: '🏫' },
-    { key: 'college-coupons', label: 'College Coupons', icon: '🎟️' },
-    { key: 'portal-staff',    label: 'Portal Staff',    icon: '🏢' },
-    { key: 'marketing',       label: 'Marketing',       icon: '📢' },
+    { key: 'users',           label: 'User Management',  icon: '👥' },
+    { key: 'public-students', label: 'Public Students',   icon: '🌐' },
+    { key: 'analytics',       label: 'Usage Analytics',   icon: '📊' },
+    { key: 'login-logs',      label: 'Login Logs',        icon: '🔐' },
+    { key: 'coupons',         label: 'Coupons',           icon: '🏷️' },
+    { key: 'payments',        label: 'Payments',          icon: '💳' },
+    { key: 'plan-settings',   label: 'Plan Settings',     icon: '⚙️' },
+    { key: 'plan-pricing',    label: 'Plan Pricing',      icon: '💰' },
+    { key: 'logs',            label: 'System Logs',       icon: '📋' },
+    { key: 'latest-topics',   label: 'Latest Topics',     icon: '📰' },
+    { key: 'email-management',label: 'Email Management',  icon: '✉️' },
+    { key: 'notifications',   label: 'Notifications',     icon: '🔔' },
+    { key: 'college-partners',label: 'College Partners',  icon: '🏫' },
+    { key: 'college-coupons', label: 'College Coupons',   icon: '🎟️' },
+    { key: 'portal-staff',    label: 'Portal Staff',      icon: '🏢' },
+    { key: 'marketing',       label: 'Marketing',         icon: '📢' },
   ];
+
+  // Fetch public students when section becomes active
+  const handleNavChange = (key: string) => {
+    setActiveSection(key);
+    if (key === 'public-students' && publicStudents.length === 0) {
+      fetchPublicStudents(1, '');
+    }
+  };
 
   if (status === "loading") return <div>Loading...</div>;
 
@@ -664,7 +715,7 @@ export default function SuperAdminDashboard() {
           {ADMIN_NAV.map((item) => (
             <button
               key={item.key}
-              onClick={() => setActiveSection(item.key)}
+              onClick={() => handleNavChange(item.key)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${
                 activeSection === item.key
                   ? 'bg-violet-600/20 text-violet-300 border border-violet-500/30'
@@ -701,6 +752,7 @@ export default function SuperAdminDashboard() {
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Plan</TableHead>
+                    <TableHead>Public Profile</TableHead>
                     <TableHead>Usage</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -716,6 +768,24 @@ export default function SuperAdminDashboard() {
                         </Badge>
                       </TableCell>
                       <TableCell>{user.plan}</TableCell>
+                      <TableCell>
+                        {user.profile?.publicProfileEnabled && user.profile?.username ? (
+                          <a
+                            href={`/u/${user.profile.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                            View Public Profile ↗
+                          </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md bg-slate-800/60 text-slate-500 border border-slate-700/50">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-600 flex-shrink-0" />
+                            Profile Private
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell>{user.usageCount}/{user.usageLimit}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
@@ -740,6 +810,16 @@ export default function SuperAdminDashboard() {
                           >
                             View Details
                           </Button>
+                          {user.profile?.username && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
+                              onClick={() => router.push(`/superadmin/profile/${user.profile!.username}`)}
+                            >
+                              View Profile
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
@@ -756,6 +836,164 @@ export default function SuperAdminDashboard() {
             </CardContent>
           </Card>
         </>)}
+
+        {/* ── Public Students Section ───────────────────────────────────────── */}
+        {activeSection === 'public-students' && (
+          <div className="space-y-5">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold text-white">Public Students</h2>
+                <p className="text-slate-400 text-sm">
+                  {psTotal > 0 ? `${psTotal} student${psTotal !== 1 ? 's' : ''} with public profile enabled` : 'Students who enabled public visibility'}
+                </p>
+              </div>
+              <button
+                onClick={downloadPublicStudentsCSV}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-600/30 rounded-lg text-sm font-medium transition"
+              >
+                ⬇ Download CSV
+              </button>
+            </div>
+
+            {/* Search */}
+            <div className="flex gap-3">
+              <input
+                value={psSearch}
+                onChange={(e) => {
+                  setPsSearch(e.target.value);
+                  setPsPage(1);
+                  fetchPublicStudents(1, e.target.value);
+                }}
+                placeholder="Search by name, username, or headline…"
+                className="flex-1 bg-white/5 border border-white/10 text-white placeholder-slate-500 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+              />
+              <button
+                onClick={() => fetchPublicStudents(psPage, psSearch)}
+                className="px-4 py-2.5 bg-violet-600/20 border border-violet-500/30 text-violet-400 rounded-xl text-sm hover:bg-violet-600/30 transition"
+              >
+                Refresh
+              </button>
+            </div>
+
+            {/* Student Cards */}
+            {psLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-44 bg-white/5 rounded-2xl animate-pulse" />
+                ))}
+              </div>
+            ) : publicStudents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="text-5xl mb-4">🌐</div>
+                <h3 className="text-lg font-semibold text-white mb-1">No Public Profiles Yet</h3>
+                <p className="text-slate-500 text-sm max-w-xs">
+                  Students who enable &ldquo;Profile Visible to Public&rdquo; will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {publicStudents.map((student) => (
+                  <div
+                    key={student.id}
+                    className="bg-slate-900/60 border border-white/8 rounded-2xl p-4 flex flex-col gap-3 hover:border-violet-500/30 transition"
+                  >
+                    {/* Avatar + Name */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-violet-600/20 text-violet-300 flex items-center justify-center text-base font-bold flex-shrink-0">
+                        {student.avatar ? (
+                          <img src={student.avatar} alt={student.name} className="w-10 h-10 rounded-xl object-cover" />
+                        ) : (
+                          (student.name?.[0] || '?').toUpperCase()
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">{student.name}</p>
+                        <p className="text-xs text-slate-500 truncate">@{student.username}</p>
+                      </div>
+                      {student.openToWork && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 rounded-full flex-shrink-0">Open</span>
+                      )}
+                    </div>
+
+                    {/* Headline */}
+                    {student.headline && (
+                      <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{student.headline}</p>
+                    )}
+
+                    {/* Counts */}
+                    <div className="flex flex-wrap gap-1.5 text-[10px]">
+                      {student.counts.skills > 0 && <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-full">{student.counts.skills} skills</span>}
+                      {student.counts.experiences > 0 && <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 rounded-full">{student.counts.experiences} exp</span>}
+                      {student.counts.projects > 0 && <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded-full">{student.counts.projects} projects</span>}
+                      {student.counts.certifications > 0 && <span className="px-2 py-0.5 bg-teal-500/10 text-teal-400 rounded-full">{student.counts.certifications} certs</span>}
+                      {student.counts.educations > 0 && <span className="px-2 py-0.5 bg-rose-500/10 text-rose-400 rounded-full">{student.counts.educations} edu</span>}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-1 mt-auto">
+                      <a
+                        href={student.publicUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 text-center text-xs py-1.5 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/20 rounded-lg transition"
+                      >
+                        View Public Profile ↗
+                      </a>
+                      <button
+                        onClick={() => router.push(`/superadmin/profile/${student.username}`)}
+                        className="flex-1 text-xs py-1.5 bg-amber-500/10 border border-amber-500/25 text-amber-400 hover:bg-amber-500/20 rounded-lg transition"
+                      >
+                        Admin View
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {psTotalPages > 1 && (
+              <div className="flex items-center justify-between pt-2">
+                <p className="text-sm text-slate-500">
+                  Showing {Math.min((psPage - 1) * 20 + 1, psTotal)}–{Math.min(psPage * 20, psTotal)} of {psTotal} students
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    disabled={psPage <= 1}
+                    onClick={() => fetchPublicStudents(psPage - 1, psSearch)}
+                    className="px-3 py-1.5 bg-white/5 border border-white/10 text-sm text-white rounded-lg disabled:opacity-40 hover:bg-white/10 transition"
+                  >
+                    ← Prev
+                  </button>
+                  {Array.from({ length: Math.min(5, psTotalPages) }, (_, i) => {
+                    const p = Math.max(1, Math.min(psPage - 2, psTotalPages - 4)) + i;
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => fetchPublicStudents(p, psSearch)}
+                        className={`px-3 py-1.5 border text-sm rounded-lg transition ${
+                          p === psPage
+                            ? 'bg-violet-600/30 border-violet-500/50 text-violet-300'
+                            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    );
+                  })}
+                  <button
+                    disabled={psPage >= psTotalPages}
+                    onClick={() => fetchPublicStudents(psPage + 1, psSearch)}
+                    className="px-3 py-1.5 bg-white/5 border border-white/10 text-sm text-white rounded-lg disabled:opacity-40 hover:bg-white/10 transition"
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {activeSection === 'analytics' && (<>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

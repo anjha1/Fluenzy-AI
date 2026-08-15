@@ -99,13 +99,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        {/* Razorpay Checkout Script */}
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6401601872924423"
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-        />
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        {/* ── third-party scripts must NOT go inside <head> with next/script ── */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -198,6 +192,17 @@ export default function RootLayout({
           </Provider>
         </ThemeProvider>
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
+        {/* AdSense — must be in <body>, not <head>, with next/script */}
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6401601872924423"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
+        {/* Razorpay — lazyOnload so it doesn't block the page */}
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

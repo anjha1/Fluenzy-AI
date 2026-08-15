@@ -52,6 +52,9 @@ export async function GET(req: NextRequest) {
         renewalDate: true,
         billingCycle: true,
         _count: { select: { paymentHistories: true, sessions: true } },
+        profile: {
+          select: { publicProfileEnabled: true, username: true },
+        },
       },
     }),
   ]);

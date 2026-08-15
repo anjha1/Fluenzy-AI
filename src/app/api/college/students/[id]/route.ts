@@ -193,8 +193,45 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
-  return NextResponse.json({ student, activity });
+
+  // ── Fetch public profile visibility ──────────────────────────────────────
+  let publicProfile: {
+    hasProfile: boolean;
+    username: string | null;
+    publicProfileEnabled: boolean;
+    analyticsEnabled: boolean;
+    profileUrl: string | null;
+    analyticsUrl: string | null;
+  } = { hasProfile: false, username: null, publicProfileEnabled: false, analyticsEnabled: false, profileUrl: null, analyticsUrl: null };
+
+  // Use resolvedUserId if available, otherwise look up by email
+  const profileUserId = resolvedUserId ?? (await (prisma as any).users.findUnique({
+    where: { email: student.email },
+    select: { id: true },
+  }))?.id ?? null;
+
+  if (profileUserId) {
+    const userProfile = await (prisma as any).userProfile.findUnique({
+      where: { userId: profileUserId },
+      select: { username: true, publicProfileEnabled: true, publicSections: true },
+    });
+    if (userProfile) {
+      const sections      = (userProfile.publicSections as any) || {};
+      const analyticsOn   = Boolean(sections.analyticsReport);
+      publicProfile = {
+        hasProfile:           true,
+        username:             userProfile.username,
+        publicProfileEnabled: userProfile.publicProfileEnabled,
+        analyticsEnabled:     analyticsOn,
+        profileUrl:           `/u/${userProfile.username}`,
+        analyticsUrl:         analyticsOn ? `/analytics/report?public=1&username=${userProfile.username}` : null,
+      };
+    }
+  }
+
+  return NextResponse.json({ student, activity, publicProfile });
 }
+
 
 // ─── PATCH /api/college/students/[id] ───────────────────────────────────────
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

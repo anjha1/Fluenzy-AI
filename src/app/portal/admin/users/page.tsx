@@ -7,7 +7,9 @@ import { useRouter } from "next/navigation";
 
 const ADMIN_NAV = [
   { label: "Dashboard", href: "/portal/admin" },
+  { label: "Competitions", href: "/portal/admin/competitions" },
   { label: "User Management", href: "/portal/admin/users" },
+  { label: "Public Students", href: "/portal/admin/public-students" },
   { label: "Subscriptions", href: "/portal/admin/subscriptions" },
   { label: "Payment Logs", href: "/portal/admin/payments" },
   { label: "Support Tickets", href: "/portal/admin/tickets" },
@@ -36,6 +38,7 @@ interface User {
   createdAt: string;
   renewalDate?: string;
   _count: { paymentHistories: number; sessions: number };
+  profile?: { publicProfileEnabled: boolean; username: string | null } | null;
 }
 
 export default function UserManagementPage() {
@@ -50,6 +53,7 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [profileModal, setProfileModal] = useState<{ username: string; data: any | null; loading: boolean } | null>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -75,6 +79,17 @@ export default function UserManagementPage() {
     await fetchUsers();
     setActionLoading(null);
     setSelectedUser(null);
+  }
+
+  async function openProfileModal(username: string) {
+    setProfileModal({ username, data: null, loading: true });
+    const res = await fetch(`/api/portal/admin/user-profile/${username}`, { credentials: "include" });
+    if (res.ok) {
+      const d = await res.json();
+      setProfileModal({ username, data: d, loading: false });
+    } else {
+      setProfileModal({ username, data: null, loading: false });
+    }
   }
 
   return (
@@ -126,6 +141,7 @@ export default function UserManagementPage() {
                     <th className="text-left px-5 py-3">Usage</th>
                     <th className="text-left px-5 py-3">Sessions</th>
                     <th className="text-left px-5 py-3">Joined</th>
+                    <th className="text-left px-5 py-3">Public Profile</th>
                     <th className="text-left px-5 py-3">Status</th>
                     <th className="text-right px-5 py-3">Actions</th>
                   </tr>
@@ -160,12 +176,45 @@ export default function UserManagementPage() {
                       <td className="px-5 py-3 text-sm text-slate-400">{u._count.sessions}</td>
                       <td className="px-5 py-3 text-sm text-slate-400">{new Date(u.createdAt).toLocaleDateString("en-IN")}</td>
                       <td className="px-5 py-3">
+                        {u.profile?.publicProfileEnabled && u.profile?.username ? (
+                          <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-medium">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            Public
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-slate-700/60 text-slate-500 font-medium">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                            Private
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-5 py-3">
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${u.disabled ? "bg-red-500/10 text-red-400" : "bg-green-500/10 text-green-400"}`}>
                           {u.disabled ? "Disabled" : "Active"}
                         </span>
                       </td>
                       <td className="px-5 py-3 text-right">
-                        <button onClick={() => setSelectedUser(u)} className="text-xs text-amber-400 hover:text-amber-300 transition">Manage</button>
+                        <div className="flex items-center justify-end gap-2">
+                          {u.profile?.username && (
+                            <button
+                              onClick={() => openProfileModal(u.profile!.username!)}
+                              className="text-xs text-amber-400 hover:text-amber-300 transition font-medium"
+                            >
+                              View Profile
+                            </button>
+                          )}
+                          {u.profile?.publicProfileEnabled && u.profile?.username && (
+                            <a
+                              href={`/u/${u.profile.username}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-emerald-400 hover:text-emerald-300 transition"
+                            >
+                              Public ↗
+                            </a>
+                          )}
+                          <button onClick={() => setSelectedUser(u)} className="text-xs text-slate-400 hover:text-white transition">Manage</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -223,6 +272,169 @@ export default function UserManagementPage() {
                   Reset Usage Counter
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Modal */}
+      {profileModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-2xl my-8">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-5 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <h3 className="font-semibold text-white">User Profile</h3>
+                {profileModal.data && (
+                  profileModal.data.publicProfileEnabled ? (
+                    <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      Public
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/25 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                      Private
+                    </span>
+                  )
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                {profileModal.data?.publicProfileEnabled && (
+                  <a
+                    href={`/u/${profileModal.username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-emerald-400 hover:text-emerald-300 transition"
+                  >
+                    View Public ↗
+                  </a>
+                )}
+                <button onClick={() => setProfileModal(null)} className="text-slate-400 hover:text-white text-xl leading-none">×</button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5">
+              {profileModal.loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : !profileModal.data?.profile ? (
+                <div className="text-center py-12 text-slate-500">
+                  <p className="text-4xl mb-3">👤</p>
+                  <p>No profile information found for this user.</p>
+                </div>
+              ) : (() => {
+                const p = profileModal.data.profile;
+                const s = profileModal.data.sections;
+                const social = p.socialLinks || {};
+                return (
+                  <div className="space-y-5">
+                    {/* Identity */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-xl font-bold flex-shrink-0 overflow-hidden">
+                        {p.user?.image
+                          ? <img src={p.user.image} alt={p.user.name} className="w-14 h-14 object-cover" />
+                          : (p.user?.name?.[0] || "?").toUpperCase()
+                        }
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-lg font-bold text-white">{p.user?.name}</p>
+                        <p className="text-sm text-slate-400">@{p.username}</p>
+                        {p.headline && <p className="mt-1 text-sm text-slate-300">{p.headline}</p>}
+                      </div>
+                    </div>
+
+                    {/* Bio */}
+                    {p.bio && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">About</p>
+                        <p className="text-sm text-slate-300 leading-relaxed">{p.bio}</p>
+                      </div>
+                    )}
+
+                    {/* Skills */}
+                    {s.skills?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Skills ({s.skills.length})</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {s.skills.map((sk: any) => (
+                            <span key={sk.id} className="text-xs px-2 py-0.5 bg-blue-500/10 text-blue-300 rounded-full">{sk.name}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Experience */}
+                    {s.experiences?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Experience ({s.experiences.length})</p>
+                        <div className="space-y-1.5">
+                          {s.experiences.map((ex: any) => (
+                            <div key={ex.id} className="text-sm">
+                              <span className="text-white font-medium">{ex.role}</span>
+                              <span className="text-slate-400"> · {ex.company}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Education */}
+                    {s.educations?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Education ({s.educations.length})</p>
+                        <div className="space-y-1.5">
+                          {s.educations.map((ed: any) => (
+                            <div key={ed.id} className="text-sm">
+                              <span className="text-white font-medium">{ed.degree}</span>
+                              <span className="text-slate-400"> · {ed.institution}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Projects */}
+                    {s.projects?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Projects ({s.projects.length})</p>
+                        <div className="space-y-1">
+                          {s.projects.map((pr: any) => (
+                            <p key={pr.id} className="text-sm text-slate-300">{pr.title}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Certifications */}
+                    {s.certifications?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Certifications ({s.certifications.length})</p>
+                        <div className="space-y-1">
+                          {s.certifications.map((c: any) => (
+                            <p key={c.id} className="text-sm text-slate-300">{c.name} <span className="text-slate-500">· {c.issuer}</span></p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Social Links */}
+                    {(social.github || social.linkedin || social.portfolio || (social as any).leetcode) && (
+                      <div>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Links</p>
+                        <div className="flex flex-wrap gap-2">
+                          {social.github && <a href={social.github} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-white transition">GitHub ↗</a>}
+                          {social.linkedin && <a href={social.linkedin} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-white transition">LinkedIn ↗</a>}
+                          {social.portfolio && <a href={social.portfolio} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-white transition">Portfolio ↗</a>}
+                          {(social as any).leetcode && <a href={(social as any).leetcode} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-white transition">LeetCode ↗</a>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

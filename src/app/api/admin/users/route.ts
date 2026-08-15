@@ -21,6 +21,12 @@ export async function GET() {
         usageLimit: true,
         disabled: true,
         createdAt: true,
+        profile: {
+          select: {
+            publicProfileEnabled: true,
+            username: true,
+          },
+        },
       },
     });
 

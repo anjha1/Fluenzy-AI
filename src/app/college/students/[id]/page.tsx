@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import CollegeProtectedLayout from "../../components/CollegeProtectedLayout";
@@ -9,8 +9,9 @@ import {
   MessageSquare, Briefcase, Globe, LayoutDashboard, LogIn,
   GraduationCap, Users, Settings, Newspaper, BookMarked,
   Monitor, Smartphone, Tablet, ChevronDown, ChevronRight,
-  CheckCircle2, Eye,
+  CheckCircle2, Eye, BarChart2,
 } from "lucide-react";
+
 
 // â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const fmtDate = (d?: string | null) =>
@@ -114,6 +115,7 @@ export default function StudentDetailPage() {
   const router  = useRouter();
   const [student, setStudent]       = useState<any>(null);
   const [data, setData]             = useState<any>(null);
+  const [publicProfile, setPublicProfile] = useState<any>(null);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState("");
   const [section, setSection]       = useState("overview");
@@ -127,7 +129,7 @@ export default function StudentDetailPage() {
         if (!res.ok) throw new Error((await res.json()).error ?? "Failed to load");
         return res.json();
       })
-      .then((d) => { setStudent(d.student); setData(d.activity ?? null); })
+      .then((d) => { setStudent(d.student); setData(d.activity ?? null); setPublicProfile(d.publicProfile ?? null); })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
@@ -301,6 +303,89 @@ export default function StudentDetailPage() {
           <p className="text-slate-400">No activity data yet - student hasn&apos;t started any sessions.</p>
         </div>
       )}
+
+      {/* ── Public Profile & Analytics Card ──────────────────────────────── */}
+      <div className="bg-[#111827]/80 border border-slate-700/50 rounded-2xl p-5">
+        <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+          <Globe className="w-4 h-4 text-indigo-400" />
+          Public Visibility
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          {/* Profile Visibility */}
+          <div className="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Public Profile</p>
+            <div className="flex items-center gap-2 mb-3">
+              {publicProfile?.publicProfileEnabled ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
+                  <span className="text-sm font-semibold text-emerald-400">Public</span>
+                  <span className="text-xs text-slate-500">— Visible to everyone</span>
+                </>
+              ) : publicProfile?.hasProfile ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-red-400" />
+                  <span className="text-sm font-semibold text-red-400">Private</span>
+                  <span className="text-xs text-slate-500">— Not publicly visible</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-slate-500" />
+                  <span className="text-sm text-slate-500">No profile set up yet</span>
+                </>
+              )}
+            </div>
+            {publicProfile?.publicProfileEnabled && publicProfile?.profileUrl && (
+              <a
+                href={publicProfile.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                View Public Profile ↗
+              </a>
+            )}
+            {!publicProfile?.hasProfile && (
+              <p className="text-xs text-slate-600">Student hasn&apos;t created a profile yet.</p>
+            )}
+          </div>
+
+          {/* Analytics Visibility */}
+          <div className="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Analytics Report</p>
+            <div className="flex items-center gap-2 mb-3">
+              {publicProfile?.analyticsEnabled ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
+                  <span className="text-sm font-semibold text-emerald-400">Public</span>
+                  <span className="text-xs text-slate-500">— Report shared publicly</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-red-400" />
+                  <span className="text-sm font-semibold text-red-400">Private</span>
+                  <span className="text-xs text-slate-500">— Report not shared</span>
+                </>
+              )}
+            </div>
+            {publicProfile?.analyticsEnabled && publicProfile?.analyticsUrl && (
+              <a
+                href={publicProfile.analyticsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/20 transition-colors"
+              >
+                <BarChart2 className="w-3.5 h-3.5" />
+                View Analytics ↗
+              </a>
+            )}
+            {!publicProfile?.hasProfile && (
+              <p className="text-xs text-slate-600">No activity data available.</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 

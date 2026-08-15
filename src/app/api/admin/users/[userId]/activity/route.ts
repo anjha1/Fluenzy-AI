@@ -74,6 +74,12 @@ export async function GET(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Fetch public profile visibility status (safe — only reads enabled flag and username)
+    const userProfile = await (prisma as any).userProfile.findUnique({
+      where: { userId },
+      select: { publicProfileEnabled: true, username: true },
+    }).catch(() => null);
+
     // ── Time / session helpers ─────────────────────────────────────────────
     const totalTimeSpent = user.sessions.reduce((sum: number, s: any) => sum + (s.duration || 0), 0);
     const totalSessions = user.sessions.length;
@@ -165,6 +171,9 @@ export async function GET(
         totalSessions,
         moduleUsageCounts,
         uniqueCompanies: Array.from(allCompaniesSet),
+        // Public profile visibility — safe to expose to admins (flag + username only)
+        publicProfileEnabled: userProfile?.publicProfileEnabled ?? false,
+        username: userProfile?.username ?? null,
       },
       resume: latestResume ? {
         fileName: latestResume.fileName,

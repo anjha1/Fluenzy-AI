@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
@@ -13,7 +13,7 @@ import {
   ChevronDown, ChevronRight, LayoutDashboard, LogIn, BookOpen,
   FileText, Users, CreditCard, Building2, Mic, GraduationCap,
   MessageSquare, Newspaper, BookMarked, Briefcase, Settings,
-  CheckCircle2, XCircle,
+  CheckCircle2, XCircle, ExternalLink,
 } from "lucide-react";
 
 // helpers
@@ -206,6 +206,70 @@ export default function UserDetailPage() {
               </div>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Public Profile Card ──────────────────────────────────────── */}
+      <Card className="bg-slate-900/60 border-white/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Globe className="w-4 h-4 text-slate-400" />
+            Public Profile
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {/* Visibility status row */}
+          <div className="flex items-center gap-2">
+            {u.publicProfileEnabled ? (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)] flex-shrink-0" />
+                <span className="text-sm font-semibold text-emerald-400">Public</span>
+                <span className="text-xs text-slate-500">— Profile Visible to Public is ON</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0" />
+                <span className="text-sm font-semibold text-red-400">Private</span>
+                <span className="text-xs text-slate-500">— Profile Visible to Public is OFF</span>
+              </>
+            )}
+          </div>
+
+          {/* Action buttons */}
+          {u.username ? (
+            <div className="flex flex-wrap gap-2">
+              {/* Admin View — always available regardless of visibility */}
+              <a
+                href={`/superadmin/profile/${u.username}`}
+                className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                View Profile (Admin)
+              </a>
+
+              {/* Public View — only when publicProfileEnabled */}
+              {u.publicProfileEnabled && (
+                <a
+                  href={`/u/${u.username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  View Public Profile ↗
+                </a>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-slate-600">No username set — profile not accessible.</p>
+          )}
+
+          {u.username && (
+            <p className="text-xs text-slate-600 font-mono">fluenzyai.app/u/{u.username}</p>
+          )}
+          {!u.publicProfileEnabled && (
+            <p className="text-xs text-slate-600">Public visitors cannot access this profile.</p>
+          )}
         </CardContent>
       </Card>
 
