@@ -19,7 +19,8 @@ import {
   Phone,
   Lock,
   Target,
-  Zap
+  Zap,
+  Brain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme, themeConfig } from '@/contexts/ThemeContext';
@@ -47,6 +48,7 @@ const MODULE_KEY_MAP: Record<string, string> = {
   'english': 'english',
   'vocabulary': 'vocabulary',
   'corporate-voice': 'corporateVoice',
+  'promptiq': 'promptiq',
 };
 
 interface PlanInfo {
@@ -200,6 +202,18 @@ const modules: Module[] = [
     href: '/train/corporate-voice',
     isLocked: false,
     sessions: '-', // Will be updated from API (Voice Practice is LIMITED)
+  },
+  {
+    type: 'promptiq',
+    title: 'PromptIQ',
+    description: 'AI Prompt Intelligence & Optimization — analyze, score, and perfect your prompts for production',
+    icon: Brain,
+    color: 'text-violet-400',
+    gradient: 'from-violet-500 to-purple-600',
+    href: '/train/promptiq',
+    badge: 'NEW',
+    isLocked: false,
+    sessions: '-', // Will be updated from API (PromptIQ is LIMITED like HR)
   },
 ];
 
