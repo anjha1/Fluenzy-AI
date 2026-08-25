@@ -226,6 +226,8 @@ export default function TrainPage() {
   const [autoApplyStatus, setAutoApplyStatus] = useState<AutoApplyStatus | null>(null);
 
   const currentTheme = themeConfig[resolvedTheme] || themeConfig.dark;
+  const isLightMode = resolvedTheme === 'parchment' || resolvedTheme === 'light';
+
 
   // ===== CRITICAL FIX: Fetch usage data correctly =====
   // ===== SAFE TIMESTAMP HELPER =====
@@ -419,7 +421,7 @@ export default function TrainPage() {
     <>
       <div className="p-4 md:p-6 lg:p-8 relative">
       {/* Light theme ambient background */}
-      {resolvedTheme === 'parchment' && (
+      {isLightMode && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
           <div className="absolute -top-10 left-1/3 w-[450px] h-[450px] bg-gradient-to-br from-violet-100/90 via-indigo-50/70 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
           <div className="absolute top-20 -right-20 w-[380px] h-[380px] bg-gradient-to-tl from-sky-100/80 via-cyan-50/60 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s', animationDelay: '2s' }} />
@@ -434,7 +436,7 @@ export default function TrainPage() {
       >
         {/* Background Glow Effect */}
         <div className="relative">
-          {resolvedTheme === 'parchment' ? (
+          {isLightMode ? (
             <>
               <div className="absolute -top-16 -left-8 w-80 h-80 bg-gradient-to-br from-red-200/50 to-rose-100/40 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
               <div className="absolute top-0 right-4 w-64 h-64 bg-gradient-to-bl from-amber-100/60 to-rose-50/40 rounded-full blur-3xl pointer-events-none" />
@@ -530,10 +532,10 @@ export default function TrainPage() {
               className={`
                 group relative ${currentTheme.cardBg} border ${currentTheme.cardBorder} 
                 rounded-2xl p-6 transition-all duration-300
-                ${resolvedTheme === 'parchment' ? 'shadow-sm ring-1 ring-black/5' : ''}
+                ${isLightMode ? 'shadow-sm ring-1 ring-black/5' : ''}
                 ${mod.isLocked 
                   ? 'opacity-60' 
-                  : resolvedTheme === 'parchment'
+                  : isLightMode
                     ? 'hover:border-indigo-200 hover:shadow-2xl hover:shadow-indigo-400/20 hover:-translate-y-2 hover:ring-indigo-100 cursor-pointer'
                     : 'hover:border-[#5B6CFF]/30 hover:shadow-lg hover:shadow-[#5B6CFF]/10 hover:-translate-y-1 cursor-pointer'
                 }
@@ -541,7 +543,7 @@ export default function TrainPage() {
               {...(mod.isLocked ? {} : { onClick: () => router.push(mod.href), role: 'button', tabIndex: 0, onKeyDown: (e) => e.key === 'Enter' && router.push(mod.href) })}
             >
               {/* Gradient Background Effect */}
-              <div className={`absolute -right-20 -top-20 w-40 h-40 bg-gradient-to-br ${mod.gradient} blur-3xl transition-opacity duration-500 ${resolvedTheme === 'parchment' ? 'opacity-0 group-hover:opacity-30' : 'opacity-0 group-hover:opacity-10'}`} />
+              <div className={`absolute -right-20 -top-20 w-40 h-40 bg-gradient-to-br ${mod.gradient} blur-3xl transition-opacity duration-500 ${isLightMode ? 'opacity-0 group-hover:opacity-30' : 'opacity-0 group-hover:opacity-10'}`} />
 
               <div className="relative z-10">
                 {/* Header */}
@@ -563,7 +565,7 @@ export default function TrainPage() {
                 </div>
 
                 {/* Content */}
-                <h3 className={`text-lg font-bold ${currentTheme.text} mb-2 transition-colors ${resolvedTheme === 'parchment' ? 'group-hover:text-indigo-600' : 'group-hover:text-[#5B6CFF]'}`}>
+                <h3 className={`text-lg font-bold ${currentTheme.text} mb-2 transition-colors ${isLightMode ? 'group-hover:text-indigo-600' : 'group-hover:text-[#5B6CFF]'}`}>
                   {mod.title}
                 </h3>
                 <p className={`text-sm ${currentTheme.textMuted} mb-4 line-clamp-2`}>
@@ -628,18 +630,18 @@ export default function TrainPage() {
           animate={{ opacity: 1, y: 0 }}
           className={`mb-8 ${currentTheme.cardBg} border ${
             autoApplyStatus.enabled && autoApplyStatus.canAutoApply
-              ? resolvedTheme === 'parchment'
+              ? isLightMode
                 ? 'border-emerald-200 shadow-lg shadow-emerald-100'
                 : 'border-emerald-500/30'
-              : resolvedTheme === 'parchment'
+              : isLightMode
                 ? 'border-purple-200 shadow-lg shadow-purple-100'
                 : 'border-purple-500/30'
           } rounded-2xl p-6 bg-gradient-to-r ${
             autoApplyStatus.enabled && autoApplyStatus.canAutoApply
-              ? resolvedTheme === 'parchment'
+              ? isLightMode
                 ? 'from-emerald-50 to-teal-50'
                 : 'from-emerald-500/10 to-teal-500/10'
-              : resolvedTheme === 'parchment'
+              : isLightMode
                 ? 'from-purple-50 to-indigo-50'
                 : 'from-purple-500/10 to-indigo-500/10'
           }`}
@@ -695,7 +697,7 @@ export default function TrainPage() {
                 onClick={() => router.push('/jobs')}
                 variant="outline"
                 className={`${
-                  resolvedTheme === 'parchment'
+                  isLightMode
                     ? 'border-slate-300 hover:bg-slate-100'
                     : 'border-white/10 hover:bg-white/5'
                 } font-medium`}
@@ -731,7 +733,7 @@ export default function TrainPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`${currentTheme.cardBg} border ${resolvedTheme === 'parchment' ? 'border-indigo-200 shadow-lg shadow-indigo-100' : 'border-[#5B6CFF]/30'} rounded-2xl p-6 bg-gradient-to-r ${resolvedTheme === 'parchment' ? 'from-indigo-50 to-violet-50' : 'from-[#5B6CFF]/10 to-[#8B5CF6]/10'}`}
+          className={`${currentTheme.cardBg} border ${isLightMode ? 'border-indigo-200 shadow-lg shadow-indigo-100' : 'border-[#5B6CFF]/30'} rounded-2xl p-6 bg-gradient-to-r ${isLightMode ? 'from-indigo-50 to-violet-50' : 'from-[#5B6CFF]/10 to-[#8B5CF6]/10'}`}
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-start gap-4">

@@ -92,6 +92,7 @@ const topQuickLinks = [
 ];
 
 const themeOptions: { value: ThemeName; label: string; icon: typeof Moon }[] = [
+  { value: 'light', label: 'Light', icon: Sun },
   { value: 'dark', label: 'Dark', icon: Moon },
   { value: 'midnight', label: 'Night', icon: Moon },
   { value: 'forest', label: 'Forest', icon: Leaf },
@@ -120,7 +121,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const [pendingFriends, setPendingFriends] = useState(0);
 
   const currentTheme = themeConfig[resolvedTheme] || themeConfig.dark;
-  const isLight = resolvedTheme === 'parchment';
+  const isLight = resolvedTheme === 'parchment' || resolvedTheme === 'light';
 
   // Extract user info from planInfo
   const userData = planInfo?.user ? {
@@ -232,8 +233,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         <header className={`h-14 border-b ${currentTheme.cardBorder} ${currentTheme.background} flex items-center justify-between px-6 sticky top-0 z-30`}>
           <div className="flex items-center gap-3">
             <div className={`p-1 rounded-xl transition-all ${
-              theme === 'parchment'
-                ? 'bg-gradient-to-br from-red-600 to-rose-600 shadow-md shadow-red-500/25 border border-red-500/30'
+              isLight
+                ? 'bg-[#F0EDFF] border border-[#C4B5FD]'
                 : 'bg-gradient-to-br from-indigo-600 to-purple-600 shadow-md'
             }`}>
               <img 
@@ -243,7 +244,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
               />
             </div>
             <span className={`font-bold ${currentTheme.text}`}>
-              Fluenzy <span className={theme === 'parchment' ? 'text-red-500 font-black' : currentTheme.accent}>AI</span>
+              Fluenzy <span className={currentTheme.accent}>AI</span>
             </span>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 ml-1">SUPER ADMIN</span>
           </div>
@@ -259,6 +260,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 {theme === 'forest' && <Leaf size={18} />}
                 {theme === 'parchment' && <Coffee size={18} />}
                 {theme === 'codeterm' && <Terminal size={18} />}
+                {theme === 'light' && <Sun size={18} />}
               </button>
               <AnimatePresence>
                 {showThemeMenu && (
@@ -269,15 +271,15 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.95 }}
                         className={`absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-2xl z-50 border ${
-                          theme === 'parchment'
-                            ? 'bg-[#FCFBF8] border-[#E6E2D8] text-[#1C1917]'
+                          isLight
+                            ? 'bg-white border-[#E5E0FF] text-[#1E1B3A]'
                             : 'bg-slate-900 border-slate-700 text-white'
                         }`}
                       >
                         {themeOptions.map((option) => {
                           const isSelected = theme === option.value;
-                          const colorStyle = theme === 'parchment'
-                            ? { color: isSelected ? '#EF4444' : '#000000' }
+                          const colorStyle = isLight
+                            ? { color: isSelected ? '#5B21E6' : '#374151' }
                             : { color: isSelected ? '#e9d5ff' : '#f1f5f9' };
 
                           return (
@@ -288,8 +290,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                               className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-bold transition-all cursor-pointer ${
                                 isSelected ? 'theme-toggle-item-selected' : ''
                               } ${
-                                theme === 'parchment'
-                                  ? isSelected ? 'bg-red-100/70 text-[#EF4444] border border-red-300' : 'text-[#000000] hover:bg-slate-100'
+                                isLight
+                                  ? isSelected ? 'bg-[#5B21E6]/10 text-[#5B21E6]' : 'text-slate-700 hover:bg-slate-100'
                                   : isSelected ? 'bg-purple-600/30 text-purple-200' : 'hover:text-white hover:bg-slate-800'
                               }`}
                             >
@@ -406,15 +408,23 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       {/* Logo */}
       <div className={`p-4 border-b ${currentTheme.cardBorder} flex items-center justify-between`}>
         <Link href="/" className="flex items-center gap-3">
-          <div className="p-1.5 rounded-xl bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center">
-            <img 
-              src="/white-removebg-preview1.png" 
-              alt="Fluenzy AI Logo" 
-              className="w-7 h-7 object-contain"
-            />
+          <div className={`p-1.5 rounded-xl ${
+              isLight
+                ? 'bg-[#F0EDFF] border border-[#C4B5FD]'
+                : 'bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20'
+            } flex items-center justify-center`}>
+              <img 
+                src={isLight ? '/favicon/apple-touch-icon.png' : '/white-removebg-preview1.png'} 
+                alt="Fluenzy AI Logo" 
+                className="w-7 h-7 object-contain"
+              />
           </div>
           {!collapsed && (
-            <span className="font-extrabold bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-400 !bg-clip-text text-transparent text-xl tracking-tight">
+            <span className={`font-extrabold !bg-clip-text text-transparent text-xl tracking-tight ${
+              isLight
+                ? 'bg-gradient-to-r from-[#5B21E6] via-[#7C3AED] to-[#5B21E6]'
+                : 'bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-400'
+            }`}>
               Fluenzy AI
             </span>
           )}
@@ -577,15 +587,15 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   className={`absolute bottom-full left-0 right-0 mb-2 rounded-xl overflow-hidden shadow-2xl z-50 border ${
-                    theme === 'parchment'
-                      ? 'bg-[#FCFBF8] border-[#E6E2D8]'
+                    isLight
+                      ? 'bg-white border-[#E5E0FF]'
                       : 'bg-slate-900 border-slate-700'
                   }`}
                 >
                   {themeOptions.map((option) => {
                     const isSelected = theme === option.value;
-                    const colorStyle = theme === 'parchment'
-                      ? { color: isSelected ? '#EF4444' : '#000000' }
+                    const colorStyle = isLight
+                      ? { color: isSelected ? '#5B21E6' : '#374151' }
                       : { color: isSelected ? '#e9d5ff' : '#f1f5f9' };
 
                     return (
@@ -599,8 +609,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                         className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-bold transition-all cursor-pointer ${
                           isSelected ? 'theme-toggle-item-selected' : ''
                         } ${
-                          theme === 'parchment'
-                            ? isSelected ? 'bg-red-100/70 text-[#EF4444] border border-red-300' : 'text-[#000000] hover:bg-slate-100'
+                          isLight
+                            ? isSelected ? 'bg-[#5B21E6]/10 text-[#5B21E6]' : 'text-slate-700 hover:bg-slate-100'
                             : isSelected ? 'bg-purple-600/30 text-purple-200' : 'hover:text-white hover:bg-slate-800'
                         }`}
                       >
@@ -722,9 +732,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 <button
                   onClick={() => setShowThemeMenu(!showThemeMenu)}
                   style={{
-                    color: theme === 'parchment' ? '#ef4444' : isLight ? '#0f172a' : '#f8fafc',
+                    color: isLight ? '#5B21E6' : '#f8fafc',
                   }}
-                  className={`theme-toggle-trigger p-2 rounded-lg ${currentTheme.textMuted} hover:${currentTheme.text} ${isLight ? 'hover:bg-slate-100' : 'hover:bg-white/5'} transition-colors`}
+                  className={`theme-toggle-trigger p-2 rounded-lg ${currentTheme.textMuted} hover:${currentTheme.text} ${isLight ? 'hover:bg-[#5B21E6]/10' : 'hover:bg-white/5'} transition-colors`}
                   title="Change theme"
                 >
                   {theme === 'dark' && <Moon size={20} />}
@@ -732,6 +742,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                   {theme === 'forest' && <Leaf size={20} />}
                   {theme === 'parchment' && <Coffee size={20} style={{ color: '#ef4444', stroke: '#ef4444' }} />}
                   {theme === 'codeterm' && <Terminal size={20} />}
+                  {theme === 'light' && <Sun size={20} style={{ color: '#5B21E6', stroke: '#5B21E6' }} />}
                 </button>
                 
                 <AnimatePresence>
@@ -746,15 +757,15 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         className={`theme-toggle-dropdown absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-2xl z-50 border ${
-                          theme === 'parchment'
-                            ? 'bg-white border-slate-200'
+                          isLight
+                            ? 'bg-white border-[#E5E0FF]'
                             : 'bg-slate-900 border-slate-700'
                         }`}
                       >
                         {themeOptions.map((option) => {
                           const isSelected = theme === option.value;
-                          const colorStyle = theme === 'parchment'
-                            ? { color: isSelected ? '#EF4444' : '#000000' }
+                          const colorStyle = isLight
+                            ? { color: isSelected ? '#5B21E6' : '#374151' }
                             : { color: isSelected ? '#e9d5ff' : '#f1f5f9' };
 
                           return (
@@ -769,8 +780,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                               className={`theme-toggle-item w-full flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                                 isSelected ? 'theme-toggle-item-selected' : ''
                               } ${
-                                theme === 'parchment'
-                                  ? isSelected ? 'bg-red-100/70 text-[#EF4444] border border-red-300' : 'text-[#000000] hover:bg-slate-100'
+                                isLight
+                                  ? isSelected ? 'bg-[#5B21E6]/10 text-[#5B21E6]' : 'text-slate-700 hover:bg-slate-100'
                                   : isSelected ? 'bg-purple-600/30 text-purple-200' : 'hover:text-white hover:bg-slate-800'
                               }`}
                             >

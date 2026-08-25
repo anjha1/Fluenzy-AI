@@ -401,7 +401,7 @@ function AnalyticsDashboardPageContent() {
   }, [data]);
 
   const { resolvedTheme } = useTheme();
-  const isLight = resolvedTheme === 'parchment';
+  const isLight = resolvedTheme === 'parchment' || resolvedTheme === 'light';
 
   // ── Real-time refresh tracking ────────────────────────────────
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
