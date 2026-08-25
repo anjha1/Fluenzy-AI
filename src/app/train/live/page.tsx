@@ -96,7 +96,7 @@ interface UsageData {
 export default function LiveGDPage() {
   const { data: session } = useSession();
   const { resolvedTheme } = useTheme();
-  const isLight = resolvedTheme === 'parchment';
+  const isLight = resolvedTheme === 'parchment' || resolvedTheme === 'light';
   const currentTheme = themeConfig[resolvedTheme] ?? themeConfig['dark'];
   const [usageData, setUsageData] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);

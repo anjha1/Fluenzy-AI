@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-export type ThemeName = 'dark' | 'midnight' | 'forest' | 'parchment' | 'codeterm';
+export type ThemeName = 'dark' | 'midnight' | 'forest' | 'parchment' | 'codeterm' | 'light';
 
 interface ThemeContextType {
   theme: ThemeName;
@@ -12,7 +12,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const validThemes: ThemeName[] = ['dark', 'midnight', 'forest', 'parchment', 'codeterm'];
+const validThemes: ThemeName[] = ['dark', 'midnight', 'forest', 'parchment', 'codeterm', 'light'];
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<ThemeName>('dark');
@@ -129,6 +129,17 @@ export const themeConfig = {
     accent: 'text-[#CC4125]',
     activeNavBg: 'bg-[#CC4125]/10',
     activeIconColor: 'text-[#CC4125]',
+  },
+  light: {
+    name: 'Light',
+    background: 'bg-[#F8F7FF]',
+    cardBg: 'bg-white',
+    cardBorder: 'border-[#E5E0FF]',
+    text: 'text-[#1E1B3A]',
+    textMuted: 'text-[#6B7280]',
+    accent: 'text-[#5B21E6]',
+    activeNavBg: 'bg-[#5B21E6]/10',
+    activeIconColor: 'text-[#5B21E6]',
   },
 };
 

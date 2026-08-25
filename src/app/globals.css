@@ -115,53 +115,102 @@
 /* ===== BASE ===== */
 @layer base {
   :root {
-    /* Light Mode Colors (Default) */
-    --color-background: hsl(210 20% 98%);
-    --color-foreground: hsl(220 27% 15%);
+    /* Light Mode Colors — Purple/Indigo palette (matches reference UI) */
+    --color-background: hsl(248 100% 98.5%);
+    --color-foreground: hsl(230 25% 15%);
 
     --color-card: hsl(0 0% 100%);
-    --color-card-foreground: hsl(220 27% 15%);
-    --color-card-border: hsl(214 32% 91%);
+    --color-card-foreground: hsl(230 25% 15%);
+    --color-card-border: hsl(248 40% 92%);
 
     --color-popover: hsl(0 0% 100%);
-    --color-popover-foreground: hsl(220 27% 15%);
+    --color-popover-foreground: hsl(230 25% 15%);
 
-    --color-primary: hsl(232 77% 50%);
+    --color-primary: hsl(258 78% 51%);
     --color-primary-foreground: hsl(0 0% 100%);
 
-    --color-primary-glow: hsl(232 77% 60%);
-    --color-secondary-glow: hsl(271 81% 60%);
+    --color-primary-glow: hsl(258 78% 63%);
+    --color-secondary-glow: hsl(271 81% 63%);
 
-    --color-secondary: hsl(271 81% 50%);
+    --color-secondary: hsl(271 81% 53%);
     --color-secondary-foreground: hsl(0 0% 100%);
 
     --color-destructive: hsl(0 84.2% 60.2%);
     --color-destructive-foreground: hsl(0 0% 100%);
 
-    --color-muted: hsl(214 32% 96%);
-    --color-muted-foreground: hsl(215 16% 47%);
+    --color-muted: hsl(248 60% 96%);
+    --color-muted-foreground: hsl(230 12% 52%);
 
-    --color-accent: hsl(189 80% 53%);
+    --color-accent: hsl(258 78% 51%);
     --color-accent-foreground: hsl(0 0% 100%);
 
-    --color-border: hsl(214 32% 91%);
-    --color-input: hsl(214 32% 96%);
-    --color-ring: hsl(232 77% 50%);
+    --color-border: hsl(248 35% 91%);
+    --color-input: hsl(248 55% 96%);
+    --color-ring: hsl(258 78% 51%);
 
     /* Light Mode Gradients & Glows */
     --gradient-primary: linear-gradient(135deg,
-        hsl(232 77% 50%),
-        hsl(271 81% 50%));
+        hsl(258 78% 51%),
+        hsl(271 81% 53%));
     --gradient-glass: linear-gradient(135deg,
-        hsl(220 20% 99% / 0.6),
-        hsl(220 20% 99% / 0.3));
+        hsl(248 100% 99% / 0.8),
+        hsl(248 100% 99% / 0.5));
     --gradient-border: linear-gradient(135deg,
-        hsl(192 100% 45% / 0.4),
-        hsl(271 81% 50% / 0.4));
+        hsl(258 78% 51% / 0.25),
+        hsl(271 81% 53% / 0.25));
 
-    --glow-primary: 0 0 30px hsl(232 77% 50% / 0.2);
-    --glow-secondary: 0 0 30px hsl(271 81% 50% / 0.2);
-    --glow-subtle: 0 2px 15px hsl(232 77% 50% / 0.08);
+    --glow-primary: 0 0 30px hsl(258 78% 51% / 0.18);
+    --glow-secondary: 0 0 30px hsl(271 81% 53% / 0.15);
+    --glow-subtle: 0 2px 15px hsl(258 78% 51% / 0.08);
+  }
+
+  /* Explicit .light class — mirrors :root for class-based theme switching */
+  .light {
+    --color-background: hsl(248 100% 98.5%);
+    --color-foreground: hsl(230 25% 15%);
+
+    --color-card: hsl(0 0% 100%);
+    --color-card-foreground: hsl(230 25% 15%);
+    --color-card-border: hsl(248 40% 92%);
+
+    --color-popover: hsl(0 0% 100%);
+    --color-popover-foreground: hsl(230 25% 15%);
+
+    --color-primary: hsl(258 78% 51%);
+    --color-primary-foreground: hsl(0 0% 100%);
+
+    --color-primary-glow: hsl(258 78% 63%);
+    --color-secondary-glow: hsl(271 81% 63%);
+
+    --color-secondary: hsl(271 81% 53%);
+    --color-secondary-foreground: hsl(0 0% 100%);
+
+    --color-destructive: hsl(0 84.2% 60.2%);
+    --color-destructive-foreground: hsl(0 0% 100%);
+
+    --color-muted: hsl(248 60% 96%);
+    --color-muted-foreground: hsl(230 12% 52%);
+
+    --color-accent: hsl(258 78% 51%);
+    --color-accent-foreground: hsl(0 0% 100%);
+
+    --color-border: hsl(248 35% 91%);
+    --color-input: hsl(248 55% 96%);
+    --color-ring: hsl(258 78% 51%);
+
+    --gradient-primary: linear-gradient(135deg,
+        hsl(258 78% 51%),
+        hsl(271 81% 53%));
+    --gradient-glass: linear-gradient(135deg,
+        hsl(248 100% 99% / 0.8),
+        hsl(248 100% 99% / 0.5));
+    --gradient-border: linear-gradient(135deg,
+        hsl(258 78% 51% / 0.25),
+        hsl(271 81% 53% / 0.25));
+
+    --glow-primary: 0 0 30px hsl(258 78% 51% / 0.18);
+    --glow-secondary: 0 0 30px hsl(271 81% 53% / 0.15);
+    --glow-subtle: 0 2px 15px hsl(258 78% 51% / 0.08);
   }
 
   .dark {
@@ -444,6 +493,10 @@
     background: linear-gradient(135deg,
         var(--color-background),
         hsl(220 27% 4%));
+  }
+
+  .light body {
+    background: hsl(248 100% 98.5%);
   }
 
   /* Rounded scale (maps to rounded-lg/md/sm via tokens in v4) */
