@@ -196,11 +196,11 @@ export default function LoginPage() {
           className="mb-8 flex justify-center"
         >
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="p-1.5 rounded-xl bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center">
+            <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center overflow-hidden">
               <img
                 src="/white-removebg-preview1.png"
                 alt="Fluenzy AI Logo"
-                className="h-8 w-auto object-contain"
+                className="h-8 w-auto max-w-full max-h-full object-contain"
               />
             </div>
             <span className="text-xl font-black bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-400 !bg-clip-text text-transparent tracking-tight">

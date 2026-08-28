@@ -78,9 +78,9 @@ const Faq = ({ q, a }: { q: string; a: string }) => {
 /* ═══════════════════════════════════════════════════════════ */
 const MobileLandingPage = () => {
   return (
-    <div className="relative overflow-x-hidden bg-slate-950 text-white">
+    <div className="relative bg-slate-950 text-white" style={{ overflowX: 'hidden', maxWidth: '100vw', width: '100%' }}>
       {/* ── HERO ───────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-purple-950 to-slate-950 px-5 pb-14 pt-24">
+      <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-purple-950 to-slate-950 pb-14 pt-24" style={{ paddingLeft: '20px', paddingRight: '20px', width: '100%', boxSizing: 'border-box', maxWidth: '100%' }}>
         <Orb className="left-[-60px] top-[-60px] h-56 w-56 bg-purple-500" />
         <Orb className="right-[-40px] top-[40%] h-44 w-44 bg-blue-500" />
 
@@ -100,13 +100,14 @@ const MobileLandingPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.1 }}
-          className="mb-4 text-[2.1rem] font-extrabold leading-[1.1] tracking-tight"
+          className="mb-4 text-[1.85rem] font-extrabold leading-[1.15] tracking-tight"
+          style={{ wordBreak: 'break-word', overflowWrap: 'break-word', maxWidth: '100%' }}
         >
           Train Smarter.{" "}
           <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
             Crack FAANG
           </span>{" "}
-          Interviews with&nbsp;AI.
+          Interviews with AI.
         </motion.h1>
 
         {/* sub */}
@@ -115,9 +116,9 @@ const MobileLandingPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-8 text-sm leading-relaxed text-slate-400"
+          style={{ maxWidth: '100%', wordBreak: 'break-word', overflowWrap: 'break-word' }}
         >
-          AI Interviewer · HR + Technical + GD Training · Real-Time Behavioral
-          Analytics · Performance Intelligence
+          AI Interviewer · HR + Technical + GD Training · Real-Time Behavioral Analytics · Performance Intelligence
         </motion.p>
 
         {/* CTAs */}
@@ -126,20 +127,23 @@ const MobileLandingPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-col gap-3"
+          style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
         >
           <Link
             href="/login"
-            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/25 active:scale-[0.97]"
+            className="flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/25 active:scale-[0.97]"
+            style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
           >
-            <Play className="h-4 w-4" />
+            <Play className="h-4 w-4 shrink-0" />
             Start Training Free
           </Link>
           <Link
             href="#features"
-            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-purple-500/30 bg-white/5 px-6 py-3 text-sm font-semibold text-purple-200 active:scale-[0.97]"
+            className="flex min-h-[48px] items-center justify-center gap-2 rounded-2xl border border-purple-500/30 bg-white/5 px-6 py-3 text-sm font-semibold text-purple-200 active:scale-[0.97]"
+            style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
           >
             Explore Features
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
         </motion.div>
 
@@ -148,12 +152,13 @@ const MobileLandingPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500"
+          className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500"
+          style={{ maxWidth: '100%', width: '100%' }}
         >
           {["No credit card needed", "Free to start", "Instant access"].map(
             (t) => (
-              <span key={t} className="flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+              <span key={t} className="flex items-center gap-1.5 shrink-0">
+                <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
                 {t}
               </span>
             )
@@ -162,8 +167,8 @@ const MobileLandingPage = () => {
       </section>
 
       {/* ── STATS BAR ──────────────────────────────────────── */}
-      <section className="bg-slate-900/80 px-5 py-8">
-        <div className="grid grid-cols-2 gap-4">
+      <section style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '32px', paddingBottom: '32px', backgroundColor: 'rgba(15,23,42,0.8)' }}>
+        <div className="grid grid-cols-2 gap-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {stats.map((s, i) => (
             <motion.div
               key={s.label}
@@ -172,6 +177,7 @@ const MobileLandingPage = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.07 }}
               className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center"
+              style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
             >
               <div className="text-2xl font-extrabold text-white">{s.value}</div>
               <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-slate-500">
@@ -183,17 +189,18 @@ const MobileLandingPage = () => {
       </section>
 
       {/* ── FEATURES GRID ──────────────────────────────────── */}
-      <section id="features" className="px-5 py-12">
+      <section id="features" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '48px', paddingBottom: '48px', overflow: 'hidden' }}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="mb-7 text-center"
+          style={{ maxWidth: '100%' }}
         >
           <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-400">
             Core Training Ecosystem
           </p>
-          <h2 className="text-2xl font-extrabold leading-tight text-white">
+          <h2 className="text-2xl font-extrabold leading-tight text-white" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', maxWidth: '100%' }}>
             Everything You Need to{" "}
             <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Get Hired
@@ -201,7 +208,7 @@ const MobileLandingPage = () => {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {features.map((f, i) => (
             <motion.div
               key={f.label}
@@ -210,13 +217,14 @@ const MobileLandingPage = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: i * 0.06 }}
               className="rounded-2xl border border-white/10 bg-white/5 p-4"
+              style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
             >
               <div
-                className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${f.color} shadow-md`}
+                className={`mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${f.color} shadow-md`}
               >
                 <f.icon className="h-5 w-5 text-white" />
               </div>
-              <p className="text-xs font-semibold leading-snug text-white">
+              <p className="text-xs font-semibold leading-snug text-white" style={{ wordBreak: 'break-word' }}>
                 {f.label}
               </p>
             </motion.div>
@@ -224,66 +232,56 @@ const MobileLandingPage = () => {
         </div>
 
         {/* Mobile Feature Showcase Screenshots */}
-        <div className="mt-8 space-y-4">
+        <div className="mt-8 space-y-4" style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
           <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-center text-slate-400">Platform Preview</p>
-          <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-none">
-            <div className="snap-center shrink-0 w-[85%]">
-              <Card3D depth={30} glowColor="rgba(6, 182, 212, 0.4)">
-                <div className="rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-900/80 p-2 shadow-lg">
-                  <img src="/image/landingimg2.png" alt="AI Interview Room" className="w-full h-auto rounded-xl object-cover" />
-                  <p className="mt-2 text-center text-xs font-bold text-cyan-300">Live AI Interview Room</p>
-                </div>
-              </Card3D>
-            </div>
-
-            <div className="snap-center shrink-0 w-[85%]">
-              <Card3D depth={30} glowColor="rgba(168, 85, 247, 0.4)">
-                <div className="rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-900/80 p-2 shadow-lg">
-                  <img src="/image/BEHAVIORALMETRICS1.png" alt="Behavioral Analytics" className="w-full h-auto rounded-xl object-cover" />
-                  <p className="mt-2 text-center text-xs font-bold text-purple-300">Real-Time Behavioral Analytics</p>
-                </div>
-              </Card3D>
-            </div>
-
-            <div className="snap-center shrink-0 w-[85%]">
-              <Card3D depth={30} glowColor="rgba(236, 72, 153, 0.4)">
-                <div className="rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-900/80 p-2 shadow-lg">
-                  <img src="/image/GDAgent.png" alt="GD Coach & Room" className="w-full h-auto rounded-xl object-cover" />
-                  <p className="mt-2 text-center text-xs font-bold text-pink-300">GD Agent Simulation Room</p>
-                </div>
-              </Card3D>
-            </div>
-
-            <div className="snap-center shrink-0 w-[85%]">
-              <Card3D depth={30} glowColor="rgba(16, 185, 129, 0.4)">
-                <div className="rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-900/80 p-2 shadow-lg">
-                  <img src="/image/ATS.png" alt="ATS Resume Score" className="w-full h-auto rounded-xl object-cover" />
-                  <p className="mt-2 text-center text-xs font-bold text-emerald-300">ATS Resume Score Engine</p>
-                </div>
-              </Card3D>
-            </div>
-
-            <div className="snap-center shrink-0 w-[85%]">
-              <Card3D depth={30} glowColor="rgba(245, 158, 11, 0.4)">
-                <div className="rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-900/80 p-2 shadow-lg">
-                  <img src="/image/InterviewGuide.png" alt="AI Interview Strategy Guide" className="w-full h-auto rounded-xl object-cover" />
-                  <p className="mt-2 text-center text-xs font-bold text-amber-300">AI Strategy & Guide Export</p>
-                </div>
-              </Card3D>
-            </div>
+          {/* Intentional horizontal scroll carousel — overflow-x-auto is correct here */}
+          <div
+            style={{
+              display: 'flex',
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              gap: '16px',
+              paddingBottom: '16px',
+              scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch',
+              msOverflowStyle: 'none',
+              scrollbarWidth: 'none',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
+            {[
+              { src: '/image/landingimg2.png', alt: 'AI Interview Room', label: 'Live AI Interview Room', glow: 'rgba(6, 182, 212, 0.4)', textColor: 'text-cyan-300' },
+              { src: '/image/BEHAVIORALMETRICS1.png', alt: 'Behavioral Analytics', label: 'Real-Time Behavioral Analytics', glow: 'rgba(168, 85, 247, 0.4)', textColor: 'text-purple-300' },
+              { src: '/image/GDAgent.png', alt: 'GD Coach & Room', label: 'GD Agent Simulation Room', glow: 'rgba(236, 72, 153, 0.4)', textColor: 'text-pink-300' },
+              { src: '/image/ATS.png', alt: 'ATS Resume Score', label: 'ATS Resume Score Engine', glow: 'rgba(16, 185, 129, 0.4)', textColor: 'text-emerald-300' },
+              { src: '/image/InterviewGuide.png', alt: 'AI Interview Strategy Guide', label: 'AI Strategy & Guide Export', glow: 'rgba(245, 158, 11, 0.4)', textColor: 'text-amber-300' },
+            ].map((item) => (
+              <div
+                key={item.alt}
+                style={{ scrollSnapAlign: 'center', flexShrink: 0, width: 'calc(85% - 8px)', maxWidth: 'calc(100% - 40px)', boxSizing: 'border-box' }}
+              >
+                <Card3D depth={30} glowColor={item.glow}>
+                  <div className="rounded-2xl overflow-hidden border border-purple-500/30 bg-slate-900/80 p-2 shadow-lg">
+                    <img src={item.src} alt={item.alt} className="w-full h-auto rounded-xl object-cover" style={{ maxWidth: '100%', height: 'auto', display: 'block' }} />
+                    <p className={`mt-2 text-center text-xs font-bold ${item.textColor}`}>{item.label}</p>
+                  </div>
+                </Card3D>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ── BENEFITS LIST ──────────────────────────────────── */}
-      <section className="bg-gradient-to-b from-slate-900 to-slate-950 px-5 py-12">
+      <section style={{ background: 'linear-gradient(to bottom, #0f172a, #020617)', width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '48px', paddingBottom: '48px', overflow: 'hidden' }}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="mb-6 text-center"
         >
-          <h2 className="text-2xl font-extrabold text-white">
+          <h2 className="text-2xl font-extrabold text-white" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
             Why{" "}
             <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               Fluenzy AI?
@@ -291,7 +289,7 @@ const MobileLandingPage = () => {
           </h2>
         </motion.div>
 
-        <div className="space-y-3">
+        <div className="space-y-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {benefits.map((b, i) => (
             <motion.div
               key={b}
@@ -300,22 +298,23 @@ const MobileLandingPage = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: i * 0.05 }}
               className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+              style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
             >
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-500/20">
                 <CheckCircle className="h-3.5 w-3.5 text-purple-400" />
               </div>
-              <span className="text-sm text-slate-200">{b}</span>
+              <span className="text-sm text-slate-200" style={{ wordBreak: 'break-word', minWidth: 0 }}>{b}</span>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* ── TRUST / COMPANIES ──────────────────────────────── */}
-      <section className="px-5 py-10 text-center">
+      <section style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '40px', paddingBottom: '40px', textAlign: 'center', overflow: 'hidden' }}>
         <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">
           Candidates from top companies trust Fluenzy AI
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           {["Google", "Amazon", "Microsoft", "Meta", "Netflix", "Apple"].map(
             (c) => (
               <span
@@ -330,36 +329,36 @@ const MobileLandingPage = () => {
       </section>
 
       {/* ── COMPANY CTA ────────────────────────────────────── */}
-      <section className="px-5 py-12 bg-[#06090f]">
+      <section style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '48px', paddingBottom: '48px', backgroundColor: '#06090f', overflow: 'hidden' }}>
         {/* Badge */}
         <div className="flex justify-center mb-5">
           <span className="inline-flex items-center gap-2 text-[10px] font-bold tracking-widest text-purple-400 uppercase bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 rounded-full">
-            <Building2 className="w-3 h-3" /> For Companies
+            <Building2 className="w-3 h-3 shrink-0" /> For Companies
           </span>
         </div>
 
         {/* Heading */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-white leading-tight">
+        <div className="text-center mb-8" style={{ maxWidth: '100%' }}>
+          <h2 className="text-2xl font-extrabold text-white leading-tight" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', maxWidth: '100%' }}>
             Hire top talent with{" "}
             <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
               AI recruiting
             </span>
           </h2>
-          <p className="text-slate-400 text-sm mt-3 leading-relaxed">
+          <p className="text-slate-400 text-sm mt-3 leading-relaxed" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
             Post jobs, manage applications, and find the best candidates with our AI-powered recruitment platform.
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-8" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {[
             { value: "500+", label: "Companies Hiring" },
             { value: "10K+", label: "Jobs Posted" },
             { value: "50K+", label: "Candidates Placed" },
             { value: "4.8★", label: "Company Rating" },
           ].map((s) => (
-            <div key={s.label} className="text-center bg-white/[0.03] border border-white/[0.07] rounded-2xl py-4 px-3">
+            <div key={s.label} className="text-center bg-white/[0.03] border border-white/[0.07] rounded-2xl py-4 px-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               <p className="text-2xl font-bold text-white">{s.value}</p>
               <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
             </div>
@@ -367,30 +366,32 @@ const MobileLandingPage = () => {
         </div>
 
         {/* Feature list */}
-        <div className="space-y-3 mb-8">
+        <div className="space-y-3 mb-8" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {[
             { color: "text-indigo-400", text: "Post jobs & manage applications" },
             { color: "text-purple-400", text: "Access candidate database" },
             { color: "text-cyan-400",   text: "Real-time hiring analytics" },
           ].map((f) => (
-            <div key={f.text} className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
+            <div key={f.text} className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               <CheckCircle className={`w-4 h-4 flex-shrink-0 ${f.color}`} />
-              <span className="text-sm text-slate-300">{f.text}</span>
+              <span className="text-sm text-slate-300" style={{ wordBreak: 'break-word', minWidth: 0 }}>{f.text}</span>
             </div>
           ))}
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           <Link
             href="/company/login"
-            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-gradient-to-r from-purple-500 to-cyan-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25"
+            className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-purple-500 to-cyan-600 text-white font-bold text-sm shadow-lg shadow-purple-500/25"
+            style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
           >
             Company Login
           </Link>
           <Link
             href="/company/signup"
-            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/[0.05] border border-purple-500/30 text-slate-300 font-semibold text-sm"
+            className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-white/[0.05] border border-purple-500/30 text-slate-300 font-semibold text-sm"
+            style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
           >
             Register Company
           </Link>
@@ -399,36 +400,36 @@ const MobileLandingPage = () => {
       </section>
 
       {/* ── COLLEGE CTA ────────────────────────────────────── */}
-      <section className="px-5 py-12 bg-[#06090f]">
+      <section style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '48px', paddingBottom: '48px', backgroundColor: '#06090f', overflow: 'hidden' }}>
         {/* Badge */}
         <div className="flex justify-center mb-5">
           <span className="inline-flex items-center gap-2 text-[10px] font-bold tracking-widest text-indigo-400 uppercase bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-full">
-            <Briefcase className="w-3 h-3" /> For Colleges &amp; Universities
+            <Briefcase className="w-3 h-3 shrink-0" /> For Colleges &amp; Universities
           </span>
         </div>
 
         {/* Heading */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-white leading-tight">
+        <div className="text-center mb-8" style={{ maxWidth: '100%' }}>
+          <h2 className="text-2xl font-extrabold text-white leading-tight" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', maxWidth: '100%' }}>
             Take your campus placements{" "}
             <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
               to the next level
             </span>
           </h2>
-          <p className="text-slate-400 text-sm mt-3 leading-relaxed">
+          <p className="text-slate-400 text-sm mt-3 leading-relaxed" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
             AI-powered mock interviews, GD practice &amp; real-time analytics — all managed from your college admin portal.
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-8" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {[
             { value: "200+", label: "Partner Institutions" },
             { value: "50K+", label: "Students Trained" },
             { value: "91%",  label: "Placement Rate" },
             { value: "4.9★", label: "Admin Rating" },
           ].map((s) => (
-            <div key={s.label} className="text-center bg-white/[0.03] border border-white/[0.07] rounded-2xl py-4 px-3">
+            <div key={s.label} className="text-center bg-white/[0.03] border border-white/[0.07] rounded-2xl py-4 px-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               <p className="text-2xl font-bold text-white">{s.value}</p>
               <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
             </div>
@@ -436,30 +437,32 @@ const MobileLandingPage = () => {
         </div>
 
         {/* Feature list */}
-        <div className="space-y-3 mb-8">
+        <div className="space-y-3 mb-8" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {[
             { color: "text-indigo-400", text: "Bulk student onboarding via CSV" },
             { color: "text-purple-400", text: "Real-time performance analytics" },
             { color: "text-cyan-400",   text: "Curated AI learning paths per domain" },
           ].map((f) => (
-            <div key={f.text} className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
+            <div key={f.text} className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
               <CheckCircle className={`w-4 h-4 flex-shrink-0 ${f.color}`} />
-              <span className="text-sm text-slate-300">{f.text}</span>
+              <span className="text-sm text-slate-300" style={{ wordBreak: 'break-word', minWidth: 0 }}>{f.text}</span>
             </div>
           ))}
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           <Link
             href="/college/login"
-            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-lg shadow-indigo-500/25"
+            className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-lg shadow-indigo-500/25"
+            style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
           >
             College Admin Sign In
           </Link>
           <Link
             href="/college/signup"
-            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-white/[0.05] border border-indigo-500/30 text-slate-300 font-semibold text-sm"
+            className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-white/[0.05] border border-indigo-500/30 text-slate-300 font-semibold text-sm"
+            style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
           >
             Apply for Partnership
           </Link>
@@ -468,12 +471,13 @@ const MobileLandingPage = () => {
       </section>
 
       {/* ── HOW IT WORKS ───────────────────────────────────── */}
-      <section className="bg-slate-900/60 px-5 py-12">
+      <section style={{ backgroundColor: 'rgba(15,23,42,0.6)', width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '48px', paddingBottom: '48px', overflow: 'hidden' }}>
         <motion.h2
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="mb-8 text-center text-2xl font-extrabold text-white"
+          style={{ wordBreak: 'break-word', maxWidth: '100%' }}
         >
           How It{" "}
           <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -481,7 +485,7 @@ const MobileLandingPage = () => {
           </span>
         </motion.h2>
 
-        <div className="space-y-4">
+        <div className="space-y-4" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           {[
             { step: "01", title: "Sign Up Free",       desc: "Create your account in seconds — no credit card required."    },
             { step: "02", title: "Choose Your Track",  desc: "HR, Technical, GD, English, or Company-specific preparation." },
@@ -495,13 +499,14 @@ const MobileLandingPage = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: i * 0.06 }}
               className="flex gap-4 rounded-2xl border border-white/10 bg-white/5 p-4"
+              style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 text-sm font-black text-white">
                 {item.step}
               </div>
-              <div>
-                <p className="text-sm font-bold text-white">{item.title}</p>
-                <p className="mt-0.5 text-xs text-slate-400">{item.desc}</p>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p className="text-sm font-bold text-white" style={{ wordBreak: 'break-word' }}>{item.title}</p>
+                <p className="mt-0.5 text-xs text-slate-400" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{item.desc}</p>
               </div>
             </motion.div>
           ))}
@@ -509,34 +514,37 @@ const MobileLandingPage = () => {
       </section>
 
       {/* ── PRICING TEASER ─────────────────────────────────── */}
-      <section className="px-5 py-12">
+      <section style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '48px', paddingBottom: '48px', overflow: 'hidden' }}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-900/30 to-blue-900/30 p-6 text-center"
+          style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
         >
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-yellow-300">
-            <Star className="h-3 w-3" />
+            <Star className="h-3 w-3 shrink-0" />
             Most Popular
           </div>
-          <h3 className="mt-3 text-xl font-extrabold text-white">
+          <h3 className="mt-3 text-xl font-extrabold text-white" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
             Start Free · Upgrade Anytime
           </h3>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-slate-400" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
             Free plan includes 3 sessions/month. Upgrade for unlimited access.
           </p>
-          <div className="mt-5 flex flex-col gap-3">
+          <div className="mt-5 flex flex-col gap-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
             <Link
               href="/login"
-              className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/25 active:scale-[0.97]"
+              className="flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/25 active:scale-[0.97]"
+              style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
             >
-              <Zap className="h-4 w-4" />
+              <Zap className="h-4 w-4 shrink-0" />
               Get Started Free
             </Link>
             <Link
               href="/pricing"
-              className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-300 active:scale-[0.97]"
+              className="flex min-h-[48px] items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-300 active:scale-[0.97]"
+              style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
             >
               View All Plans
             </Link>
@@ -545,16 +553,17 @@ const MobileLandingPage = () => {
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────── */}
-      <section className="bg-slate-900/60 px-5 pb-12 pt-10">
+      <section style={{ backgroundColor: 'rgba(15,23,42,0.6)', width: '100%', maxWidth: '100%', boxSizing: 'border-box', paddingLeft: '20px', paddingRight: '20px', paddingTop: '40px', paddingBottom: '48px', overflow: 'hidden' }}>
         <motion.h2
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="mb-6 text-center text-2xl font-extrabold text-white"
+          style={{ wordBreak: 'break-word', maxWidth: '100%' }}
         >
           FAQs
         </motion.h2>
-        <div className="rounded-2xl border border-white/10 bg-white/5 px-5">
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-5" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
           <Faq
             q="Is Fluenzy AI free to use?"
             a="Yes! The free plan gives you 2 training sessions per module and 1 interview guide session. No credit card required to get started."
@@ -575,7 +584,19 @@ const MobileLandingPage = () => {
       </section>
 
       {/* ── FINAL CTA ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-950 to-purple-950/40 px-5 pb-16 pt-12 text-center">
+      <section
+        className="relative overflow-hidden text-center"
+        style={{
+          background: 'linear-gradient(to bottom, #020617, rgba(88,28,135,0.4))',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          paddingLeft: '20px',
+          paddingRight: '20px',
+          paddingTop: '48px',
+          paddingBottom: '64px',
+        }}
+      >
         <Orb className="left-[-40px] bottom-0 h-48 w-48 bg-purple-500" />
         <Orb className="right-[-30px] top-0 h-36 w-36 bg-blue-500" />
 
@@ -584,23 +605,25 @@ const MobileLandingPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="relative z-10"
+          style={{ maxWidth: '100%', width: '100%', boxSizing: 'border-box' }}
         >
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-            <Shield className="h-3 w-3" />
+            <Shield className="h-3 w-3 shrink-0" />
             Trusted · Secure · Private
           </div>
-          <h2 className="mt-3 text-2xl font-extrabold leading-snug text-white">
+          <h2 className="mt-3 text-2xl font-extrabold leading-snug text-white" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', maxWidth: '100%' }}>
             Your AI Interview Intelligence System Starts Here.
           </h2>
-          <p className="mt-3 text-sm text-slate-400">
+          <p className="mt-3 text-sm text-slate-400" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
             Join thousands of candidates cracking FAANG interviews with Fluenzy AI.
           </p>
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-3" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
             <Link
               href="/login"
-              className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/30 active:scale-[0.97]"
+              className="flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-purple-500/30 active:scale-[0.97]"
+              style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
             >
-              <Play className="h-4 w-4" />
+              <Play className="h-4 w-4 shrink-0" />
               Start Training — It's Free
             </Link>
           </div>

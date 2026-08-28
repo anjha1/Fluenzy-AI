@@ -13,11 +13,11 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-1.5 rounded-xl bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center">
+              <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center overflow-hidden">
                 <img
                   src="/white-removebg-preview1.png"
                   alt="Fluenzy AI Logo"
-                  className="h-8 w-auto object-contain"
+                  className="h-8 w-auto max-w-full max-h-full object-contain"
                 />
               </div>
               <span className="text-2xl font-black bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-400 !bg-clip-text text-transparent tracking-tight">

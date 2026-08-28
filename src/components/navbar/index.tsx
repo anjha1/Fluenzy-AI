@@ -176,8 +176,8 @@ const Navbar = ({ showSidebar, userData }: NavbarProps) => {
                 <SheetContent side="left" className="w-[300px] bg-slate-950 border-r border-white/5 p-0 overflow-y-auto">
                   <SheetHeader className="p-3 border-b border-white/5 bg-slate-900/50">
                     <SheetTitle className="flex items-center space-x-3">
-                      <div className="p-1 rounded-lg bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center">
-                        <img src="/white-removebg-preview1.png" alt="Logo" className="h-6 w-auto object-contain" />
+                      <div className="h-9 w-9 shrink-0 rounded-lg bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center overflow-hidden">
+                        <img src="/white-removebg-preview1.png" alt="Logo" className="h-6 w-auto max-w-full max-h-full object-contain" />
                       </div>
                       <span className="text-xl font-black bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-400 !bg-clip-text text-transparent">Fluenzy AI</span>
                     </SheetTitle>
@@ -189,16 +189,16 @@ const Navbar = ({ showSidebar, userData }: NavbarProps) => {
 
             {/* Logo (Hidden on desktop when sidebar is persistent) */}
             <motion.div
-              className={`flex min-w-0 items-center space-x-2 sm:space-x-3 cursor-pointer ${showSidebar ? 'md:hidden' : ''}`}
+              className={`flex shrink-0 min-w-0 items-center space-x-2 sm:space-x-3 cursor-pointer ${showSidebar ? 'md:hidden' : ''}`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => window.location.href = "/"}
             >
-              <div className="p-1.5 rounded-xl bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center">
+              <div className="h-9 w-9 shrink-0 rounded-xl bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20 flex items-center justify-center overflow-hidden">
                 <img
                   src="/white-removebg-preview1.png"
                   alt="Fluenzy AI Logo"
-                  className="h-7 w-auto object-contain"
+                  className="h-7 w-auto max-w-full max-h-full object-contain"
                 />
               </div>
               <span className="text-xl font-black bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-400 !bg-clip-text text-transparent tracking-tight hidden sm:block">

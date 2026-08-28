@@ -5,6 +5,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
+/* ── Mobile overflow safety ── */
+/*
+  Prevents horizontal overflow on mobile screens (≤ 640px).
+  Applied globally so all pages benefit. Does NOT affect desktop layout.
+  The MobileLandingPage renders at ≤ 640px and must never create horizontal scroll.
+*/
+@media (max-width: 640px) {
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Ensure every direct child of body respects viewport width */
+  body > * {
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+
+  /* Scrollbar-none utility for intentional horizontal scroll carousels */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Ensure images never exceed their container width on mobile */
+  /* Note: we do NOT set height:auto globally — it would override intentional h-* height classes */
+  img {
+    max-width: 100%;
+  }
+
+  /* Navbar: constrain logo image to never overflow its container */
+  nav img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
 /* ── Portal-specific utilities ── */
 
 /* Monospace numeric treatment for scores, percentages, timestamps */
