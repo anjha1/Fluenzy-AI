@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import MobileTrainPage from '@/components/MobileTrainPage';
 import {
   BookOpen,
   MessageSquare,
@@ -217,6 +218,19 @@ const modules: Module[] = [
   },
 ];
 
+/* ── Mobile breakpoint detection (≤ 640 px) ── */
+function useMobileBreakpoint() {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
+
 export default function TrainPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -227,6 +241,7 @@ export default function TrainPage() {
 
   const currentTheme = themeConfig[resolvedTheme] || themeConfig.dark;
   const isLightMode = resolvedTheme === 'parchment' || resolvedTheme === 'light';
+  const isMobile = useMobileBreakpoint();
 
 
   // ===== CRITICAL FIX: Fetch usage data correctly =====
@@ -303,7 +318,7 @@ export default function TrainPage() {
     if (status === 'unauthenticated') {
       router.push('/');
     }
-  }, [status, router]);
+  }, [status, router, isMobile]);
 
   useEffect(() => {
     if (session?.user) {
@@ -416,6 +431,10 @@ export default function TrainPage() {
   const updatedModules = getUpdatedModules();
 
 
+
+  // Mobile layout: render dedicated mobile dashboard (≤ 640 px)
+  if (isMobile === null) return null;
+  if (isMobile) return <MobileTrainPage />;
 
   return (
     <>

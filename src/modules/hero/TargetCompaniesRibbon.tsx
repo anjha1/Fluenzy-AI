@@ -3,12 +3,16 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const companies = [
-  { name: "Google", logo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" },
-  { name: "Amazon", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" },
-  { name: "Microsoft", logo: "https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" },
-  { name: "Meta", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" },
-  { name: "Netflix", logo: "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" },
-  { name: "Apple", logo: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" },
+  { name: "Google", logo: "/companeyicon/Google-Logo.wine.svg" },
+  { name: "Amazon", logo: "/companeyicon/Amazon_(company)-Logo.wine.svg" },
+  { name: "Microsoft", logo: "/companeyicon/Microsoft-Logo.wine.svg" },
+  { name: "Meta", logo: "/companeyicon/Meta_Platforms-Logo.wine.svg" },
+  { name: "Flipkart", logo: "/companeyicon/Flipkart-Logo.wine.svg" },
+  { name: "TCS", logo: "/companeyicon/1280px-Tata_Consultancy_Services_old_logo.svg.webp" },
+  { name: "Apple", logo: "/companeyicon/Apple_Inc.-Logo.wine.svg" },
+  { name: "Capgemini", logo: "/companeyicon/Capgemini-Logo.wine.svg" },
+  { name: "Infosys", logo: "/companeyicon/Infosys_Consulting-Logo.wine.svg" },
+  { name: "Nvidia", logo: "/companeyicon/Nvidia-Logo.wine.svg" },
 ];
 
 const TargetCompaniesRibbon = () => {
