@@ -46,11 +46,10 @@ const COMPANIES: CompanyItem[] = [
   { label: 'Microsoft', iconUrl: '/companeyicon/Microsoft-Logo.wine.svg', href: '/train/company?track=microsoft' },
   { label: 'Amazon', iconUrl: '/companeyicon/Amazon_(company)-Logo.wine.svg', href: '/train/company?track=amazon' },
   { label: 'Flipkart', iconUrl: '/companeyicon/Flipkart-Logo.wine.svg', href: '/train/company?track=flipkart' },
-  { label: 'TCS', iconUrl: '/companeyicon/1280px-Tata_Consultancy_Services_old_logo.svg', href: '/train/company?track=tcs' },
-  { label: 'Meta', iconUrl: '/companeyicon/Meta_Platforms-Logo.wine.svg', href: '/train/company?track=meta' },
-  { label: 'Apple', iconUrl: '/companeyicon/Apple_Inc.-Logo.wine.svg', href: '/train/company?track=apple' },
-  { label: 'Infosys', iconUrl: '/companeyicon/Infosys_Consulting-Logo.wine.svg', href: '/train/company?track=infosys' },
-  { label: 'Nvidia', iconUrl: '/companeyicon/Nvidia-Logo.wine.svg', href: '/train/company?track=nvidia' },
+  { label: 'TCS', iconUrl: '/companeyicon/Tata_Consultancy_Services_Logo_2020.svg', href: '/train/company?track=tcs' },
+  { label: 'Deloitte', iconUrl: '/companeyicon/deloitte.svg', href: '/train/company?track=deloitte' },
+  { label: 'Goldman', iconUrl: '/companeyicon/goldmansachs-ar21.svg', href: '/train/company?track=goldmansachs' },
+  { label: 'Chase', iconUrl: '/companeyicon/icons8-chase-bank-480.svg', href: '/train/company?track=jpmorgan' },
   { label: 'More', logo: MoreDots, href: '/train/company' },
 ];
 
@@ -562,10 +561,10 @@ export default function MobileTrainPage() {
                     <img
                       src={c.iconUrl}
                       alt={c.label}
-                      className="w-full h-full object-contain p-1 scale-[1.25] transform transition-transform"
+                      className="w-full h-full object-contain p-1 scale-[1.45] transform transition-transform"
                     />
                   ) : c.logo ? (
-                    <div className="transform scale-[1.3] flex items-center justify-center">
+                    <div className="transform scale-[1.45] flex items-center justify-center">
                       <c.logo />
                     </div>
                   ) : null}

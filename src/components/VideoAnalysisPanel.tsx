@@ -744,9 +744,9 @@ const VideoAnalysisPanel: React.FC<VideoAnalysisPanelProps> = ({
       {/* Video Display */}
       <div className={`relative bg-slate-900 transition-all duration-300 ${
         isCameraOn 
-          ? 'aspect-video' 
+          ? isCompact ? 'h-32 w-full' : 'aspect-video' 
           : isCompact 
-            ? 'h-[100px]' 
+            ? 'h-[75px]' 
             : 'aspect-video'
       }`}>
         {isCameraOn ? (
@@ -771,24 +771,24 @@ const VideoAnalysisPanel: React.FC<VideoAnalysisPanelProps> = ({
             
             {/* Analysis indicator */}
             {isAnalyzing && (
-              <div className="absolute top-3 right-3 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                <span className="text-white text-xs">Analyzing...</span>
+              <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-full">
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-white text-[10px] font-semibold">Analyzing...</span>
               </div>
             )}
             
             {/* Face detection indicator */}
             {isAnalyzing && !metrics.face_detected && (
-              <div className="absolute top-3 left-3 flex items-center gap-2 bg-amber-500/80 px-3 py-1.5 rounded-full">
-                <AlertTriangle size={12} className="text-white" />
-                <span className="text-white text-xs">No face detected</span>
+              <div className="absolute top-2 left-2 flex items-center gap-1 bg-amber-500/80 px-2 py-1 rounded-full">
+                <AlertTriangle size={11} className="text-white" />
+                <span className="text-white text-[10px] font-medium">No face</span>
               </div>
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-slate-500 p-4">
-            <CameraOff size={32} className="mb-1 opacity-50" />
-            <p className="text-xs">Camera Feed Idle (Waiting for start)</p>
+          <div className="flex items-center justify-center h-full text-slate-500 gap-2 px-3">
+            <CameraOff size={18} className="opacity-60" />
+            <p className="text-[11px] font-medium">Camera Feed Idle (Waiting for start)</p>
           </div>
         )}
         
@@ -796,8 +796,41 @@ const VideoAnalysisPanel: React.FC<VideoAnalysisPanelProps> = ({
         <canvas ref={canvasRef} className="hidden" />
       </div>
 
-      {/* Metrics Display */}
-      {isCameraOn && (
+      {/* Metrics Display - Compact Mode */}
+      {isCameraOn && isCompact && (
+        <div className="p-1.5 bg-slate-900/60 border-t border-slate-700/40 grid grid-cols-4 gap-1.5 text-center">
+          <div className="bg-slate-950/60 rounded-md py-1 px-1.5 flex flex-col items-center">
+            <span className="text-[9px] text-slate-400 font-semibold tracking-tight">Conf.</span>
+            <span className={`text-xs font-black ${getScoreColor(metrics.confidence)}`}>
+              {metrics.confidence.toFixed(0)}%
+            </span>
+          </div>
+
+          <div className="bg-slate-950/60 rounded-md py-1 px-1.5 flex flex-col items-center">
+            <span className="text-[9px] text-slate-400 font-semibold tracking-tight">Eye</span>
+            <span className={`text-xs font-black ${getScoreColor(metrics.eye_contact)}`}>
+              {metrics.eye_contact.toFixed(0)}%
+            </span>
+          </div>
+
+          <div className="bg-slate-950/60 rounded-md py-1 px-1.5 flex flex-col items-center">
+            <span className="text-[9px] text-slate-400 font-semibold tracking-tight">Posture</span>
+            <span className={`text-xs font-black ${getScoreColor(metrics.posture)}`}>
+              {metrics.posture.toFixed(0)}%
+            </span>
+          </div>
+
+          <div className="bg-slate-950/60 rounded-md py-1 px-1.5 flex flex-col items-center">
+            <span className="text-[9px] text-slate-400 font-semibold tracking-tight">Smile</span>
+            <span className={`text-xs font-black ${getScoreColor(metrics.smile)}`}>
+              {metrics.smile.toFixed(0)}%
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Metrics Display - Full Mode */}
+      {isCameraOn && !isCompact && (
         <div className="p-4 grid grid-cols-2 gap-3">
           {/* Confidence */}
           <div className="bg-slate-900/50 rounded-lg p-3">
@@ -911,8 +944,8 @@ const VideoAnalysisPanel: React.FC<VideoAnalysisPanelProps> = ({
         </div>
       )}
 
-      {/* Alerts */}
-      {isCameraOn && isAnalyzing && metrics.alerts && metrics.alerts.length > 0 && (
+      {/* Alerts - Full Mode Only */}
+      {isCameraOn && !isCompact && isAnalyzing && metrics.alerts && metrics.alerts.length > 0 && (
         <div className="px-4 pb-4">
           <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
             <div className="flex items-center gap-2 text-amber-400 mb-2">

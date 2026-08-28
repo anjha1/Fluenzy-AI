@@ -6,9 +6,24 @@ import { useEffect, useState } from "react";
 import VoiceAgent from "../../../../../Learn_English/components/VoiceAgent";
 import VideoAnalysisPanel from "../../../../components/VideoAnalysisPanel";
 import InterviewSettingsPanel from "../../../../components/session/InterviewSettingsPanel";
+import MobileSessionPage from "@/components/MobileSessionPage";
 import { UserProfile, ModuleType } from "../../../../../Learn_English/types";
 import { useTheme, themeConfig } from "@/contexts/ThemeContext";
 import { INITIAL_USER } from "../../../../../Learn_English/constants";
+
+function useMobileBreakpoint() {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  return isMobile;
+}
 
 export const SessionPageClient = () => {
   const { data: session, status } = useSession();
@@ -16,6 +31,7 @@ export const SessionPageClient = () => {
   const params = useParams();
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
+  const isMobile = useMobileBreakpoint();
   
   const currentTheme = themeConfig[resolvedTheme] || themeConfig.dark;
   const type = params.type as string;
@@ -37,6 +53,10 @@ export const SessionPageClient = () => {
       router.push("/");
     }
   }, [status, router]);
+
+  if (isMobile) {
+    return <MobileSessionPage />;
+  }
 
   if (status === "loading") {
     return <div>Loading...</div>;

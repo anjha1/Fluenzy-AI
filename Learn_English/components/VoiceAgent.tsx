@@ -169,7 +169,7 @@ const VoiceAgent: React.FC<{
     ModuleType.COMPANY_SPECIFIC,
   ].includes(type as ModuleType);
   const { resolvedTheme } = useTheme();
-  const isLight = resolvedTheme === 'parchment';
+  const isLight = resolvedTheme === 'light' || resolvedTheme === 'parchment';
 
   // ── Safe URI decoder ──────────────────────────────────────────────────────────────
   // decodeURIComponent throws URIError when the URL has been truncated
@@ -922,6 +922,24 @@ const VoiceAgent: React.FC<{
     return () => window.removeEventListener('beforeunload', handler);
   }, [isSaving]);
 
+  // Listen for global end session and save request (e.g. when user clicks back button or tabs during active interview)
+  useEffect(() => {
+    const handleEndAndSave = async (e: Event) => {
+      const customEv = e as CustomEvent;
+      const targetUrl = customEv.detail?.targetUrl;
+      if (isActive && !isSaving) {
+        console.log('[SAFE_NAVIGATION] Ending session and saving data automatically for target:', targetUrl);
+        setIsSaving(true);
+        await cleanup(true);
+        if (targetUrl) {
+          router.push(targetUrl);
+        }
+      }
+    };
+    window.addEventListener('fluenzy_end_session_and_save', handleEndAndSave);
+    return () => window.removeEventListener('fluenzy_end_session_and_save', handleEndAndSave);
+  }, [isActive, isSaving, cleanup, router]);
+
   // Handle dynamic settings update in real-time during session
   useEffect(() => {
     const handleSettingsUpdate = (e: Event) => {
@@ -1010,7 +1028,14 @@ From now on, speak and act strictly according to these new settings!]`
             </button>
           )}
           <button
-            onClick={() => router.push('/train')}
+            onClick={async () => {
+              if (isActive && !isSaving) {
+                setIsSaving(true);
+                await cleanup(true);
+              } else {
+                router.push('/train');
+              }
+            }}
             className={`flex-shrink-0 p-2 rounded-xl transition-all ${
               isLight ? 'text-slate-400 hover:bg-slate-100 hover:text-slate-900' : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
             }`}
@@ -1117,31 +1142,29 @@ From now on, speak and act strictly according to these new settings!]`
         </div>
         ) : (
           <div className="w-full max-w-2xl mx-auto">
-            <div className={`rounded-2xl border p-4 md:p-8 text-center space-y-4 md:space-y-6 animate-in zoom-in-95 duration-500 ${
+            <div className={`rounded-xl border p-3 md:p-6 text-center space-y-2.5 md:space-y-5 animate-in zoom-in-95 duration-500 ${
               isLight
                 ? 'bg-white border-slate-200 shadow-md'
                 : 'bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-slate-700/50 shadow-2xl'
             }`}>
               {/* Mobile: row layout (image + info side by side); md+: column centered */}
-              <div className="flex flex-row md:flex-col items-center gap-4 md:gap-6 md:justify-center">
-                <div className="relative flex-shrink-0">
-                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${isAiSpeaking ? 'from-blue-500/20 to-purple-500/20' : 'from-emerald-500/20 to-teal-500/20'} blur-xl scale-110`} />
+              <div className="flex flex-row md:flex-col items-center gap-3 md:gap-5 md:justify-center">
+                <div className="relative flex-shrink-0 flex flex-col items-center">
+                  <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${isAiSpeaking ? 'from-blue-500/20 to-purple-500/20' : 'from-emerald-500/20 to-teal-500/20'} blur-md scale-105`} />
                   <img
                     src="/image/img.png"
                     alt="AI Coach"
-                    className={`relative rounded-2xl border-2 shadow-lg object-cover ${
-                      isLight ? 'border-slate-200' : 'border-slate-600/50'
-                    } w-14 h-14 md:w-24 md:h-24`}
+                    className={`relative rounded-xl border border-slate-300/50 shadow-md object-cover w-11 h-11 md:w-20 md:h-20`}
                   />
-                  <p className={`text-xs font-semibold mt-2 tracking-wide text-center ${isLight ? 'text-slate-500' : 'text-slate-300'}`}>
+                  <p className={`text-[10px] md:text-xs font-semibold mt-1 tracking-wide text-center ${isLight ? 'text-slate-500' : 'text-slate-300'}`}>
                     {isEnglishLearning ? 'AI Coach' : isConversationPractice ? 'AI Friend' : (sessionMeta?.isCompanyWise ? 'Company Coach' : 'HR Coach')}
                   </p>
                 </div>
-                <div className="flex-1 md:w-full space-y-2 md:space-y-4 text-left md:text-center">
-                  <h4 className={`text-xs font-black uppercase tracking-[0.2em] ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>
+                <div className="flex-1 md:w-full space-y-1.5 md:space-y-3 text-left md:text-center">
+                  <h4 className={`text-[10px] md:text-xs font-black uppercase tracking-[0.15em] ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>
                     {isEnglishLearning ? 'English Practice' : isConversationPractice ? 'Daily Conversation' : 'Interview Practice'}
                   </h4>
-                  <p className={`text-sm md:text-xl font-bold leading-snug ${isLight ? 'text-slate-800' : 'text-white'}`}>
+                  <p className={`text-xs md:text-lg font-bold leading-snug ${isLight ? 'text-slate-800' : 'text-white'}`}>
                     {isAiSpeaking
                       ? (isEnglishLearning
                           ? 'Your coach is speaking. Listen carefully.'
@@ -1157,12 +1180,12 @@ From now on, speak and act strictly according to these new settings!]`
                         )
                     }
                   </p>
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs md:text-sm font-semibold ${
+                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] md:text-xs font-semibold ${
                     isAiSpeaking
                       ? (isLight ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-blue-500/10 border-blue-500/30 text-blue-300')
                       : (isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-600 animate-pulse' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 animate-pulse')
                   }`}>
-                    <Mic2 size={16} />
+                    <Mic2 size={13} />
                     <span>{isAiSpeaking ? 'Coach Speaking' : (isEnglishLearning ? 'Your Turn' : 'Your Response')}</span>
                   </div>
                 </div>
@@ -1173,12 +1196,12 @@ From now on, speak and act strictly according to these new settings!]`
       </div>
 
       {isActive && (
-        <div className="mt-4 md:mt-8 flex justify-center">
+        <div className="mt-2.5 md:mt-6 flex justify-center pb-1">
           <button
             onClick={async () => { setIsSaving(true); await cleanup(true); }}
-            className="w-full md:w-auto bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white px-8 py-4 rounded-full font-black uppercase tracking-[0.1em] shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm flex items-center justify-center gap-3"
+            className="w-full md:w-auto bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white px-6 py-2.5 md:py-3.5 rounded-full font-black uppercase tracking-[0.1em] shadow-lg hover:scale-105 active:scale-95 transition-all text-xs md:text-sm flex items-center justify-center gap-2"
           >
-            {isEnglishLearning ? 'End Practice' : isConversationPractice ? 'End Conversation' : 'End Interview'} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            {isEnglishLearning ? 'End Practice' : isConversationPractice ? 'End Conversation' : 'End Interview'} <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       )}

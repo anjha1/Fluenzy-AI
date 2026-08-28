@@ -1529,16 +1529,16 @@ html.parchment [class*="text-gray-400"],
 }
 
 /* All Cards, Panels, and Containers in Parchment Theme -> Pure Translucent White (#FCFBF8) */
-html.parchment section div[class*="rounded"],
-html.parchment main div[class*="rounded"],
-html.parchment div[class*="card"],
-html.parchment div[class*="glass"],
-html.parchment div[class*="bg-white/"],
+html.parchment section div[class*="rounded"]:not(.plus-badge-solid),
+html.parchment main div[class*="rounded"]:not(.plus-badge-solid),
+html.parchment div[class*="card"]:not(.plus-badge-solid),
+html.parchment div[class*="glass"]:not(.plus-badge-solid),
+html.parchment div[class*="bg-white/"]:not(.plus-badge-solid),
 html.parchment form,
-[data-theme="parchment"] section div[class*="rounded"],
-[data-theme="parchment"] main div[class*="rounded"],
-[data-theme="parchment"] div[class*="card"],
-[data-theme="parchment"] div[class*="glass"],
+[data-theme="parchment"] section div[class*="rounded"]:not(.plus-badge-solid),
+[data-theme="parchment"] main div[class*="rounded"]:not(.plus-badge-solid),
+[data-theme="parchment"] div[class*="card"]:not(.plus-badge-solid),
+[data-theme="parchment"] div[class*="glass"]:not(.plus-badge-solid),
 [data-theme="parchment"] form {
   background-color: #FCFBF8 !important;
   background-image: none !important;
@@ -1582,16 +1582,55 @@ html.parchment section div[class*="rounded"] div[class*="rounded-full"] svg,
 }
 
 /* Input Fields in Parchment */
-html.parchment input,
+html.parchment input:not(.search-input-clean),
 html.parchment select,
 html.parchment textarea,
-[data-theme="parchment"] input,
+[data-theme="parchment"] input:not(.search-input-clean),
 [data-theme="parchment"] select,
 [data-theme="parchment"] textarea {
   background-color: #FCFBF8 !important;
   background-image: none !important;
   border-color: #E6E2D8 !important;
   color: #1C1917 !important;
+}
+
+/* Force clean transparent search input */
+input.search-input-clean,
+[data-theme] input.search-input-clean {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+
+/* Solid Plus Badge Override for Add Custom Company — Ultra High Specificity */
+html.parchment .plus-badge-solid,
+html.parchment section div .plus-badge-solid,
+html.parchment section div[class*="rounded"] div.plus-badge-solid,
+[data-theme="parchment"] .plus-badge-solid,
+[data-theme="parchment"] section div .plus-badge-solid,
+[data-theme="parchment"] section div[class*="rounded"] div.plus-badge-solid,
+[data-theme] .plus-badge-solid,
+.plus-badge-solid {
+  background-color: #5B21E6 !important;
+  background: #5B21E6 !important;
+}
+
+html.parchment .plus-badge-solid svg,
+html.parchment section div .plus-badge-solid svg,
+html.parchment section div[class*="rounded"] div.plus-badge-solid svg,
+[data-theme="parchment"] .plus-badge-solid svg,
+[data-theme="parchment"] section div .plus-badge-solid svg,
+[data-theme="parchment"] section div[class*="rounded"] div.plus-badge-solid svg,
+[data-theme] .plus-badge-solid svg,
+.plus-badge-solid svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+  fill: none !important;
+  opacity: 1 !important;
 }
 
 /* Popular Pricing Card Highlight */
