@@ -46,10 +46,9 @@ const COMPANIES: CompanyItem[] = [
   { label: 'Microsoft', iconUrl: '/companeyicon/Microsoft-Logo.wine.svg', href: '/train/company?track=microsoft' },
   { label: 'Amazon', iconUrl: '/companeyicon/Amazon_(company)-Logo.wine.svg', href: '/train/company?track=amazon' },
   { label: 'Flipkart', iconUrl: '/companeyicon/Flipkart-Logo.wine.svg', href: '/train/company?track=flipkart' },
-  { label: 'TCS', iconUrl: '/companeyicon/1280px-Tata_Consultancy_Services_old_logo.svg.webp', href: '/train/company?track=tcs' },
+  { label: 'TCS', iconUrl: '/companeyicon/1280px-Tata_Consultancy_Services_old_logo.svg', href: '/train/company?track=tcs' },
   { label: 'Meta', iconUrl: '/companeyicon/Meta_Platforms-Logo.wine.svg', href: '/train/company?track=meta' },
   { label: 'Apple', iconUrl: '/companeyicon/Apple_Inc.-Logo.wine.svg', href: '/train/company?track=apple' },
-  { label: 'Capgemini', iconUrl: '/companeyicon/Capgemini-Logo.wine.svg', href: '/train/company?track=capgemini' },
   { label: 'Infosys', iconUrl: '/companeyicon/Infosys_Consulting-Logo.wine.svg', href: '/train/company?track=infosys' },
   { label: 'Nvidia', iconUrl: '/companeyicon/Nvidia-Logo.wine.svg', href: '/train/company?track=nvidia' },
   { label: 'More', logo: MoreDots, href: '/train/company' },
@@ -57,7 +56,7 @@ const COMPANIES: CompanyItem[] = [
 
 /* ─── 3D Solid Vector Icon Components ── */
 const CompanyInterviewIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <rect x="14" y="8" width="20" height="34" rx="4" fill="#2563EB" />
     <rect x="6" y="20" width="10" height="22" rx="3" fill="#1D4ED8" />
     <rect x="32" y="16" width="10" height="26" rx="3" fill="#3B82F6" />
@@ -71,7 +70,7 @@ const CompanyInterviewIcon = () => (
 );
 
 const AIJobSearchIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <circle cx="21" cy="21" r="14" fill="#10B981" />
     <circle cx="21" cy="17" r="4.5" fill="#FFFFFF" />
     <path d="M13.5 27.5C13.5 24.5 16.8 23 21 23C25.2 23 28.5 24.5 28.5 27.5V28.5H13.5V27.5Z" fill="#FFFFFF" />
@@ -80,7 +79,7 @@ const AIJobSearchIcon = () => (
 );
 
 const ResumeATSIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <path d="M10 8C10 5.79086 11.7909 4 14 4H26L36 14V38C36 40.2091 34.2091 42 32 42H14C11.7909 42 10 40.2091 10 38V8Z" fill="#9333EA" />
     <path d="M26 4V14H36L26 4Z" fill="#C084FC" />
     <rect x="16" y="16" width="12" height="3" rx="1.5" fill="#F3E8FF" />
@@ -91,7 +90,7 @@ const ResumeATSIcon = () => (
 );
 
 const GDAgentIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <circle cx="24" cy="14" r="7" fill="#EA580C" />
     <path d="M12 36C12 30 17 27 24 27C31 27 36 30 36 36V38H12V36Z" fill="#EA580C" />
     <circle cx="12" cy="18" r="5" fill="#F97316" />
@@ -102,7 +101,7 @@ const GDAgentIcon = () => (
 );
 
 const AssessmentIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <circle cx="22" cy="26" r="16" stroke="#0D9488" strokeWidth="5" />
     <circle cx="22" cy="26" r="10" fill="#0D9488" />
     <circle cx="22" cy="26" r="4" fill="#FFFFFF" />
@@ -112,7 +111,7 @@ const AssessmentIcon = () => (
 );
 
 const InterviewGuideIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <path d="M6 10C6 10 12 8 22 13V38C12 33 6 35 6 35V10Z" fill="#DB2777" />
     <path d="M42 10C42 10 36 8 26 13V38C36 33 42 35 42 35V10Z" fill="#E11D48" />
     <rect x="22" y="14" width="4" height="24" rx="2" fill="#BE123C" />
@@ -124,7 +123,7 @@ const InterviewGuideIcon = () => (
 );
 
 const HistoryIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <path d="M24 8C15.1634 8 8 15.1634 8 24C8 32.8366 15.1634 40 24 40C32.8366 40 40 32.8366 40 24C40 18.5 37.2 13.7 33 10.8" stroke="#2563EB" strokeWidth="5.5" strokeLinecap="round" />
     <path d="M33 4V12H41" stroke="#2563EB" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
     <path d="M24 14V24L31 31" stroke="#1D4ED8" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
@@ -132,7 +131,7 @@ const HistoryIcon = () => (
 );
 
 const AIAssistantIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <rect x="8" y="16" width="32" height="24" rx="8" fill="#7C3AED" />
     <circle cx="18" cy="26" r="3.5" fill="#FFFFFF" />
     <circle cx="30" cy="26" r="3.5" fill="#FFFFFF" />
@@ -144,7 +143,7 @@ const AIAssistantIcon = () => (
 );
 
 const AICoachIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <path d="M24 6L4 17L24 28L44 17L24 6Z" fill="#16A34A" />
     <path d="M10 23.5V34C10 34 16 38 24 38C32 38 38 34 38 34V23.5L24 31L10 23.5Z" fill="#15803D" />
     <path d="M40 19V32M40 32C40 33.5 38.5 35 37 35C35.5 35 34 33.5 34 32V19" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" />
@@ -152,7 +151,7 @@ const AICoachIcon = () => (
 );
 
 const LiveIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <circle cx="24" cy="24" r="5" fill="#DC2626" />
     <path d="M16 16C11.5 20.5 11.5 27.5 16 32" stroke="#DC2626" strokeWidth="4.5" strokeLinecap="round" />
     <path d="M32 16C36.5 20.5 36.5 27.5 32 32" stroke="#DC2626" strokeWidth="4.5" strokeLinecap="round" />
@@ -162,7 +161,7 @@ const LiveIcon = () => (
 );
 
 const CompetitionsIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <path d="M14 8H34V22C34 27.5228 29.5228 32 24 32C18.4772 32 14 27.5228 14 22V8Z" fill="#F59E0B" />
     <path d="M14 12H8C6.34315 12 5 13.3431 5 15V18C5 21.3137 7.68629 24 11 24H14V12Z" fill="#D97706" />
     <path d="M34 12H40C41.6569 12 43 13.3431 43 15V18C43 21.3137 40.3137 24 37 24H34V12Z" fill="#D97706" />
@@ -173,7 +172,7 @@ const CompetitionsIcon = () => (
 );
 
 const HRInterviewIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+  <svg width="46" height="46" viewBox="0 0 48 48" fill="none">
     <circle cx="24" cy="14" r="8" fill="#0284C7" />
     <path d="M10 40V34C10 29.5 15 26 24 26C33 26 38 29.5 38 34V40H10Z" fill="#0284C7" />
     <path d="M24 26L20 35H28L24 26Z" fill="#FFFFFF" />
@@ -183,7 +182,7 @@ const HRInterviewIcon = () => (
 
 /* ─── 12 Feature Tile Background Fill Colors (Editable Pastel Palette) ───── */
 export const FEATURE_TILE_COLORS: Record<string, string> = {
-  'Company\nInterview': '#70A9F0', // Soft Blue (matches Blue Building Icon)
+  'Company\nInterview': '#9cc4f5ff', // Soft Blue (matches Blue Building Icon)
   'AI Job\nSearch': '#38DF73', // Soft Green (matches Green Search Icon)
   'Resume\nATS': '#BD81FD', // Soft Purple (matches Purple Shield Icon)
   'GD Agent': '#B7844B', // Soft Peach/Orange (matches Orange Group Icon)
@@ -197,24 +196,24 @@ export const FEATURE_TILE_COLORS: Record<string, string> = {
   'HR Interview': '#BAE6FD', // Soft Ice Blue (matches Blue Avatar Icon)
 };
 
-/* ─── Feature grid (Vivid Pastel Tile Fill Colors) ─────────────────────────── */
+/* ─── Feature grid (Category-Matched Glass Tiles for Light & Dark Modes) ─── */
 const FEATURES = [
-  { label: 'Company\nInterview', icon: CompanyInterviewIcon, darkBg: 'linear-gradient(135deg,#4B6FDB,#3B5BDB)', lightBg: '#93C5FD', href: '/train/company' },
-  { label: 'AI Job\nSearch', icon: AIJobSearchIcon, darkBg: 'linear-gradient(135deg,#22C55E,#16A34A)', lightBg: '#86EFAC', href: '/train/job-search' },
-  { label: 'Resume\nATS', icon: ResumeATSIcon, darkBg: 'linear-gradient(135deg,#10B981,#0D9488)', lightBg: '#C084FC', href: '/ats' },
-  { label: 'GD Agent', icon: GDAgentIcon, darkBg: 'linear-gradient(135deg,#EC4899,#DB2777)', lightBg: '#FDBA74', href: '/train/gd-agent' },
-  { label: 'Assessment', icon: AssessmentIcon, darkBg: 'linear-gradient(135deg,#F97316,#EA580C)', lightBg: '#5EEAD4', href: '/train/assessments' },
-  { label: 'Interview\nGuide', icon: InterviewGuideIcon, darkBg: 'linear-gradient(135deg,#3B82F6,#2563EB)', lightBg: '#F9A8D4', href: '/interview-guide' },
-  { label: 'History', icon: HistoryIcon, darkBg: 'linear-gradient(135deg,#8B5CF6,#7C3AED)', lightBg: '#A5B4FC', href: '/history' },
-  { label: 'AI\nAssistant', icon: AIAssistantIcon, darkBg: 'linear-gradient(135deg,#A78BFA,#8B5CF6)', lightBg: '#A78BFA', href: '/train/chat' },
-  { label: 'AI Coach', icon: AICoachIcon, darkBg: 'linear-gradient(135deg,#22C55E,#16A34A)', lightBg: '#4ADE80', href: '/train/gd-coach' },
-  { label: 'Live', icon: LiveIcon, darkBg: 'linear-gradient(135deg,#EF4444,#DC2626)', lightBg: '#FCA5A5', href: '/train/live', badge: 'LIVE' },
-  { label: 'Competitions', icon: CompetitionsIcon, darkBg: 'linear-gradient(135deg,#F59E0B,#D97706)', lightBg: '#FCD34D', href: '/train/competitions' },
-  { label: 'HR Interview', icon: HRInterviewIcon, darkBg: 'linear-gradient(135deg,#EF4444,#E11D48)', lightBg: '#7DD3FC', href: '/train/hr' },
+  { label: 'Company\nInterview', icon: CompanyInterviewIcon, darkTileBg: 'rgba(37, 99, 235, 0.16)',  darkBorder: 'rgba(59, 130, 246, 0.35)', darkGlow: '0 4px 20px rgba(37, 99, 235, 0.22)',  lightBg: '#EBF3FF', href: '/train/company' },
+  { label: 'AI Job\nSearch',     icon: AIJobSearchIcon,       darkTileBg: 'rgba(16, 185, 129, 0.16)', darkBorder: 'rgba(16, 185, 129, 0.35)', darkGlow: '0 4px 20px rgba(16, 185, 129, 0.22)', lightBg: '#EAF8EF', href: '/train/job-search' },
+  { label: 'Resume\nATS',        icon: ResumeATSIcon,          darkTileBg: 'rgba(147, 51, 234, 0.16)', darkBorder: 'rgba(168, 85, 247, 0.35)', darkGlow: '0 4px 20px rgba(147, 51, 234, 0.22)', lightBg: '#F4EBFF', href: '/ats' },
+  { label: 'GD Agent',           icon: GDAgentIcon,            darkTileBg: 'rgba(234, 88, 12, 0.16)',  darkBorder: 'rgba(249, 115, 22, 0.35)',  darkGlow: '0 4px 20px rgba(234, 88, 12, 0.22)',  lightBg: '#FFF3EB', href: '/train/gd-agent' },
+  { label: 'Assessment',         icon: AssessmentIcon,        darkTileBg: 'rgba(13, 148, 136, 0.16)', darkBorder: 'rgba(20, 184, 166, 0.35)', darkGlow: '0 4px 20px rgba(13, 148, 136, 0.22)', lightBg: '#E8FAFA', href: '/train/assessments' },
+  { label: 'Interview\nGuide',   icon: InterviewGuideIcon,    darkTileBg: 'rgba(219, 39, 119, 0.16)', darkBorder: 'rgba(236, 72, 153, 0.35)', darkGlow: '0 4px 20px rgba(219, 39, 119, 0.22)', lightBg: '#FCE8F3', href: '/interview-guide' },
+  { label: 'History',            icon: HistoryIcon,           darkTileBg: 'rgba(37, 99, 235, 0.16)',  darkBorder: 'rgba(59, 130, 246, 0.35)', darkGlow: '0 4px 20px rgba(37, 99, 235, 0.22)',  lightBg: '#EFF5FF', href: '/history' },
+  { label: 'AI\nAssistant',      icon: AIAssistantIcon,       darkTileBg: 'rgba(124, 58, 237, 0.16)', darkBorder: 'rgba(139, 92, 246, 0.35)', darkGlow: '0 4px 20px rgba(124, 58, 237, 0.22)', lightBg: '#F5EAFF', href: '/train/chat' },
+  { label: 'AI Coach',           icon: AICoachIcon,           darkTileBg: 'rgba(22, 163, 74, 0.16)',  darkBorder: 'rgba(34, 197, 94, 0.35)',  darkGlow: '0 4px 20px rgba(22, 163, 74, 0.22)',  lightBg: '#EAF8EF', href: '/train/gd-coach' },
+  { label: 'Live',               icon: LiveIcon,              darkTileBg: 'rgba(220, 38, 38, 0.16)',  darkBorder: 'rgba(239, 68, 68, 0.35)',  darkGlow: '0 4px 20px rgba(220, 38, 38, 0.22)',  lightBg: '#FFEEEE', href: '/train/live', badge: 'LIVE' },
+  { label: 'Competitions',       icon: CompetitionsIcon,      darkTileBg: 'rgba(245, 158, 11, 0.16)', darkBorder: 'rgba(251, 191, 36, 0.35)', darkGlow: '0 4px 20px rgba(245, 158, 11, 0.22)', lightBg: '#FFF8E7', href: '/train/competitions' },
+  { label: 'HR Interview',       icon: HRInterviewIcon,       darkTileBg: 'rgba(2, 132, 199, 0.16)',  darkBorder: 'rgba(56, 189, 248, 0.35)', darkGlow: '0 4px 20px rgba(2, 132, 199, 0.22)',  lightBg: '#EEF6FF', href: '/train/hr' },
 ] satisfies {
   label: string;
   icon: React.ComponentType;
-  darkBg: string; lightBg: string; href: string; badge?: string;
+  darkTileBg: string; darkBorder: string; darkGlow: string; lightBg: string; href: string; badge?: string;
 }[];
 
 /* ─── Bottom tabs — each has its own icon color ──────────────────────────── */
@@ -303,7 +302,7 @@ export default function MobileTrainPage() {
     codeterm: '#CC4125',
   };
   const CARD_BG: Record<string, string> = {
-    light: '#FFFFFF',
+    light: '#F8FAFC',
     parchment: '#FFFFFF',           // pure white per spec
     dark: '#161B2E',
     midnight: 'rgba(15,39,68,0.9)',
@@ -311,16 +310,16 @@ export default function MobileTrainPage() {
     codeterm: '#141414',
   };
   const PAGE_BG: Record<string, string> = {
-    light: '#F0F2FF',
-    parchment: '#F8F9FA',           // off-white per spec
+    light: '#FFFFFF',                 // pure white background for Light Theme per user request
+    parchment: 'hsl(42 18% 93%)',     // continuous sandal cream background for Parchment Theme
     dark: '#0D0F1A',
     midnight: '#0a1929',
     forest: '#0b140e',
     codeterm: '#0D0D0D',
   };
   const TILE_BG: Record<string, string> = {
-    light: '#E8EAFF',
-    parchment: '#F2F3F5',           // neutral light gray per spec
+    light: '#F1F5F9',
+    parchment: '#FFFFFF',           // pure white company tiles per spec
     dark: '#1a2340',
     midnight: '#0a1e38',
     forest: '#1a2b1d',
@@ -405,20 +404,23 @@ export default function MobileTrainPage() {
         className="flex items-center justify-between px-4 shrink-0"
         style={{
           height: '56px',
-          background: cardBgHex,
-          borderBottom: `1px solid ${borderHex}`,
-          boxShadow: isLight ? '0 1px 6px rgba(0,0,0,0.06)' : '0 1px 6px rgba(0,0,0,0.12)',
+          background: isLight ? pageBgHex : cardBgHex,
+          borderBottom: isLight ? 'none' : `1px solid ${borderHex}`,
+          boxShadow: isLight ? 'none' : '0 1px 6px rgba(0,0,0,0.12)',
         }}
       >
         {/* Left: hamburger + logo + brand */}
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-1.5 rounded-lg active:opacity-60"
-            style={{ color: isLight ? '#212529' : mutedHex }}
+            className="p-2 rounded-xl active:opacity-60 flex items-center justify-center"
+            style={{
+              color: isLight ? '#0F172A' : '#F8FAFC',
+              background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
+            }}
             aria-label="Open menu"
           >
-            <Menu size={22} />
+            <Menu size={22} style={{ color: isLight ? '#0F172A' : '#F8FAFC', stroke: isLight ? '#0F172A' : '#F8FAFC' }} />
           </button>
           <LogoContainer />
           <span
@@ -434,10 +436,10 @@ export default function MobileTrainPage() {
           <div className="relative">
             <button
               onClick={() => setThemeMenuOpen(!themeMenuOpen)}
-              className="p-2 rounded-xl active:opacity-60"
+              className="p-2 rounded-xl active:opacity-60 flex items-center justify-center"
               style={{
-                color: mutedHex,
-                background: isLight ? '#F2F3F5' : 'rgba(255,255,255,0.07)',
+                color: isLight ? '#0F172A' : '#F8FAFC',
+                background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
               }}
               aria-label="Change theme"
             >
@@ -446,13 +448,13 @@ export default function MobileTrainPage() {
             <AnimatePresence>
               {themeMenuOpen && (
                 <>
-                  <div className="fixed inset-0 z-[100]" onClick={() => setThemeMenuOpen(false)} />
+                  <div className="fixed inset-0 z-[300]" onClick={() => setThemeMenuOpen(false)} />
                   <motion.div
                     initial={{ opacity: 0, y: 8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-1 rounded-xl overflow-hidden shadow-2xl z-[101]"
+                    className="absolute right-0 top-full mt-1 rounded-xl overflow-hidden shadow-2xl z-[310]"
                     style={{ width: '160px', background: cardBgHex, border: `1px solid ${borderHex}` }}
                   >
                     {THEME_OPTIONS.map((opt) => {
@@ -478,11 +480,14 @@ export default function MobileTrainPage() {
           {/* Bell */}
           <Link
             href="/notifications"
-            className="relative p-2 rounded-xl active:opacity-60"
-            style={{ background: isLight ? '#F2F3F5' : 'rgba(255,255,255,0.07)' }}
+            className="relative p-2 rounded-xl active:opacity-60 flex items-center justify-center"
+            style={{
+              color: isLight ? '#0F172A' : '#F8FAFC',
+              background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
+            }}
             aria-label="Notifications"
           >
-            <Bell size={20} style={{ color: isLight ? '#495057' : mutedHex }} />
+            <Bell size={20} style={{ color: isLight ? '#0F172A' : '#F8FAFC', stroke: isLight ? '#0F172A' : '#F8FAFC' }} />
             <span
               className="absolute -top-0.5 -right-0.5 w-5 h-5 text-white text-[9px] font-black rounded-full flex items-center justify-center"
               style={{ background: '#7C3AED' }}
@@ -629,20 +634,19 @@ export default function MobileTrainPage() {
             {FEATURES.map((f, i) => (
               <motion.div
                 key={f.label}
-                initial={{ opacity: 0, scale: 0.82 }}
+                initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.04, type: 'spring', stiffness: 300, damping: 22 }}
+                transition={{ delay: i * 0.03, type: 'spring', stiffness: 300, damping: 22 }}
               >
-                <Link href={f.href} className="flex flex-col items-center gap-2 active:opacity-70">
+                <Link href={f.href} className="flex flex-col items-center gap-2 active:opacity-75">
                   <div className="relative">
                     <div
-                      className="w-[56px] h-[56px] rounded-[18px] flex items-center justify-center border-0 outline-none"
+                      className="w-[72px] h-[72px] rounded-[22px] flex items-center justify-center border-0 outline-none shadow-sm"
                       style={{
-                        backgroundColor: f.lightBg,
-                        background: f.lightBg,
-                        border: 'none',
-                        outline: 'none',
-                        boxShadow: 'none',
+                        backgroundColor: isLight ? f.lightBg : 'rgba(255, 255, 255, 0.05)',
+                        background: isLight ? f.lightBg : 'rgba(255, 255, 255, 0.05)',
+                        border: isLight ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: isLight ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.2)',
                       }}
                     >
                       <f.icon />
@@ -657,7 +661,7 @@ export default function MobileTrainPage() {
                     )}
                   </div>
                   <span
-                    className="font-semibold text-center leading-tight whitespace-pre-line"
+                    className="font-bold text-center leading-tight whitespace-pre-line"
                     style={{ fontSize: '11px', color: isLight ? '#495057' : mutedHex }}
                   >
                     {f.label}
@@ -758,13 +762,14 @@ export default function MobileTrainPage() {
         className="fixed right-5 z-[210] sm:hidden w-14 h-14 rounded-full flex flex-col items-center justify-center gap-0.5 active:scale-95"
         style={{
           bottom: '80px',
-          background: '#6C2BD9',
-          boxShadow: '0 8px 24px rgba(108,43,217,0.5)',
+          background: isLight ? '#F5EAFF' : '#6C2BD9',
+          border: isLight ? '1.5px solid #C4B5FD' : 'none',
+          boxShadow: isLight ? '0 6px 20px rgba(124, 58, 237, 0.18)' : '0 8px 24px rgba(108,43,217,0.5)',
         }}
         aria-label="Ask AI"
       >
-        <Sparkles size={18} className="text-white" />
-        <span className="text-white font-black tracking-wide" style={{ fontSize: '8px' }}>Ask AI</span>
+        <Sparkles size={18} style={{ color: isLight ? '#7C3AED' : '#FFFFFF' }} />
+        <span className="font-black tracking-wide" style={{ fontSize: '8px', color: isLight ? '#7C3AED' : '#FFFFFF' }}>Ask AI</span>
       </motion.button>
 
       {/* ── BOTTOM TAB BAR ─────────────────────────────────────────────── */}
@@ -860,14 +865,14 @@ export default function MobileTrainPage() {
               key="backdrop"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/55 z-[80]"
+              className="fixed inset-0 bg-black/55 z-[300]"
               onClick={() => setSidebarOpen(false)}
             />
             <motion.div
               key="drawer"
               initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="fixed top-0 left-0 bottom-0 z-[90] flex flex-col shadow-2xl"
+              className="fixed top-0 left-0 bottom-0 z-[310] flex flex-col shadow-2xl"
               style={{ width: '280px', background: cardBgHex, borderRight: `1px solid ${borderHex}` }}
             >
               <div className="flex items-center justify-between px-4 shrink-0" style={{ height: '56px', borderBottom: `1px solid ${borderHex}` }}>
