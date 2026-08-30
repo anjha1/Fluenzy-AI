@@ -298,63 +298,94 @@ export default function MobileSessionPage() {
         <span className="text-white font-black tracking-wide" style={{ fontSize: '8px' }}>Ask AI</span>
       </motion.button>
 
-      {/* ── FLOATING BOTTOM TAB BAR ────────────────────────────────────────── */}
+      {/* ── BOTTOM TAB BAR (Downward Concave Scoop Curve around Home Tab) ──── */}
       <nav
-        className="fixed z-[210] sm:hidden flex items-center justify-around px-2"
+        className="fixed bottom-0 left-0 right-0 z-[210] sm:hidden flex items-end justify-around"
         style={{
-          bottom: isLight ? '12px' : '0px',
-          left: isLight ? '12px' : '0px',
-          right: isLight ? '12px' : '0px',
           height: '64px',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-          background: isLight ? '#FFFFFF' : cardBgHex,
-          borderRadius: isLight ? '24px' : '0px',
-          borderTop: isLight ? '1px solid #E2E8F0' : `1px solid ${borderHex}`,
-          boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07)' : '0 -4px 24px rgba(0,0,0,0.12)',
+          paddingBottom: 'env(safe-area-inset-bottom, 4px)',
         }}
       >
-        {TABS.map((tab) => {
-          const isHome = tab.label === 'Home';
-          const activeColor = isLight ? '#7C3AED' : '#7C3AED';
-          const inactiveIconColor = isLight ? '#475569' : mutedHex;
-          const inactiveTextColor = isLight ? '#334155' : mutedHex;
+        {/* Background Downward Curvy SVG shape */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+          <svg
+            viewBox="0 0 375 64"
+            preserveAspectRatio="none"
+            className="w-full h-full"
+            style={{
+              filter: isLight
+                ? 'drop-shadow(0px -4px 12px rgba(0,0,0,0.08))'
+                : 'drop-shadow(0px -4px 16px rgba(0,0,0,0.3))',
+            }}
+          >
+            <path
+              d="M 0,0 L 132,0 C 152,0 160,24 187.5,24 C 215,24 223,0 243,0 L 375,0 L 375,64 L 0,64 Z"
+              fill={isLight ? '#FFFFFF' : cardBgHex}
+              stroke={isLight ? '#E2E8F0' : borderHex}
+              strokeWidth="1"
+            />
+          </svg>
+        </div>
 
-          const iconColor = isHome ? activeColor : inactiveIconColor;
-          const textColor = isHome ? activeColor : inactiveTextColor;
+        {/* Tab Items */}
+        <div className="relative z-10 flex items-center justify-around w-full h-full pt-1 px-1">
+          {TABS.map((tab) => {
+            const isHome = tab.label === 'Home';
+            const activeColor = isLight ? '#7C3AED' : accentHex;
+            const inactiveIconColor = isLight ? '#475569' : mutedHex;
+            const inactiveTextColor = isLight ? '#334155' : mutedHex;
 
-          return (
-            <button
-              key={tab.label}
-              type="button"
-              onClick={() => triggerSafeNavigate(tab.href)}
-              className="flex flex-col items-center justify-center gap-1 flex-1 min-w-[52px] h-full active:opacity-70"
-              aria-label={tab.label}
-            >
-              {isHome ? (
-                <div
-                  className="w-11 h-8 rounded-2xl flex items-center justify-center shadow-sm"
+            const iconColor = isHome ? activeColor : inactiveIconColor;
+            const textColor = isHome ? activeColor : inactiveTextColor;
+
+            return (
+              <button
+                key={tab.label}
+                type="button"
+                onClick={() => triggerSafeNavigate(tab.href)}
+                className={`flex flex-col items-center justify-center gap-0.5 min-w-[54px] flex-1 active:opacity-75 ${
+                  isHome ? '-mt-5' : 'pb-1'
+                }`}
+                aria-label={tab.label}
+              >
+                {isHome ? (
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0 force-purple-bg force-white"
+                    style={{
+                      backgroundColor: '#7C3AED',
+                      background: '#7C3AED',
+                      boxShadow: '0 6px 16px rgba(124, 58, 237, 0.45)',
+                    }}
+                  >
+                    <Home
+                      size={22}
+                      className="force-white"
+                      strokeWidth={2.2}
+                      style={{
+                        color: '#FFFFFF',
+                        stroke: '#FFFFFF',
+                        fill: 'none',
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <tab.icon size={22} style={{ color: iconColor, stroke: iconColor }} />
+                )}
+                <span
+                  className="font-extrabold"
                   style={{
-                    background: isLight ? '#EDE9FE' : 'linear-gradient(90deg,#7C3AED,#4F46E5)',
+                    fontSize: '10px',
+                    color: textColor,
+                    WebkitTextFillColor: textColor,
+                    marginTop: isHome ? '1px' : '0px',
                   }}
                 >
-                  <tab.icon size={18} style={{ color: isLight ? '#7C3AED' : '#FFFFFF', stroke: isLight ? '#7C3AED' : '#FFFFFF' }} />
-                </div>
-              ) : (
-                <tab.icon size={22} style={{ color: iconColor, stroke: iconColor }} />
-              )}
-              <span
-                className="font-extrabold"
-                style={{
-                  fontSize: '10px',
-                  color: textColor,
-                  WebkitTextFillColor: textColor,
-                }}
-              >
-                {tab.label}
-              </span>
-            </button>
-          );
-        })}
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
       {/* ── INTERVIEW SETTINGS MODAL SHEET ───────────────────────────────────── */}
       <AnimatePresence>

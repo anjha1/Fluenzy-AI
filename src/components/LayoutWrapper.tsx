@@ -105,7 +105,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const { theme, setTheme, resolvedTheme } = useTheme();
-  
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -113,7 +113,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [planInfo, setPlanInfo] = useState<any>(null);
   const [imageError, setImageError] = useState(false);
-  const [autoApplyStatus, setAutoApplyStatus] = useState<{completed: boolean; enabled: boolean}>({
+  const [autoApplyStatus, setAutoApplyStatus] = useState<{ completed: boolean; enabled: boolean }>({
     completed: false,
     enabled: false,
   });
@@ -232,14 +232,13 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         {/* Minimal Super Admin top bar */}
         <header className={`h-14 border-b ${currentTheme.cardBorder} ${currentTheme.background} flex items-center justify-between px-6 sticky top-0 z-30`}>
           <div className="flex items-center gap-3">
-            <div className={`p-1 rounded-xl transition-all ${
-              isLight
+            <div className={`p-1 rounded-xl transition-all ${isLight
                 ? 'bg-[#F0EDFF] border border-[#C4B5FD]'
                 : 'bg-gradient-to-br from-indigo-600 to-purple-600 shadow-md'
-            }`}>
-              <img 
-                src="/favicon/apple-touch-icon.png" 
-                alt="Fluenzy AI Logo" 
+              }`}>
+              <img
+                src="/favicon/apple-touch-icon.png"
+                alt="Fluenzy AI Logo"
                 className="w-9 h-9 rounded-lg object-contain"
               />
             </div>
@@ -266,41 +265,47 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 {showThemeMenu && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowThemeMenu(false)} />
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                        className={`absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-2xl z-50 border ${
-                          isLight
-                            ? 'bg-white border-[#E5E0FF] text-[#1E1B3A]'
-                            : 'bg-slate-900 border-slate-700 text-white'
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      className={`absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-2xl z-50 border ${isLight
+                          ? 'bg-white border-[#E5E0FF] text-[#1E1B3A]'
+                          : 'bg-slate-900 border-slate-700 text-white'
                         }`}
-                      >
-                        {themeOptions.map((option) => {
-                          const isSelected = theme === option.value;
-                          const colorStyle = isLight
-                            ? { color: isSelected ? '#5B21E6' : '#374151' }
-                            : { color: isSelected ? '#e9d5ff' : '#f1f5f9' };
+                    >
+                      {themeOptions.map((option) => {
+                        const isSelected = theme === option.value;
+                        const OptionIcon = option.icon;
+                        const itemTextColor = isSelected
+                          ? '#7C3AED'
+                          : (isLight ? '#1C1917' : '#E2E8F0');
+                        const itemIconColor = isSelected
+                          ? '#7C3AED'
+                          : (isLight ? '#475569' : '#94A3B8');
 
-                          return (
-                            <button
-                              key={option.value}
-                              onClick={() => { setTheme(option.value); setShowThemeMenu(false); }}
-                              style={colorStyle}
-                              className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-bold transition-all cursor-pointer ${
-                                isSelected ? 'theme-toggle-item-selected' : ''
-                              } ${
-                                isLight
-                                  ? isSelected ? 'bg-[#5B21E6]/10 text-[#5B21E6]' : 'text-slate-700 hover:bg-slate-100'
-                                  : isSelected ? 'bg-purple-600/30 text-purple-200' : 'hover:text-white hover:bg-slate-800'
+                        return (
+                          <button
+                            key={option.value}
+                            onClick={() => {
+                              setTheme(option.value as any);
+                              setShowThemeMenu(false);
+                            }}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-extrabold transition-colors ${isSelected
+                                ? (isLight ? 'bg-purple-100/80' : 'bg-purple-900/30')
+                                : (isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800')
                               }`}
-                            >
-                              <option.icon size={16} style={colorStyle} />
-                              <span style={{ ...colorStyle, WebkitTextFillColor: colorStyle.color }}>{option.label}</span>
-                            </button>
-                          );
-                        })}
-                      </motion.div>
+                            style={{
+                              color: itemTextColor,
+                              WebkitTextFillColor: itemTextColor,
+                            }}
+                          >
+                            <OptionIcon size={16} style={{ color: itemIconColor, stroke: itemIconColor }} />
+                            <span>{option.label}</span>
+                          </button>
+                        );
+                      })}
+                    </motion.div>
                   </>
                 )}
               </AnimatePresence>
@@ -408,23 +413,21 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       {/* Logo */}
       <div className={`p-4 border-b ${currentTheme.cardBorder} flex items-center justify-between`}>
         <Link href="/" className="flex items-center gap-3">
-          <div className={`p-1.5 rounded-xl ${
-              isLight
-                ? 'bg-[#F0EDFF] border border-[#C4B5FD]'
-                : 'bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20'
+          <div className={`p-1.5 rounded-xl ${isLight
+              ? 'bg-[#F0EDFF] border border-[#C4B5FD]'
+              : 'bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20'
             } flex items-center justify-center`}>
-              <img 
-                src={isLight ? '/favicon/apple-touch-icon.png' : '/white-removebg-preview1.png'} 
-                alt="Fluenzy AI Logo" 
-                className="w-7 h-7 object-contain"
-              />
+            <img
+              src={isLight ? '/favicon/apple-touch-icon.png' : '/white-removebg-preview1.png'}
+              alt="Fluenzy AI Logo"
+              className="w-7 h-7 object-contain"
+            />
           </div>
           {!collapsed && (
-            <span className={`font-extrabold !bg-clip-text text-transparent text-xl tracking-tight ${
-              isLight
+            <span className={`font-extrabold !bg-clip-text text-transparent text-xl tracking-tight ${isLight
                 ? 'bg-gradient-to-r from-[#5B21E6] via-[#7C3AED] to-[#5B21E6]'
                 : 'bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-400'
-            }`}>
+              }`}>
               Fluenzy AI
             </span>
           )}
@@ -443,7 +446,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             {collapsed ? 'M' : 'Main'}
           </span>
         </div>
-        
+
         <nav className="space-y-1 px-3">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== '/train' && pathname.startsWith(item.href));
@@ -514,11 +517,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
                 {/* Special badge for Auto-Apply Setup */}
                 {!collapsed && item.href === '/train/auto-apply-setup' && (
-                  <div className={`ml-auto w-5 h-5 rounded-full flex items-center justify-center ${
-                    autoApplyStatus.completed
+                  <div className={`ml-auto w-5 h-5 rounded-full flex items-center justify-center ${autoApplyStatus.completed
                       ? 'bg-green-500/20 text-green-400'
                       : 'bg-orange-500/20 text-orange-400'
-                  }`}>
+                    }`}>
                     {autoApplyStatus.completed ? (
                       <CheckCircle size={12} />
                     ) : (
@@ -586,11 +588,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className={`absolute bottom-full left-0 right-0 mb-2 rounded-xl overflow-hidden shadow-2xl z-50 border ${
-                    isLight
+                  className={`absolute bottom-full left-0 right-0 mb-2 rounded-xl overflow-hidden shadow-2xl z-50 border ${isLight
                       ? 'bg-white border-[#E5E0FF]'
                       : 'bg-slate-900 border-slate-700'
-                  }`}
+                    }`}
                 >
                   {themeOptions.map((option) => {
                     const isSelected = theme === option.value;
@@ -606,13 +607,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                           setShowThemeMenu(false);
                         }}
                         style={colorStyle}
-                        className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-bold transition-all cursor-pointer ${
-                          isSelected ? 'theme-toggle-item-selected' : ''
-                        } ${
-                          isLight
+                        className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-bold transition-all cursor-pointer ${isSelected ? 'theme-toggle-item-selected' : ''
+                          } ${isLight
                             ? isSelected ? 'bg-[#5B21E6]/10 text-[#5B21E6]' : 'text-slate-700 hover:bg-slate-100'
                             : isSelected ? 'bg-purple-600/30 text-purple-200' : 'hover:text-white hover:bg-slate-800'
-                        }`}
+                          }`}
                       >
                         <option.icon size={16} style={colorStyle} />
                         <span style={{ ...colorStyle, WebkitTextFillColor: colorStyle.color }}>{option.label}</span>
@@ -638,7 +637,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
           className={`hidden lg:flex flex-col border-r ${currentTheme.cardBorder} ${isLight ? 'bg-white shadow-[2px_0_12px_rgba(0,0,0,0.06)]' : currentTheme.background} transition-all duration-300 ${shouldExpandSidebar ? 'w-64' : 'w-20'} relative`}
         >
           <Sidebar collapsed={!shouldExpandSidebar} />
-          
+
           {/* Collapse Toggle */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -675,7 +674,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
               >
                 <Menu size={20} />
               </button>
-              
+
               {/* Breadcrumb */}
               <div className="hidden sm:flex items-center gap-2 text-sm">
                 <Link href="/train" className={`${currentTheme.textMuted} hover:${currentTheme.text} transition-colors`}>
@@ -699,11 +698,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 {/* Live Link */}
                 <Link
                   href="/train/live"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    pathname.startsWith('/train/live')
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${pathname.startsWith('/train/live')
                       ? `${currentTheme.accent} ${currentTheme.activeNavBg}`
                       : isLight ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100' : `${currentTheme.textMuted} hover:${currentTheme.text} hover:bg-white/5`
-                  }`}
+                    }`}
                 >
                   <Radio size={14} />
                   Live
@@ -715,11 +713,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isActive
                           ? `${currentTheme.accent} ${currentTheme.activeNavBg}`
                           : isLight ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100' : `${currentTheme.textMuted} hover:${currentTheme.text} hover:bg-white/5`
-                      }`}
+                        }`}
                     >
                       {item.label}
                     </Link>
@@ -744,23 +741,22 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                   {theme === 'codeterm' && <Terminal size={20} />}
                   {theme === 'light' && <Sun size={20} style={{ color: '#5B21E6', stroke: '#5B21E6' }} />}
                 </button>
-                
+
                 <AnimatePresence>
                   {showThemeMenu && (
                     <>
-                      <div 
-                        className="fixed inset-0 z-40" 
+                      <div
+                        className="fixed inset-0 z-40"
                         onClick={() => setShowThemeMenu(false)}
                       />
                       <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className={`theme-toggle-dropdown absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-2xl z-50 border ${
-                          isLight
+                        className={`theme-toggle-dropdown absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden shadow-2xl z-50 border ${isLight
                             ? 'bg-white border-[#E5E0FF]'
                             : 'bg-slate-900 border-slate-700'
-                        }`}
+                          }`}
                       >
                         {themeOptions.map((option) => {
                           const isSelected = theme === option.value;
@@ -777,13 +773,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                 setShowThemeMenu(false);
                               }}
                               style={colorStyle}
-                              className={`theme-toggle-item w-full flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
-                                isSelected ? 'theme-toggle-item-selected' : ''
-                              } ${
-                                isLight
+                              className={`theme-toggle-item w-full flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all cursor-pointer ${isSelected ? 'theme-toggle-item-selected' : ''
+                                } ${isLight
                                   ? isSelected ? 'bg-[#5B21E6]/10 text-[#5B21E6]' : 'text-slate-700 hover:bg-slate-100'
                                   : isSelected ? 'bg-purple-600/30 text-purple-200' : 'hover:text-white hover:bg-slate-800'
-                              }`}
+                                }`}
                             >
                               <option.icon size={18} style={colorStyle} />
                               <span style={{ ...colorStyle, WebkitTextFillColor: colorStyle.color }}>{option.label}</span>
@@ -828,9 +822,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                   >
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#5B6CFF] to-[#8B5CF6] flex items-center justify-center text-white font-bold text-sm overflow-hidden">
                       {showAvatarImage ? (
-                        <img 
-                          src={avatarUrl!} 
-                          alt={displayName} 
+                        <img
+                          src={avatarUrl!}
+                          alt={displayName}
                           className="w-full h-full object-cover"
                           referrerPolicy="no-referrer"
                           onError={() => setImageError(true)}
@@ -846,8 +840,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                     {showProfileMenu && (
                       <>
                         {/* Backdrop */}
-                        <div 
-                          className="fixed inset-0 z-40" 
+                        <div
+                          className="fixed inset-0 z-40"
                           onClick={() => setShowProfileMenu(false)}
                         />
                         <motion.div
@@ -861,9 +855,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                             <div className="flex items-start gap-4">
                               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#5B6CFF] to-[#8B5CF6] flex items-center justify-center text-white font-bold text-2xl shadow-lg overflow-hidden">
                                 {showAvatarImage ? (
-                                  <img 
-                                    src={avatarUrl!} 
-                                    alt={displayName} 
+                                  <img
+                                    src={avatarUrl!}
+                                    alt={displayName}
                                     className="w-full h-full object-cover"
                                     referrerPolicy="no-referrer"
                                     onError={() => setImageError(true)}
@@ -881,11 +875,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                                 </div>
                                 <p className={`text-sm ${currentTheme.textMuted} truncate`}>{userData?.email || session?.user?.email}</p>
                                 <div className="flex items-center gap-2 mt-2">
-                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                    planInfo?.plan === 'Pro' ? 'bg-[#5B6CFF]/20 text-[#5B6CFF] border border-[#5B6CFF]/30' :
-                                    planInfo?.plan === 'Standard' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
-                                    'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                                  }`}>
+                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${planInfo?.plan === 'Pro' ? 'bg-[#5B6CFF]/20 text-[#5B6CFF] border border-[#5B6CFF]/30' :
+                                      planInfo?.plan === 'Standard' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                                        'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                                    }`}>
                                     {planInfo?.plan || 'Free'} Plan
                                   </span>
                                 </div>
@@ -973,7 +966,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
           <div className="flex-1 overflow-y-auto">
             {children}
           </div>
-          
+
           {!hideFooter && !hideNav && <Footer />}
         </main>
       </div>

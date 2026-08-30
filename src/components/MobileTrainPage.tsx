@@ -197,18 +197,18 @@ export const FEATURE_TILE_COLORS: Record<string, string> = {
 
 /* ─── Feature grid (Category-Matched Glass Tiles for Light & Dark Modes) ─── */
 const FEATURES = [
-  { label: 'Company\nInterview', icon: CompanyInterviewIcon, darkTileBg: 'rgba(37, 99, 235, 0.16)',  darkBorder: 'rgba(59, 130, 246, 0.35)', darkGlow: '0 4px 20px rgba(37, 99, 235, 0.22)',  lightBg: '#EBF3FF', href: '/train/company' },
-  { label: 'AI Job\nSearch',     icon: AIJobSearchIcon,       darkTileBg: 'rgba(16, 185, 129, 0.16)', darkBorder: 'rgba(16, 185, 129, 0.35)', darkGlow: '0 4px 20px rgba(16, 185, 129, 0.22)', lightBg: '#EAF8EF', href: '/train/job-search' },
-  { label: 'Resume\nATS',        icon: ResumeATSIcon,          darkTileBg: 'rgba(147, 51, 234, 0.16)', darkBorder: 'rgba(168, 85, 247, 0.35)', darkGlow: '0 4px 20px rgba(147, 51, 234, 0.22)', lightBg: '#F4EBFF', href: '/ats' },
-  { label: 'GD Agent',           icon: GDAgentIcon,            darkTileBg: 'rgba(234, 88, 12, 0.16)',  darkBorder: 'rgba(249, 115, 22, 0.35)',  darkGlow: '0 4px 20px rgba(234, 88, 12, 0.22)',  lightBg: '#FFF3EB', href: '/train/gd-agent' },
-  { label: 'Assessment',         icon: AssessmentIcon,        darkTileBg: 'rgba(13, 148, 136, 0.16)', darkBorder: 'rgba(20, 184, 166, 0.35)', darkGlow: '0 4px 20px rgba(13, 148, 136, 0.22)', lightBg: '#E8FAFA', href: '/train/assessments' },
-  { label: 'Interview\nGuide',   icon: InterviewGuideIcon,    darkTileBg: 'rgba(219, 39, 119, 0.16)', darkBorder: 'rgba(236, 72, 153, 0.35)', darkGlow: '0 4px 20px rgba(219, 39, 119, 0.22)', lightBg: '#FCE8F3', href: '/interview-guide' },
-  { label: 'History',            icon: HistoryIcon,           darkTileBg: 'rgba(37, 99, 235, 0.16)',  darkBorder: 'rgba(59, 130, 246, 0.35)', darkGlow: '0 4px 20px rgba(37, 99, 235, 0.22)',  lightBg: '#EFF5FF', href: '/history' },
-  { label: 'AI\nAssistant',      icon: AIAssistantIcon,       darkTileBg: 'rgba(124, 58, 237, 0.16)', darkBorder: 'rgba(139, 92, 246, 0.35)', darkGlow: '0 4px 20px rgba(124, 58, 237, 0.22)', lightBg: '#F5EAFF', href: '/train/chat' },
-  { label: 'AI Coach',           icon: AICoachIcon,           darkTileBg: 'rgba(22, 163, 74, 0.16)',  darkBorder: 'rgba(34, 197, 94, 0.35)',  darkGlow: '0 4px 20px rgba(22, 163, 74, 0.22)',  lightBg: '#EAF8EF', href: '/train/gd-coach' },
-  { label: 'Live',               icon: LiveIcon,              darkTileBg: 'rgba(220, 38, 38, 0.16)',  darkBorder: 'rgba(239, 68, 68, 0.35)',  darkGlow: '0 4px 20px rgba(220, 38, 38, 0.22)',  lightBg: '#FFEEEE', href: '/train/live', badge: 'LIVE' },
-  { label: 'Competitions',       icon: CompetitionsIcon,      darkTileBg: 'rgba(245, 158, 11, 0.16)', darkBorder: 'rgba(251, 191, 36, 0.35)', darkGlow: '0 4px 20px rgba(245, 158, 11, 0.22)', lightBg: '#FFF8E7', href: '/train/competitions' },
-  { label: 'HR Interview',       icon: HRInterviewIcon,       darkTileBg: 'rgba(2, 132, 199, 0.16)',  darkBorder: 'rgba(56, 189, 248, 0.35)', darkGlow: '0 4px 20px rgba(2, 132, 199, 0.22)',  lightBg: '#EEF6FF', href: '/train/hr' },
+  { label: 'Company\nInterview', icon: CompanyInterviewIcon, darkTileBg: 'rgba(37, 99, 235, 0.16)', darkBorder: 'rgba(59, 130, 246, 0.35)', darkGlow: '0 4px 20px rgba(37, 99, 235, 0.22)', lightBg: '#EBF3FF', href: '/train/company' },
+  { label: 'AI Job\nSearch', icon: AIJobSearchIcon, darkTileBg: 'rgba(16, 185, 129, 0.16)', darkBorder: 'rgba(16, 185, 129, 0.35)', darkGlow: '0 4px 20px rgba(16, 185, 129, 0.22)', lightBg: '#EAF8EF', href: '/train/job-search' },
+  { label: 'Resume\nATS', icon: ResumeATSIcon, darkTileBg: 'rgba(147, 51, 234, 0.16)', darkBorder: 'rgba(168, 85, 247, 0.35)', darkGlow: '0 4px 20px rgba(147, 51, 234, 0.22)', lightBg: '#F4EBFF', href: '/ats' },
+  { label: 'GD Agent', icon: GDAgentIcon, darkTileBg: 'rgba(234, 88, 12, 0.16)', darkBorder: 'rgba(249, 115, 22, 0.35)', darkGlow: '0 4px 20px rgba(234, 88, 12, 0.22)', lightBg: '#FFF3EB', href: '/train/gd-agent' },
+  { label: 'Assessment', icon: AssessmentIcon, darkTileBg: 'rgba(13, 148, 136, 0.16)', darkBorder: 'rgba(20, 184, 166, 0.35)', darkGlow: '0 4px 20px rgba(13, 148, 136, 0.22)', lightBg: '#E8FAFA', href: '/train/assessments' },
+  { label: 'Interview\nGuide', icon: InterviewGuideIcon, darkTileBg: 'rgba(219, 39, 119, 0.16)', darkBorder: 'rgba(236, 72, 153, 0.35)', darkGlow: '0 4px 20px rgba(219, 39, 119, 0.22)', lightBg: '#FCE8F3', href: '/interview-guide' },
+  { label: 'History', icon: HistoryIcon, darkTileBg: 'rgba(37, 99, 235, 0.16)', darkBorder: 'rgba(59, 130, 246, 0.35)', darkGlow: '0 4px 20px rgba(37, 99, 235, 0.22)', lightBg: '#EFF5FF', href: '/history' },
+  { label: 'AI\nAssistant', icon: AIAssistantIcon, darkTileBg: 'rgba(124, 58, 237, 0.16)', darkBorder: 'rgba(139, 92, 246, 0.35)', darkGlow: '0 4px 20px rgba(124, 58, 237, 0.22)', lightBg: '#F5EAFF', href: '/train/chat' },
+  { label: 'AI Coach', icon: AICoachIcon, darkTileBg: 'rgba(22, 163, 74, 0.16)', darkBorder: 'rgba(34, 197, 94, 0.35)', darkGlow: '0 4px 20px rgba(22, 163, 74, 0.22)', lightBg: '#EAF8EF', href: '/train/gd-coach' },
+  { label: 'Live', icon: LiveIcon, darkTileBg: 'rgba(220, 38, 38, 0.16)', darkBorder: 'rgba(239, 68, 68, 0.35)', darkGlow: '0 4px 20px rgba(220, 38, 38, 0.22)', lightBg: '#FFEEEE', href: '/train/live', badge: 'LIVE' },
+  { label: 'Competitions', icon: CompetitionsIcon, darkTileBg: 'rgba(245, 158, 11, 0.16)', darkBorder: 'rgba(251, 191, 36, 0.35)', darkGlow: '0 4px 20px rgba(245, 158, 11, 0.22)', lightBg: '#FFF8E7', href: '/train/competitions' },
+  { label: 'HR Interview', icon: HRInterviewIcon, darkTileBg: 'rgba(2, 132, 199, 0.16)', darkBorder: 'rgba(56, 189, 248, 0.35)', darkGlow: '0 4px 20px rgba(2, 132, 199, 0.22)', lightBg: '#EEF6FF', href: '/train/hr' },
 ] satisfies {
   label: string;
   icon: React.ComponentType;
@@ -360,34 +360,27 @@ export default function MobileTrainPage() {
 
   /* ── Logo helper ─────────────────────────────────────────────────────── */
   const LogoContainer = () => (
-    <div
-      className="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center overflow-hidden"
-      style={{
-        background: isLight ? '#F0EDFF' : 'rgba(15,23,42,0.9)',
-        border: isLight ? '1px solid #C4B5FD' : '1px solid rgba(139,92,246,0.25)',
-        boxShadow: isLight ? 'none' : '0 2px 8px rgba(124,58,237,0.2)',
-      }}
-    >
+    <div className="flex items-center justify-center shrink-0">
       <img
-        src={isLight ? '/favicon/apple-touch-icon.png' : '/white-removebg-preview1.png'}
+        src="/white-removebg-preview1.png"
         alt="Fluenzy AI Logo"
-        className="max-w-full max-h-full object-contain"
-        style={{ width: '28px', height: '28px' }}
+        className="w-9 h-9 object-contain filter drop-shadow-sm active:scale-95 transition-transform"
       />
     </div>
   );
 
   /* ── Theme icon helper ───────────────────────────────────────────────── */
   const ThemeIcon = () => {
+    const iconColor = isLight ? '#1C1917' : '#F8FAFC';
     const icons: Record<ThemeName, React.ReactNode> = {
-      light: <Sun size={18} />,
-      dark: <Moon size={18} />,
-      midnight: <Sparkles size={18} />,
-      forest: <Leaf size={18} />,
-      parchment: <Coffee size={18} />,
-      codeterm: <Terminal size={18} />,
+      light: <Sun size={18} style={{ color: iconColor, stroke: iconColor }} />,
+      dark: <Moon size={18} style={{ color: iconColor, stroke: iconColor }} />,
+      midnight: <Sparkles size={18} style={{ color: iconColor, stroke: iconColor }} />,
+      forest: <Leaf size={18} style={{ color: iconColor, stroke: iconColor }} />,
+      parchment: <Coffee size={18} style={{ color: iconColor, stroke: iconColor }} />,
+      codeterm: <Terminal size={18} style={{ color: iconColor, stroke: iconColor }} />,
     };
-    return <>{icons[theme] || <Moon size={18} />}</>;
+    return <>{icons[theme] || <Moon size={18} style={{ color: iconColor, stroke: iconColor }} />}</>;
   };
 
   /* ── Nav bottom padding — parchment/light use floating pill (taller gap) */
@@ -435,10 +428,11 @@ export default function MobileTrainPage() {
           <div className="relative">
             <button
               onClick={() => setThemeMenuOpen(!themeMenuOpen)}
-              className="p-2 rounded-xl active:opacity-60 flex items-center justify-center"
+              className="p-2 rounded-xl active:opacity-60 flex items-center justify-center border shadow-sm transition-transform active:scale-95"
               style={{
-                color: isLight ? '#0F172A' : '#F8FAFC',
-                background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
+                color: isLight ? '#1C1917' : '#F8FAFC',
+                background: isLight ? '#FFFFFF' : 'rgba(255,255,255,0.08)',
+                borderColor: isLight ? '#CBD5E1' : borderHex,
               }}
               aria-label="Change theme"
             >
@@ -454,19 +448,32 @@ export default function MobileTrainPage() {
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 top-full mt-1 rounded-xl overflow-hidden shadow-2xl z-[310]"
-                    style={{ width: '160px', background: cardBgHex, border: `1px solid ${borderHex}` }}
+                    style={{ width: '160px', background: isLight ? '#FFFFFF' : cardBgHex, border: `1px solid ${isLight ? '#CBD5E1' : borderHex}` }}
                   >
                     {THEME_OPTIONS.map((opt) => {
                       const active = theme === opt.value;
+                      const itemTextColor = active
+                        ? accentHex
+                        : (isLight ? '#1C1917' : '#E2E8F0');
+                      const itemIconColor = active
+                        ? accentHex
+                        : (isLight ? '#475569' : '#94A3B8');
+
                       return (
                         <button
                           key={opt.value}
                           onClick={() => { setTheme(opt.value); setThemeMenuOpen(false); }}
-                          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-semibold"
-                          style={{ color: active ? accentHex : mutedHex, background: active ? `${accentHex}18` : 'transparent' }}
+                          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-extrabold transition-colors"
+                          style={{
+                            color: itemTextColor,
+                            WebkitTextFillColor: itemTextColor,
+                            background: active
+                              ? (isLight ? '#F3E8FF' : `${accentHex}25`)
+                              : 'transparent',
+                          }}
                         >
-                          <opt.icon size={15} />
-                          {opt.label}
+                          <opt.icon size={16} style={{ color: itemIconColor, stroke: itemIconColor }} />
+                          <span>{opt.label}</span>
                         </button>
                       );
                     })}
@@ -610,19 +617,24 @@ export default function MobileTrainPage() {
               </div>
               <p className="mt-1" style={{ fontSize: '11px', color: mutedHex }}>72% Completed · 6 of 10 sessions</p>
             </div>
-            {/* Resume button: light purple pill per spec */}
+            {/* Resume button: Coral-Orange gradient in Light/Parchment, Royal Purple in Dark themes */}
             <Link
               href="/train/technical"
-              className="flex items-center gap-1 font-bold rounded-xl whitespace-nowrap shrink-0 active:opacity-70"
+              className="flex items-center gap-1 font-extrabold rounded-xl whitespace-nowrap shrink-0 active:scale-95 transition-transform shadow-md"
               style={{
                 fontSize: '12px',
-                color: accentHex,
-                background: isLight ? '#bfa4f4ff' : `${accentHex}18`,
-                border: `1px solid ${accentHex}40`,
-                padding: '8px 12px',
+                color: '#FFFFFF',
+                WebkitTextFillColor: '#FFFFFF',
+                background: isLight
+                  ? 'linear-gradient(135deg, #FF5A5F 0%, #E98726 100%)'
+                  : 'linear-gradient(135deg, #7C3AED 0%, #6C2BD9 100%)',
+                boxShadow: isLight
+                  ? '0 4px 12px rgba(233, 135, 38, 0.35)'
+                  : '0 4px 12px rgba(124, 58, 237, 0.35)',
+                padding: '8px 14px',
               }}
             >
-              Resume <ChevronRight size={13} />
+              <span>Resume</span> <ChevronRight size={14} style={{ color: '#FFFFFF', stroke: '#FFFFFF' }} />
             </Link>
           </div>
         </section>
@@ -703,51 +715,22 @@ export default function MobileTrainPage() {
               </div>
               <Link
                 href="/train/technical"
-                className="flex items-center gap-1 font-bold rounded-xl whitespace-nowrap shrink-0 active:opacity-70"
+                className="px-3.5 py-2 font-extrabold rounded-xl whitespace-nowrap shrink-0 text-white shadow-md flex items-center gap-1 active:scale-95 transition-transform"
                 style={{
                   fontSize: '12px',
-                  color: accentHex,
-                  background: isLight ? '#F0EBFA' : `${accentHex}18`,
-                  border: `1px solid ${accentHex}40`,
-                  padding: '8px 12px',
+                  color: '#FFFFFF',
+                  WebkitTextFillColor: '#FFFFFF',
+                  background: isLight
+                    ? 'linear-gradient(135deg, #FF5A5F 0%, #E98726 100%)'
+                    : 'linear-gradient(135deg, #7C3AED 0%, #6C2BD9 100%)',
+                  boxShadow: isLight
+                    ? '0 4px 12px rgba(233, 135, 38, 0.35)'
+                    : '0 4px 12px rgba(124, 58, 237, 0.35)',
                 }}
               >
-                Resume <ChevronRight size={13} />
+                <span>Start</span> <ChevronRight size={13} style={{ color: '#FFFFFF', stroke: '#FFFFFF' }} />
               </Link>
             </div>
-          </div>
-        </section>
-
-        {/* ── MORE MODULES ──────────────────────────────────────────────── */}
-        <section className="px-4 mb-4">
-          <div className="space-y-2">
-            {MORE_MODULES.map((mod) => (
-              <Link
-                key={mod.label}
-                href={mod.href}
-                className="flex items-center gap-3 rounded-2xl p-3.5 active:opacity-70"
-                style={{
-                  background: cardBgHex,
-                  border: `1px solid ${borderHex}`,
-                  boxShadow: isLight ? '0 1px 4px rgba(0,0,0,0.05)' : 'none',
-                }}
-              >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                  style={{
-                    background: isLight ? mod.lightBg : mod.darkBg,
-                    boxShadow: isLight ? 'none' : '0 2px 8px rgba(0,0,0,0.2)',
-                  }}
-                >
-                  <mod.icon size={20} style={{ color: isLight ? mod.color : '#FFFFFF' }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: textHex }}>{mod.label}</p>
-                  <p className="truncate" style={{ fontSize: '11px', color: mutedHex }}>{mod.desc}</p>
-                </div>
-                <ChevronRight size={16} style={{ color: mutedHex, flexShrink: 0 }} />
-              </Link>
-            ))}
           </div>
         </section>
       </div>
@@ -758,103 +741,107 @@ export default function MobileTrainPage() {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.7, type: 'spring', stiffness: 300, damping: 20 }}
         onClick={() => router.push('/train/chat')}
-        className="fixed right-5 z-[210] sm:hidden w-14 h-14 rounded-full flex flex-col items-center justify-center gap-0.5 active:scale-95"
+        className="fixed right-5 z-[210] sm:hidden w-14 h-14 rounded-full flex flex-col items-center justify-center gap-0.5 active:scale-95 shadow-xl"
         style={{
           bottom: '80px',
-          background: isLight ? '#F5EAFF' : '#6C2BD9',
-          border: isLight ? '1.5px solid #C4B5FD' : 'none',
-          boxShadow: isLight ? '0 6px 20px rgba(124, 58, 237, 0.18)' : '0 8px 24px rgba(108,43,217,0.5)',
+          background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)',
+          boxShadow: '0 8px 24px rgba(124, 58, 237, 0.45)',
+          border: '1.5px solid rgba(255, 255, 255, 0.3)',
         }}
         aria-label="Ask AI"
       >
-        <Sparkles size={18} style={{ color: isLight ? '#7C3AED' : '#FFFFFF' }} />
-        <span className="font-black tracking-wide" style={{ fontSize: '8px', color: isLight ? '#7C3AED' : '#FFFFFF' }}>Ask AI</span>
+        <Sparkles size={18} style={{ color: '#FFFFFF', stroke: '#FFFFFF' }} />
+        <span className="font-black tracking-wide" style={{ fontSize: '9px', color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}>Ask AI</span>
       </motion.button>
 
-      {/* ── BOTTOM TAB BAR ─────────────────────────────────────────────── */}
-      {isLight ? (
-        /* Parchment / Light → floating white pill with colored icons ──── */
-        <nav
-          className="fixed z-[210] sm:hidden flex items-center justify-around"
-          style={{
-            bottom: '12px',
-            left: '12px',
-            right: '12px',
-            height: '64px',
-            background: '#FFFFFF',
-            borderRadius: '24px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07)',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-          }}
-        >
+      {/* ── BOTTOM TAB BAR (Downward Concave Scoop Curve around Home Tab) ──── */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-[210] sm:hidden flex items-end justify-around"
+        style={{
+          height: '64px',
+          paddingBottom: 'env(safe-area-inset-bottom, 4px)',
+        }}
+      >
+        {/* Background Downward Curvy SVG shape */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+          <svg
+            viewBox="0 0 375 64"
+            preserveAspectRatio="none"
+            className="w-full h-full"
+            style={{
+              filter: isLight
+                ? 'drop-shadow(0px -4px 12px rgba(0,0,0,0.08))'
+                : 'drop-shadow(0px -4px 16px rgba(0,0,0,0.3))',
+            }}
+          >
+            <path
+              d="M 0,0 L 132,0 C 152,0 160,24 187.5,24 C 215,24 223,0 243,0 L 375,0 L 375,64 L 0,64 Z"
+              fill={isLight ? '#FFFFFF' : cardBgHex}
+              stroke={isLight ? '#E2E8F0' : borderHex}
+              strokeWidth="1"
+            />
+          </svg>
+        </div>
+
+        {/* Tab Items */}
+        <div className="relative z-10 flex items-center justify-around w-full h-full pt-1 px-1">
           {TABS.map((tab) => {
             const isHome = tab.label === 'Home';
+            const activeColor = isLight ? '#7C3AED' : accentHex;
+            const inactiveIconColor = isLight ? '#475569' : mutedHex;
+            const inactiveTextColor = isLight ? '#334155' : mutedHex;
+
+            const iconColor = isHome ? activeColor : inactiveIconColor;
+            const textColor = isHome ? activeColor : inactiveTextColor;
+
             return (
               <Link
                 key={tab.label}
                 href={tab.href}
-                className="flex flex-col items-center justify-center gap-1 flex-1 h-full active:opacity-70"
+                className={`flex flex-col items-center justify-center gap-0.5 min-w-[54px] flex-1 active:opacity-75 ${
+                  isHome ? '-mt-5' : 'pb-1'
+                }`}
                 aria-label={tab.label}
               >
                 {isHome ? (
                   <div
-                    className="w-11 h-8 rounded-2xl flex items-center justify-center"
-                    style={{ background: '#EDE9FE' }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0 force-purple-bg force-white"
+                    style={{
+                      backgroundColor: '#7C3AED',
+                      background: '#7C3AED',
+                      boxShadow: '0 6px 16px rgba(124, 58, 237, 0.45)',
+                    }}
                   >
-                    <tab.icon size={18} style={{ color: tab.tabColor }} />
+                    <Home
+                      size={22}
+                      className="force-white"
+                      strokeWidth={2.2}
+                      style={{
+                        color: '#FFFFFF',
+                        stroke: '#FFFFFF',
+                        fill: 'none',
+                      }}
+                    />
                   </div>
                 ) : (
-                  <tab.icon size={22} style={{ color: tab.tabColor }} />
+                  <tab.icon size={22} style={{ color: iconColor, stroke: iconColor }} />
                 )}
                 <span
-                  className="font-semibold"
-                  style={{ fontSize: '10px', color: isHome ? tab.tabColor : '#495057' }}
+                  className="font-extrabold"
+                  style={{
+                    fontSize: '10px',
+                    color: textColor,
+                    WebkitTextFillColor: textColor,
+                    marginTop: isHome ? '1px' : '0px',
+                  }}
                 >
                   {tab.label}
                 </span>
               </Link>
             );
           })}
-        </nav>
-      ) : (
-        /* Dark themes → full-width flat bar ────────────────────────────── */
-        <nav
-          className="fixed bottom-0 left-0 right-0 z-[210] sm:hidden flex items-center justify-around px-2"
-          style={{
-            height: '64px',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-            background: cardBgHex,
-            borderTop: `1px solid ${borderHex}`,
-            boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
-          }}
-        >
-          {TABS.map((tab) => {
-            const isHome = tab.label === 'Home';
-            return (
-              <Link
-                key={tab.label}
-                href={tab.href}
-                className="flex flex-col items-center justify-center gap-1 min-w-[52px] h-full active:opacity-70"
-                aria-label={tab.label}
-              >
-                {isHome ? (
-                  <div
-                    className="w-12 h-8 rounded-2xl flex items-center justify-center"
-                    style={{ background: `linear-gradient(90deg,${accentHex},#4F46E5)`, boxShadow: `0 4px 12px ${accentHex}50` }}
-                  >
-                    <tab.icon size={18} className="text-white" />
-                  </div>
-                ) : (
-                  <tab.icon size={22} style={{ color: mutedHex }} />
-                )}
-                <span className="font-semibold" style={{ fontSize: '10px', color: isHome ? accentHex : mutedHex }}>
-                  {tab.label}
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
-      )}
+        </div>
+      </nav>
 
       {/* ── SIDEBAR DRAWER ─────────────────────────────────────────────── */}
       <AnimatePresence>

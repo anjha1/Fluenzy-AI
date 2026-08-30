@@ -105,8 +105,8 @@ export default function MobileCompanyResumePage() {
   const borderHex = BORDER_HEX[t] || '#E5E7EB';
   const isLight = resolvedTheme === 'light' || resolvedTheme === 'parchment';
 
-  /* Handle File Select & Mock Extraction */
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /* Handle File Select & Real Resume Extraction via /api/extract-resume */
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -114,22 +114,41 @@ export default function MobileCompanyResumePage() {
     setIsExtracting(true);
     setExtractionError(null);
 
-    // Simulate extraction or read txt file directly
-    if (file.name.endsWith('.txt')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target?.result as string;
-        setResumeText(text || '');
-        setIsExtracting(false);
-      };
-      reader.readAsText(file);
-    } else {
-      setTimeout(() => {
-        setIsExtracting(false);
-        setResumeText(
-          `Extracted resume details for ${file.name}.\nRole Target: ${role}\nSkills: Technical Problem Solving, Teamwork, Communication, Systems Architecture.`
-        );
-      }, 1200);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+
+      const res = await fetch('/api/extract-resume', {
+        method: 'POST',
+        body: form,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(`[RESUME_EXTRACT_FAIL] HTTP ${res.status}:`, data.error || data.message);
+        setExtractionError(data.error || 'Server could not process this file. Please try a different format (PDF/DOCX/TXT).');
+        return;
+      }
+
+      const extracted = data.text || '';
+      console.log(`[RESUME_EXTRACT_SUCCESS] Extracted ${extracted.length} chars from ${file.name}`);
+      setResumeText(extracted);
+      if (data.warning) setExtractionError(data.warning);
+
+    } catch (err) {
+      console.error('[RESUME_EXTRACT_ERROR]', err);
+      if (file.name.endsWith('.txt')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setResumeText((event.target?.result as string) || '');
+        };
+        reader.readAsText(file);
+      } else {
+        setExtractionError('Connection error during upload. Please try again.');
+      }
+    } finally {
+      setIsExtracting(false);
     }
   };
 
@@ -145,8 +164,22 @@ export default function MobileCompanyResumePage() {
     }
   };
 
-  /* Launch Interview Session */
+  /* Launch Interview Session with full resume stored in sessionStorage */
   const handleStartSession = (textToUse: string) => {
+    let resumeKey = '';
+    if (textToUse && textToUse.trim()) {
+      resumeKey = `resume_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      try {
+        sessionStorage.setItem(resumeKey, textToUse.trim());
+        console.log(`[RESUME_SESSION_STORE] Stored ${textToUse.trim().length} chars in sessionStorage key "${resumeKey}"`);
+      } catch (err) {
+        console.warn('[RESUME_SESSION_STORE_FAIL] sessionStorage write failed:', err);
+      }
+    }
+
+    const keyParam = resumeKey ? `&resumeKey=${encodeURIComponent(resumeKey)}` : '';
+    const textParam = `&resumeText=${encodeURIComponent(textToUse.slice(0, 1500))}`;
+
     router.push(
       `/train/session/${ModuleType.COMPANY_WISE_HR}?company=${encodeURIComponent(company)}` +
       `&role=${encodeURIComponent(role)}` +
@@ -154,7 +187,8 @@ export default function MobileCompanyResumePage() {
       `&difficulty=Intermediate` +
       `&roundType=${encodeURIComponent(roundType)}` +
       `&isCompanyWise=true` +
-      `&resumeText=${encodeURIComponent(textToUse.slice(0, 1000))}`
+      keyParam +
+      textParam
     );
   };
 
@@ -378,88 +412,94 @@ export default function MobileCompanyResumePage() {
         <span className="text-white font-black tracking-wide" style={{ fontSize: '8px' }}>Ask AI</span>
       </motion.button>
 
-      {/* ── FLOATING BOTTOM TAB BAR ────────────────────────────────────────── */}
-      {isLight ? (
-        <nav
-          className="fixed z-[210] sm:hidden flex items-center justify-around"
-          style={{
-            bottom: '12px',
-            left: '12px',
-            right: '12px',
-            height: '64px',
-            background: '#FFFFFF',
-            borderRadius: '24px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07)',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-          }}
-        >
+      {/* ── BOTTOM TAB BAR (Downward Concave Scoop Curve around Home Tab) ──── */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-[210] sm:hidden flex items-end justify-around"
+        style={{
+          height: '64px',
+          paddingBottom: 'env(safe-area-inset-bottom, 4px)',
+        }}
+      >
+        {/* Background Downward Curvy SVG shape */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+          <svg
+            viewBox="0 0 375 64"
+            preserveAspectRatio="none"
+            className="w-full h-full"
+            style={{
+              filter: isLight
+                ? 'drop-shadow(0px -4px 12px rgba(0,0,0,0.08))'
+                : 'drop-shadow(0px -4px 16px rgba(0,0,0,0.3))',
+            }}
+          >
+            <path
+              d="M 0,0 L 132,0 C 152,0 160,24 187.5,24 C 215,24 223,0 243,0 L 375,0 L 375,64 L 0,64 Z"
+              fill={isLight ? '#FFFFFF' : cardBgHex}
+              stroke={isLight ? '#E2E8F0' : borderHex}
+              strokeWidth="1"
+            />
+          </svg>
+        </div>
+
+        {/* Tab Items */}
+        <div className="relative z-10 flex items-center justify-around w-full h-full pt-1 px-1">
           {TABS.map((tab) => {
             const isHome = tab.label === 'Home';
+            const activeColor = isLight ? '#7C3AED' : accentHex;
+            const inactiveIconColor = isLight ? '#475569' : mutedHex;
+            const inactiveTextColor = isLight ? '#334155' : mutedHex;
+
+            const iconColor = isHome ? activeColor : inactiveIconColor;
+            const textColor = isHome ? activeColor : inactiveTextColor;
+
             return (
               <Link
                 key={tab.label}
                 href={tab.href}
-                className="flex flex-col items-center justify-center gap-1 flex-1 h-full active:opacity-70"
+                className={`flex flex-col items-center justify-center gap-0.5 min-w-[54px] flex-1 active:opacity-75 ${
+                  isHome ? '-mt-5' : 'pb-1'
+                }`}
                 aria-label={tab.label}
               >
                 {isHome ? (
                   <div
-                    className="w-11 h-8 rounded-2xl flex items-center justify-center"
-                    style={{ background: '#EDE9FE' }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0 force-purple-bg force-white"
+                    style={{
+                      backgroundColor: '#7C3AED',
+                      background: '#7C3AED',
+                      boxShadow: '0 6px 16px rgba(124, 58, 237, 0.45)',
+                    }}
                   >
-                    <tab.icon size={18} style={{ color: tab.tabColor }} />
+                    <Home
+                      size={22}
+                      className="force-white"
+                      strokeWidth={2.2}
+                      style={{
+                        color: '#FFFFFF',
+                        stroke: '#FFFFFF',
+                        fill: 'none',
+                      }}
+                    />
                   </div>
                 ) : (
-                  <tab.icon size={22} style={{ color: tab.tabColor }} />
+                  <tab.icon size={22} style={{ color: iconColor, stroke: iconColor }} />
                 )}
                 <span
-                  className="font-semibold"
-                  style={{ fontSize: '10px', color: isHome ? tab.tabColor : '#495057' }}
+                  className="font-extrabold"
+                  style={{
+                    fontSize: '10px',
+                    color: textColor,
+                    WebkitTextFillColor: textColor,
+                    marginTop: isHome ? '1px' : '0px',
+                  }}
                 >
                   {tab.label}
                 </span>
               </Link>
             );
           })}
-        </nav>
-      ) : (
-        <nav
-          className="fixed bottom-0 left-0 right-0 z-[210] sm:hidden flex items-center justify-around px-2"
-          style={{
-            height: '64px',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-            background: cardBgHex,
-            borderTop: `1px solid ${borderHex}`,
-            boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
-          }}
-        >
-          {TABS.map((tab) => {
-            const isHome = tab.label === 'Home';
-            return (
-              <Link
-                key={tab.label}
-                href={tab.href}
-                className="flex flex-col items-center justify-center gap-1 min-w-[52px] h-full active:opacity-70"
-                aria-label={tab.label}
-              >
-                {isHome ? (
-                  <div
-                    className="w-12 h-8 rounded-2xl flex items-center justify-center"
-                    style={{ background: 'linear-gradient(90deg,#7C3AED,#4F46E5)', boxShadow: '0 4px 12px rgba(124,58,237,0.4)' }}
-                  >
-                    <tab.icon size={18} className="text-white" />
-                  </div>
-                ) : (
-                  <tab.icon size={22} style={{ color: mutedHex }} />
-                )}
-                <span className="font-semibold" style={{ fontSize: '10px', color: isHome ? '#7C3AED' : mutedHex }}>
-                  {tab.label}
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
-      )}
+        </div>
+      </nav>
     </div>
   );
 }

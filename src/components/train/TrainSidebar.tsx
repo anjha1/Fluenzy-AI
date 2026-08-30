@@ -226,22 +226,17 @@ export function TrainSidebar() {
       <SidebarHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className={`p-1.5 rounded-xl flex items-center justify-center ${
-                isLight
-                  ? 'bg-[#F0EDFF] border border-[#C4B5FD]'
-                  : 'bg-slate-900/90 border border-purple-500/20 shadow-md shadow-purple-900/20'
-              }`}>
-              <img 
-                src={isLight ? '/favicon/apple-touch-icon.png' : '/white-removebg-preview1.png'} 
-                alt="Fluenzy AI Logo" 
-                className="w-6 h-6 object-contain"
+            <div className="flex items-center justify-center shrink-0">
+              <img
+                src="/white-removebg-preview1.png"
+                alt="Fluenzy AI Logo"
+                className="w-9 h-9 object-contain filter drop-shadow-sm"
               />
             </div>
-            <span className={`font-extrabold !bg-clip-text text-transparent text-lg tracking-tight ${
-              isLight
+            <span className={`font-extrabold !bg-clip-text text-transparent text-lg tracking-tight ${isLight
                 ? 'bg-gradient-to-r from-[#5B21E6] via-[#7C3AED] to-[#5B21E6]'
                 : 'bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-400'
-            }`}>
+              }`}>
               Fluenzy AI
             </span>
           </div>
