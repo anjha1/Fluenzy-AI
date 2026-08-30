@@ -26,8 +26,6 @@ export async function POST(request: NextRequest) {
     const { question, answer, module, context } = await request.json();
 
     // ── Session-limit guard ───────────────────────────────────────────────
-    // Only check for modules that consume sessions (free-tier limited modules).
-    // Unlimited modules (vocabulary, latestTopics, corporateVoice) bypass this.
     if (module) {
       const denied = await enforceModuleAccess(user.id, module);
       if (denied) return denied;
@@ -36,7 +34,6 @@ export async function POST(request: NextRequest) {
     if (!question || !answer) {
       return NextResponse.json({ error: 'Question and answer are required' }, { status: 400 });
     }
-
 
     const prompt = `
 You are Fluenzy AI, an advanced AI Interview Coach. Analyze this transcript.
@@ -73,12 +70,26 @@ Provide evaluation in STRICT JSON format:
       conversationId: context,
     });
 
-    // gemini-router: cycles all keys × models automatically (quality-first for answer eval)
+    // gemini-router: cycles healthy keys x models automatically
     const evaluation = await generateJSON(prompt, { preferHighCapability: true });
     return NextResponse.json(evaluation);
 
   } catch (error: any) {
-    console.error('Final Evaluation error:', error);
+    console.error('[EVALUATE_ANSWER_ERROR]', error);
+    const msg = error?.message || '';
+
+    if (
+      msg.includes('GEMINI_ROUTER') ||
+      msg.toLowerCase().includes('rate-limit') ||
+      msg.toLowerCase().includes('quota') ||
+      msg.toLowerCase().includes('cooldown')
+    ) {
+      return NextResponse.json({
+        error: 'AI evaluation service is temporarily busy due to rate limits. Please retry in a few moments.',
+        code: 'AI_RATE_LIMITED'
+      }, { status: 503 });
+    }
+
     return NextResponse.json({ 
       error: 'Failed to evaluate answer', 
       details: error.message 

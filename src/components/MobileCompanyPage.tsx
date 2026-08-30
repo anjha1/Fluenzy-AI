@@ -534,20 +534,35 @@ export default function MobileCompanyPage() {
               <div className="py-4 space-y-4">
                 {/* Target Role */}
                 <div className="relative">
-                  <label className="text-xs font-bold block mb-1.5" style={{ color: textHex }}>Target Role</label>
-                  
+                  <label
+                    className="text-xs font-extrabold block mb-1.5"
+                    style={{
+                      color: isLight ? '#1C1917' : textHex,
+                      WebkitTextFillColor: isLight ? '#1C1917' : textHex,
+                    }}
+                  >
+                    Target Role
+                  </label>
+
                   {/* Custom Trigger Box */}
                   <button
                     type="button"
                     onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
                     className="w-full h-11 px-3.5 rounded-xl border text-xs font-semibold flex items-center justify-between transition-all active:scale-98"
                     style={{
-                      background: pageBgHex,
-                      color: textHex,
-                      borderColor: borderHex,
+                      background: isLight ? '#F5F2EB' : pageBgHex,
+                      backgroundColor: isLight ? '#F5F2EB' : pageBgHex,
+                      borderColor: isLight ? '#D6D1C4' : borderHex,
+                      color: isLight ? '#1C1917' : textHex,
                     }}
                   >
-                    <span className="truncate font-bold">
+                    <span
+                      className="truncate font-extrabold"
+                      style={{
+                        color: isLight ? '#1C1917' : textHex,
+                        WebkitTextFillColor: isLight ? '#1C1917' : textHex,
+                      }}
+                    >
                       {role === 'Custom'
                         ? (customRoleText.trim() || '+ Custom Role...')
                         : role}
@@ -555,7 +570,10 @@ export default function MobileCompanyPage() {
                     <ChevronDown
                       size={16}
                       className={`shrink-0 transition-transform ${roleDropdownOpen ? 'rotate-180' : ''}`}
-                      style={{ color: mutedHex }}
+                      style={{
+                        color: isLight ? '#44403C' : mutedHex,
+                        stroke: isLight ? '#44403C' : mutedHex,
+                      }}
                     />
                   </button>
 
@@ -567,10 +585,11 @@ export default function MobileCompanyPage() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -4, scale: 0.98 }}
                         transition={{ duration: 0.15 }}
-                        className="mt-1.5 rounded-xl border overflow-hidden shadow-lg max-h-48 overflow-y-auto space-y-0.5 p-1 z-30 relative"
+                        className="mt-1.5 rounded-xl border overflow-hidden shadow-2xl max-h-48 overflow-y-auto space-y-0.5 p-1.5 z-50 relative"
                         style={{
-                          background: cardBgHex,
-                          borderColor: borderHex,
+                          background: isLight ? '#FFFFFF' : cardBgHex,
+                          backgroundColor: isLight ? '#FFFFFF' : cardBgHex,
+                          borderColor: isLight ? '#D6D1C4' : borderHex,
                         }}
                       >
                         {/* Custom Role Option (at top) */}
@@ -580,22 +599,28 @@ export default function MobileCompanyPage() {
                             setRole('Custom');
                             setRoleDropdownOpen(false);
                           }}
-                          className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-colors flex items-center justify-between border-b pb-2 mb-0.5"
+                          className="w-full text-left px-3 py-2.5 rounded-lg text-xs font-extrabold transition-colors flex items-center justify-between border-b mb-0.5"
                           style={{
-                            background: role === 'Custom' ? `${accentHex}18` : 'transparent',
-                            color: accentHex,
-                            borderColor: borderHex,
+                            background: role === 'Custom' ? (isLight ? '#F0EBFA' : `${accentHex}25`) : 'transparent',
+                            borderColor: isLight ? '#E6E2D8' : borderHex,
                           }}
                         >
-                          <span className="flex items-center gap-1.5 font-extrabold">
-                            <Plus size={14} strokeWidth={2.5} style={{ color: accentHex }} />
+                          <span
+                            className="flex items-center gap-1.5 font-extrabold"
+                            style={{
+                              color: isLight ? '#7C3AED' : accentHex,
+                              WebkitTextFillColor: isLight ? '#7C3AED' : accentHex,
+                            }}
+                          >
+                            <Plus size={14} strokeWidth={2.5} style={{ color: isLight ? '#7C3AED' : accentHex, stroke: isLight ? '#7C3AED' : accentHex }} />
                             Custom Role (Type your own)
                           </span>
-                          {role === 'Custom' && <Check size={14} style={{ color: accentHex }} />}
+                          {role === 'Custom' && <Check size={14} style={{ color: isLight ? '#7C3AED' : accentHex, stroke: isLight ? '#7C3AED' : accentHex }} />}
                         </button>
 
                         {ROLES_LIST.map((r) => {
                           const isSelected = role === r;
+                          const itemColor = isSelected ? (isLight ? '#7C3AED' : accentHex) : (isLight ? '#1C1917' : textHex);
                           return (
                             <button
                               key={r}
@@ -604,14 +629,21 @@ export default function MobileCompanyPage() {
                                 setRole(r);
                                 setRoleDropdownOpen(false);
                               }}
-                              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-between"
+                              className="w-full text-left px-3 py-2.5 rounded-lg text-xs font-extrabold transition-colors flex items-center justify-between"
                               style={{
-                                background: isSelected ? `${accentHex}18` : 'transparent',
-                                color: isSelected ? accentHex : textHex,
+                                background: isSelected ? (isLight ? '#F0EBFA' : `${accentHex}25`) : 'transparent',
                               }}
                             >
-                              <span className="truncate">{r}</span>
-                              {isSelected && <Check size={14} style={{ color: accentHex }} />}
+                              <span
+                                className="truncate font-extrabold"
+                                style={{
+                                  color: itemColor,
+                                  WebkitTextFillColor: itemColor,
+                                }}
+                              >
+                                {r}
+                              </span>
+                              {isSelected && <Check size={14} style={{ color: itemColor, stroke: itemColor }} />}
                             </button>
                           );
                         })}
@@ -627,11 +659,13 @@ export default function MobileCompanyPage() {
                         placeholder="Type custom role (e.g. iOS Developer)..."
                         value={customRoleText}
                         onChange={(e) => setCustomRoleText(e.target.value)}
-                        className="search-input-clean w-full h-11 px-3.5 rounded-xl border text-xs font-semibold outline-none"
+                        className="w-full h-11 px-3.5 rounded-xl border text-xs font-bold outline-none"
                         style={{
-                          background: pageBgHex,
-                          color: textHex,
-                          borderColor: borderHex,
+                          background: isLight ? '#F5F2EB' : pageBgHex,
+                          backgroundColor: isLight ? '#F5F2EB' : pageBgHex,
+                          color: isLight ? '#1C1917' : textHex,
+                          WebkitTextFillColor: isLight ? '#1C1917' : textHex,
+                          borderColor: isLight ? '#D6D1C4' : borderHex,
                         }}
                       />
                     </div>
@@ -640,55 +674,80 @@ export default function MobileCompanyPage() {
 
                 {/* Round Type */}
                 <div>
-                  <label className="text-xs font-bold block mb-1.5" style={{ color: textHex }}>Interview Round</label>
+                  <label
+                    className="text-xs font-extrabold block mb-1.5"
+                    style={{
+                      color: isLight ? '#1C1917' : textHex,
+                      WebkitTextFillColor: isLight ? '#1C1917' : textHex,
+                    }}
+                  >
+                    Interview Round
+                  </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {(['Technical', 'PI'] as const).map((round) => (
-                      <button
-                        key={round}
-                        type="button"
-                        onClick={() => setRoundType(round)}
-                        className="h-10 rounded-xl text-xs font-bold border transition-colors flex items-center justify-center gap-1.5"
-                        style={{
-                          background: roundType === round ? '#5B21E6' : pageBgHex,
-                          color: roundType === round ? '#FFFFFF' : textHex,
-                          borderColor: roundType === round ? '#5B21E6' : borderHex,
-                        }}
-                      >
-                        {round === 'Technical' ? 'Technical Round' : 'HR & Behavioral'}
-                      </button>
-                    ))}
+                    {(['Technical', 'PI'] as const).map((round) => {
+                      const isSelected = roundType === round;
+                      return (
+                        <button
+                          key={round}
+                          type="button"
+                          onClick={() => setRoundType(round)}
+                          className="h-10 rounded-xl text-xs font-bold border transition-colors flex items-center justify-center gap-1.5"
+                          style={{
+                            background: isSelected ? '#5B21E6' : (isLight ? '#F5F2EB' : pageBgHex),
+                            color: isSelected ? '#FFFFFF' : (isLight ? '#1C1917' : textHex),
+                            WebkitTextFillColor: isSelected ? '#FFFFFF' : (isLight ? '#1C1917' : textHex),
+                            borderColor: isSelected ? '#5B21E6' : (isLight ? '#D6D1C4' : borderHex),
+                          }}
+                        >
+                          {round === 'Technical' ? 'Technical Round' : 'HR & Behavioral'}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Experience Level */}
                 <div>
-                  <label className="text-xs font-bold block mb-1.5" style={{ color: textHex }}>Experience Level</label>
+                  <label
+                    className="text-xs font-extrabold block mb-1.5"
+                    style={{
+                      color: isLight ? '#1C1917' : textHex,
+                      WebkitTextFillColor: isLight ? '#1C1917' : textHex,
+                    }}
+                  >
+                    Experience Level
+                  </label>
                   <div className="grid grid-cols-3 gap-2">
-                    {(['Fresher', '1-3 Years', '3+ Years'] as const).map((exp) => (
-                      <button
-                        key={exp}
-                        type="button"
-                        onClick={() => setExperience(exp)}
-                        className="h-9 rounded-xl text-xs font-bold border transition-colors"
-                        style={{
-                          background: experience === exp ? '#5B21E6' : pageBgHex,
-                          color: experience === exp ? '#FFFFFF' : textHex,
-                          borderColor: experience === exp ? '#5B21E6' : borderHex,
-                        }}
-                      >
-                        {exp}
-                      </button>
-                    ))}
+                    {(['Fresher', '1-3 Years', '3+ Years'] as const).map((exp) => {
+                      const isSelected = experience === exp;
+                      return (
+                        <button
+                          key={exp}
+                          type="button"
+                          onClick={() => setExperience(exp)}
+                          className="h-9 rounded-xl text-xs font-bold border transition-colors"
+                          style={{
+                            background: isSelected ? '#5B21E6' : (isLight ? '#F5F2EB' : pageBgHex),
+                            color: isSelected ? '#FFFFFF' : (isLight ? '#1C1917' : textHex),
+                            WebkitTextFillColor: isSelected ? '#FFFFFF' : (isLight ? '#1C1917' : textHex),
+                            borderColor: isSelected ? '#5B21E6' : (isLight ? '#D6D1C4' : borderHex),
+                          }}
+                        >
+                          {exp}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
 
               <button
                 onClick={() => handleStartSession(selectedCompany.name)}
-                className="w-full h-12 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-transform"
-                style={{ background: 'linear-gradient(135deg,#5B21E6,#7C3AED)' }}
+                className="w-full h-12 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-transform force-white"
+                style={{ background: 'linear-gradient(135deg,#5B21E6,#7C3AED)', color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}
               >
-                Upload or Paste Resume <ChevronRight size={16} />
+                <span style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}>Upload or Paste Resume</span>
+                <ChevronRight size={16} style={{ color: '#FFFFFF', stroke: '#FFFFFF' }} />
               </button>
             </motion.div>
           </>

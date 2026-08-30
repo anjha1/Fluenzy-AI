@@ -124,12 +124,14 @@ const VoiceAgent: React.FC<{
   onInterviewStart?: () => void;
   showSettings?: boolean;
   onShowSettingsChange?: (show: boolean) => void;
+  hideEndButton?: boolean;
 }> = ({ 
   user, 
   onSessionEnd, 
   onInterviewStart,
   showSettings,
-  onShowSettingsChange
+  onShowSettingsChange,
+  hideEndButton = false
 }) => {
   const { type } = useParams<{ type: string }>();
   const router = useRouter();
@@ -137,6 +139,7 @@ const VoiceAgent: React.FC<{
   const [isActive, setIsActive] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const isSavingRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [isFinished, setIsFinished] = useState(false);
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
@@ -962,8 +965,23 @@ From now on, speak and act strictly according to these new settings!]`
       }
     };
     
+    const handleEndInterviewEvent = async () => {
+      if (isSavingRef.current) {
+        console.log('⚡ fluenzy_end_interview event ignored -> already saving');
+        return;
+      }
+      console.log('⚡ fluenzy_end_interview event received -> executing save & cleanup');
+      isSavingRef.current = true;
+      setIsSaving(true);
+      await cleanup(true);
+    };
+
     window.addEventListener('fluenzy_settings_updated', handleSettingsUpdate);
-    return () => window.removeEventListener('fluenzy_settings_updated', handleSettingsUpdate);
+    window.addEventListener('fluenzy_end_interview', handleEndInterviewEvent);
+    return () => {
+      window.removeEventListener('fluenzy_settings_updated', handleSettingsUpdate);
+      window.removeEventListener('fluenzy_end_interview', handleEndInterviewEvent);
+    };
   }, []);
 
   return (
@@ -974,78 +992,80 @@ From now on, speak and act strictly according to these new settings!]`
           ? 'bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700/50 shadow-2xl backdrop-blur-xl'
           : 'bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700/50 shadow-2xl backdrop-blur-xl'
       }`}>
-      {/* Header */}
-      <div className={`px-4 md:px-8 py-3 md:py-5 flex items-center justify-between border-b z-50
-        ${isLight ? 'bg-white border-slate-100' : 'bg-slate-800/60 backdrop-blur-xl border-slate-700/50'}`}>
-        <div className="flex items-center gap-2 md:gap-4 min-w-0">
-          <div className={`flex-shrink-0 ${
-            isEnglishLearning ? 'bg-gradient-to-br from-blue-600 to-purple-600' : 'bg-gradient-to-br from-pink-500 to-purple-600'
-          } text-white p-2 rounded-xl shadow-lg`}>
-            <Sparkles size={18} />
+      {/* Header - Hidden when in mobile session page (hideEndButton is true) */}
+      {!hideEndButton && (
+        <div className={`px-4 md:px-8 py-3 md:py-5 flex items-center justify-between border-b z-50
+          ${isLight ? 'bg-white border-slate-100' : 'bg-slate-800/60 backdrop-blur-xl border-slate-700/50'}`}>
+          <div className="flex items-center gap-2 md:gap-4 min-w-0">
+            <div className={`flex-shrink-0 ${
+              isEnglishLearning ? 'bg-gradient-to-br from-blue-600 to-purple-600' : 'bg-gradient-to-br from-pink-500 to-purple-600'
+            } text-white p-2 rounded-xl shadow-lg`}>
+              <Sparkles size={18} />
+            </div>
+            <div className="min-w-0">
+              <h2 className={`font-black text-base md:text-lg tracking-tight leading-tight truncate ${
+                isLight ? 'text-slate-900' : 'text-white'
+              }`}>{topic}</h2>
+              {isEnglishLearning && lessonContext && (
+                <p className={`text-xs font-medium mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-slate-300'}`}>{lessonContext.objective}</p>
+              )}
+            </div>
           </div>
-          <div className="min-w-0">
-            <h2 className={`font-black text-base md:text-lg tracking-tight leading-tight truncate ${
-              isLight ? 'text-slate-900' : 'text-white'
-            }`}>{topic}</h2>
-            {isEnglishLearning && lessonContext && (
-              <p className={`text-xs font-medium mt-0.5 truncate ${isLight ? 'text-slate-500' : 'text-slate-300'}`}>{lessonContext.objective}</p>
+          <div className="flex items-center gap-1.5 md:gap-2 ml-2">
+            {/* ⚡ Instant Reply — forces AI to respond NOW via activityEnd (manual VAD mode) */}
+            {isActive && (
+              <button
+                id="instant-reply-btn"
+                onClick={() => {
+                  if (!sessionRef.current) return;
+                  sessionRef.current.sendRealtimeInput({ activityEnd: {} });
+                  console.log('[INSTANT_REPLY] activityEnd → AI responds now');
+                }}
+                className={`p-2 rounded-xl border transition-all duration-150 active:scale-90
+                  ${ isLight
+                    ? 'border-emerald-400 bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                    : 'border-emerald-500 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30'
+                  }`}
+                title="Instant Reply — AI responds right now"
+              >
+                <Zap size={16} className="fill-current" />
+              </button>
             )}
+            {(!isEnglishLearning && !isConversationPractice && !isGDCoach) && (
+              <button
+                onClick={toggleSettings}
+                className={`p-2 rounded-xl border transition-all duration-200 ${
+                  isSettingsShown
+                    ? 'bg-gradient-to-br from-pink-500/20 to-purple-600/20 border-pink-500/40 text-pink-400'
+                    : isLight
+                      ? 'border-slate-200 text-slate-400 hover:border-pink-500/40 hover:text-slate-600 hover:bg-slate-50'
+                      : 'bg-slate-800/40 border-slate-700/60 text-slate-400 hover:border-pink-500/40 hover:text-slate-200 hover:bg-slate-800'
+                }`}
+                title="Interview Settings"
+              >
+                <Settings size={18} />
+              </button>
+            )}
+            <button
+              onClick={async () => {
+                if (isActive && !isSaving) {
+                  setIsSaving(true);
+                  await cleanup(true);
+                } else {
+                  router.push('/train');
+                }
+              }}
+              className={`flex-shrink-0 p-2 rounded-xl transition-all ${
+                isLight ? 'text-slate-400 hover:bg-slate-100 hover:text-slate-900' : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+              }`}
+            >
+              <X size={18} />
+            </button>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 md:gap-2 ml-2">
-          {/* ⚡ Instant Reply — forces AI to respond NOW via activityEnd (manual VAD mode) */}
-          {isActive && (
-            <button
-              id="instant-reply-btn"
-              onClick={() => {
-                if (!sessionRef.current) return;
-                sessionRef.current.sendRealtimeInput({ activityEnd: {} });
-                console.log('[INSTANT_REPLY] activityEnd → AI responds now');
-              }}
-              className={`p-2 rounded-xl border transition-all duration-150 active:scale-90
-                ${ isLight
-                  ? 'border-emerald-400 bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                  : 'border-emerald-500 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30'
-                }`}
-              title="Instant Reply — AI responds right now"
-            >
-              <Zap size={16} className="fill-current" />
-            </button>
-          )}
-          {(!isEnglishLearning && !isConversationPractice && !isGDCoach) && (
-            <button
-              onClick={toggleSettings}
-              className={`p-2 rounded-xl border transition-all duration-200 ${
-                isSettingsShown
-                  ? 'bg-gradient-to-br from-pink-500/20 to-purple-600/20 border-pink-500/40 text-pink-400'
-                  : isLight
-                    ? 'border-slate-200 text-slate-400 hover:border-pink-500/40 hover:text-slate-600 hover:bg-slate-50'
-                    : 'bg-slate-800/40 border-slate-700/60 text-slate-400 hover:border-pink-500/40 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-              title="Interview Settings"
-            >
-              <Settings size={18} />
-            </button>
-          )}
-          <button
-            onClick={async () => {
-              if (isActive && !isSaving) {
-                setIsSaving(true);
-                await cleanup(true);
-              } else {
-                router.push('/train');
-              }
-            }}
-            className={`flex-shrink-0 p-2 rounded-xl transition-all ${
-              isLight ? 'text-slate-400 hover:bg-slate-100 hover:text-slate-900' : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-            }`}
-          >
-            <X size={18} />
-          </button>
-        </div>
-      </div>
+      )}
       
-      <div className="flex-1 p-4 md:p-8 flex flex-col items-center justify-center relative">
+      <div className={`flex-1 flex flex-col items-center justify-center relative ${hideEndButton ? 'p-1' : 'p-4 md:p-8'}`}>
         {error && <div className={`absolute top-4 left-4 right-4 md:left-auto md:right-auto px-4 py-2 rounded-xl font-bold flex items-center gap-2 border z-[100] text-sm ${
           isLight ? 'bg-red-50 text-red-600 border-red-200' : 'bg-rose-900/50 text-rose-300 border-rose-700/50'
         }`}><Zap size={14} /> {error}</div>}
@@ -1056,16 +1076,19 @@ From now on, speak and act strictly according to these new settings!]`
               ? 'bg-gradient-to-br from-slate-50 to-white border-slate-200 shadow-md'
               : 'bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-slate-700/50 shadow-2xl'
           }`}>
-            {/* Image + Title in row on mobile, column on desktop */}
-            <div className="flex flex-row md:flex-col items-center gap-4 md:gap-0 text-left md:text-center">
-              <div className="relative flex-shrink-0">
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-lg scale-110" />
-                <img
-                  src="/image/img.png"
-                  alt="AI Coach"
-                  className="relative w-14 h-14 md:w-20 md:h-20 rounded-2xl border-2 border-slate-600/50 shadow-xl object-cover"
-                />
+            {/* Large Full-Width AI HR Coach Image */}
+            <div className="w-full relative rounded-2xl overflow-hidden aspect-[16/9] max-h-56 shadow-xl border border-slate-700/50 mb-2 bg-slate-950">
+              <img
+                src="/image/img.png"
+                alt="AI Coach"
+                className="w-full h-full object-cover object-top"
+                style={{ objectPosition: 'top center' }}
+              />
+              <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-black text-white force-white border border-white/10">
+                {isEnglishLearning ? 'AI Coach' : isConversationPractice ? 'AI Friend' : (sessionMeta?.isCompanyWise ? 'Company Coach' : 'HR Coach')}
               </div>
+            </div>
+            <div className="flex flex-col items-center text-center">
               <div className="flex-1 md:mt-2 space-y-0.5 md:space-y-1">
                 <h3 className={`text-base md:text-xl font-black leading-tight ${
                   isLight ? 'text-slate-900' : 'text-white'
@@ -1141,61 +1164,39 @@ From now on, speak and act strictly according to these new settings!]`
           </div>
         </div>
         ) : (
-          <div className="w-full max-w-2xl mx-auto">
-            <div className={`rounded-xl border p-3 md:p-6 text-center space-y-2.5 md:space-y-5 animate-in zoom-in-95 duration-500 ${
-              isLight
-                ? 'bg-white border-slate-200 shadow-md'
-                : 'bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-slate-700/50 shadow-2xl'
-            }`}>
-              {/* Mobile: row layout (image + info side by side); md+: column centered */}
-              <div className="flex flex-row md:flex-col items-center gap-3 md:gap-5 md:justify-center">
-                <div className="relative flex-shrink-0 flex flex-col items-center">
-                  <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${isAiSpeaking ? 'from-blue-500/20 to-purple-500/20' : 'from-emerald-500/20 to-teal-500/20'} blur-md scale-105`} />
-                  <img
-                    src="/image/img.png"
-                    alt="AI Coach"
-                    className={`relative rounded-xl border border-slate-300/50 shadow-md object-cover w-11 h-11 md:w-20 md:h-20`}
-                  />
-                  <p className={`text-[10px] md:text-xs font-semibold mt-1 tracking-wide text-center ${isLight ? 'text-slate-500' : 'text-slate-300'}`}>
-                    {isEnglishLearning ? 'AI Coach' : isConversationPractice ? 'AI Friend' : (sessionMeta?.isCompanyWise ? 'Company Coach' : 'HR Coach')}
-                  </p>
+          <div className="w-full max-w-2xl mx-auto space-y-1.5">
+            {/* AI HR Interviewer Image - 100% clean, unblocked face */}
+            <div className="relative w-full aspect-[16/10] min-h-[140px] max-h-44 sm:max-h-56 rounded-xl overflow-hidden border shadow-xl flex items-center justify-center bg-slate-950 border-slate-700/60">
+              <img
+                src="/image/img.png"
+                alt="AI HR Interviewer"
+                className="w-full h-full object-cover object-top"
+                style={{ objectPosition: 'top center' }}
+              />
+            </div>
+
+            {/* Dynamic Audio Visualizer & Live Speaking Status Bar BELOW Image */}
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/60 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="flex items-end gap-0.5 h-3">
+                  <span className={`w-1 bg-purple-400 rounded-full ${isAiSpeaking ? 'animate-bounce h-3' : 'h-1.5'}`} />
+                  <span className={`w-1 bg-purple-400 rounded-full ${isAiSpeaking ? 'animate-bounce h-2.5 delay-75' : 'h-2'}`} />
+                  <span className={`w-1 bg-purple-400 rounded-full ${isAiSpeaking ? 'animate-bounce h-3.5 delay-150' : 'h-1'}`} />
+                  <span className={`w-1 bg-purple-400 rounded-full ${isAiSpeaking ? 'animate-bounce h-1.5 delay-200' : 'h-1.5'}`} />
                 </div>
-                <div className="flex-1 md:w-full space-y-1.5 md:space-y-3 text-left md:text-center">
-                  <h4 className={`text-[10px] md:text-xs font-black uppercase tracking-[0.15em] ${isLight ? 'text-slate-400' : 'text-slate-400'}`}>
-                    {isEnglishLearning ? 'English Practice' : isConversationPractice ? 'Daily Conversation' : 'Interview Practice'}
-                  </h4>
-                  <p className={`text-xs md:text-lg font-bold leading-snug ${isLight ? 'text-slate-800' : 'text-white'}`}>
-                    {isAiSpeaking
-                      ? (isEnglishLearning
-                          ? 'Your coach is speaking. Listen carefully.'
-                          : isConversationPractice
-                            ? 'Your friend is talking. Listen carefully.'
-                            : 'Your coach is providing feedback. Listen carefully.'
-                        )
-                      : (isEnglishLearning
-                          ? 'Your turn! Speak clearly.'
-                          : isConversationPractice
-                            ? 'Your turn! Just chat naturally.'
-                            : 'Your turn! Answer professionally.'
-                        )
-                    }
-                  </p>
-                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] md:text-xs font-semibold ${
-                    isAiSpeaking
-                      ? (isLight ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-blue-500/10 border-blue-500/30 text-blue-300')
-                      : (isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-600 animate-pulse' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 animate-pulse')
-                  }`}>
-                    <Mic2 size={13} />
-                    <span>{isAiSpeaking ? 'Coach Speaking' : (isEnglishLearning ? 'Your Turn' : 'Your Response')}</span>
-                  </div>
-                </div>
+                <span className="text-[11px] font-black text-white tracking-tight force-white">
+                  {isAiSpeaking ? 'AI HR Speaking...' : 'AI HR Listening (Your Turn)'}
+                </span>
               </div>
+              <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-purple-600/90 text-white border border-purple-400/30 force-white">
+                HD AI Voice
+              </span>
             </div>
           </div>
         )}
       </div>
 
-      {isActive && (
+      {isActive && !hideEndButton && (
         <div className="mt-2.5 md:mt-6 flex justify-center pb-1">
           <button
             onClick={async () => { setIsSaving(true); await cleanup(true); }}
@@ -1213,25 +1214,7 @@ From now on, speak and act strictly according to these new settings!]`
         </p>
       </div>}
 
-      {isSaving && (
-        <div className={`absolute inset-0 z-[200] flex flex-col items-center justify-center space-y-5 rounded-2xl md:rounded-3xl ${isLight ? 'bg-white/98' : 'bg-slate-900/98'}`}
-          style={{ backdropFilter: 'blur(8px)' }}
-        >
-          {/* Pulsing save icon */}
-          <div className="relative flex items-center justify-center w-16 h-16">
-            <div className="absolute inset-0 rounded-full bg-emerald-400/20 animate-ping" />
-            <div className={`w-14 h-14 rounded-full border-4 border-t-emerald-500 animate-spin ${isLight ? 'border-slate-200' : 'border-slate-700'}`} />
-          </div>
-          <div className="text-center space-y-1 px-6">
-            <p className={`font-black text-sm md:text-base uppercase tracking-[0.2em] ${isLight ? 'text-slate-800' : 'text-white'}`}>
-              {isEnglishLearning ? 'Saving Practice Data...' : 'Saving Interview Data...'}
-            </p>
-            <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-              Please wait, do not close this page
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Background saving process - runs silently without blocking UI */}
     </div>
   );
 };

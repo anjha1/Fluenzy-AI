@@ -231,7 +231,7 @@ export default function MobileCompanyResumePage() {
             <span className="font-extrabold text-sm" style={{ color: textHex }}>
               {company} Interview
             </span>
-            <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full text-white" style={{ background: accentHex }}>
+            <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full text-white force-white" style={{ background: accentHex, color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}>
               {roundType === 'Technical' ? 'Technical' : 'HR & Behavioral'}
             </span>
           </div>
@@ -253,25 +253,27 @@ export default function MobileCompanyResumePage() {
           <button
             type="button"
             onClick={() => setActiveTab('upload')}
-            className="py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+            className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${activeTab === 'upload' ? 'force-white' : ''}`}
             style={{
               background: activeTab === 'upload' ? accentHex : 'transparent',
-              color: activeTab === 'upload' ? '#FFFFFF' : mutedHex,
+              color: activeTab === 'upload' ? '#FFFFFF' : (isLight ? '#44403C' : mutedHex),
+              WebkitTextFillColor: activeTab === 'upload' ? '#FFFFFF' : (isLight ? '#44403C' : mutedHex),
             }}
           >
-            <Upload size={14} />
+            <Upload size={14} style={{ color: activeTab === 'upload' ? '#FFFFFF' : (isLight ? '#44403C' : mutedHex), stroke: activeTab === 'upload' ? '#FFFFFF' : (isLight ? '#44403C' : mutedHex) }} />
             Upload File
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('paste')}
-            className="py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+            className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${activeTab === 'paste' ? 'force-white' : ''}`}
             style={{
               background: activeTab === 'paste' ? accentHex : 'transparent',
-              color: activeTab === 'paste' ? '#FFFFFF' : mutedHex,
+              color: activeTab === 'paste' ? '#FFFFFF' : (isLight ? '#44403C' : mutedHex),
+              WebkitTextFillColor: activeTab === 'paste' ? '#FFFFFF' : (isLight ? '#44403C' : mutedHex),
             }}
           >
-            <FileText size={14} />
+            <FileText size={14} style={{ color: activeTab === 'paste' ? '#FFFFFF' : (isLight ? '#44403C' : mutedHex), stroke: activeTab === 'paste' ? '#FFFFFF' : (isLight ? '#44403C' : mutedHex) }} />
             Paste Text
           </button>
         </div>
@@ -378,10 +380,10 @@ export default function MobileCompanyResumePage() {
           <button
             type="button"
             onClick={() => handleStartSession(resumeText)}
-            className="w-full h-12 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-transform"
-            style={{ background: 'linear-gradient(135deg,#5B21E6,#7C3AED)' }}
+            className="w-full h-12 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-transform force-white"
+            style={{ background: 'linear-gradient(135deg,#5B21E6,#7C3AED)', color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}
           >
-            Start Interview Session <ChevronRight size={16} />
+            <span style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}>Start Interview Session</span> <ChevronRight size={16} style={{ color: '#FFFFFF', stroke: '#FFFFFF' }} />
           </button>
 
           <button

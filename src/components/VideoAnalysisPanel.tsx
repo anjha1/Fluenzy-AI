@@ -8,7 +8,8 @@ import {
   Smile, 
   AlertTriangle,
   TrendingUp,
-  X
+  X,
+  Check
 } from 'lucide-react';
 
 interface BehavioralMetrics {
@@ -28,6 +29,7 @@ interface VideoAnalysisPanelProps {
   sessionId: string;
   isActive: boolean;
   onSessionEnd?: (metrics: BehavioralMetrics) => void;
+  onMetricsUpdate?: (metrics: BehavioralMetrics) => void;
   isCompact?: boolean;
 }
 
@@ -71,6 +73,7 @@ const VideoAnalysisPanel: React.FC<VideoAnalysisPanelProps> = ({
   sessionId, 
   isActive,
   onSessionEnd,
+  onMetricsUpdate,
   isCompact = false
 }) => {
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -111,7 +114,8 @@ const VideoAnalysisPanel: React.FC<VideoAnalysisPanelProps> = ({
 
   useEffect(() => {
     metricsRef.current = metrics;
-  }, [metrics]);
+    onMetricsUpdate?.(metrics);
+  }, [metrics, onMetricsUpdate]);
 
   const buildSnapshotForIssue = useCallback(
     (issueCode: string): Omit<BehavioralAlertSnapshot, "id" | "timestamp" | "imageData"> | null => {
@@ -678,6 +682,16 @@ const VideoAnalysisPanel: React.FC<VideoAnalysisPanelProps> = ({
     };
   }, []);
 
+  // Attach stream to video element when camera turns on
+  useEffect(() => {
+    if (isCameraOn && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch((err) => {
+        console.warn("⚠️ Video element play error:", err);
+      });
+    }
+  }, [isCameraOn]);
+
   // Auto-start/stop strictly based on parent interview state
   useEffect(() => {
     if (isActive && !isCameraOn) {
@@ -707,242 +721,155 @@ const VideoAnalysisPanel: React.FC<VideoAnalysisPanelProps> = ({
   return (
     <div className="bg-slate-800/50 backdrop-blur rounded-xl border border-slate-700/50 overflow-hidden">
       {/* Header */}
-      <div className="bg-slate-900/50 px-4 py-3 border-b border-slate-700/50 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Activity className={`w-5 h-5 ${wsConnected ? 'text-emerald-400' : 'text-slate-500'}`} />
-          <span className="text-white font-semibold text-sm">AI Video Analysis</span>
+      <div className="bg-slate-900/50 px-3 py-2 border-b border-slate-700/50 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Activity className={`w-4 h-4 ${wsConnected ? 'text-emerald-400' : 'text-slate-500'}`} />
+          <span className="text-white font-bold text-xs">AI Video Analysis</span>
           {wsConnected && (
-            <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
+            <span className="text-[9px] text-emerald-400 bg-emerald-400/10 px-1.5 py-0.2 rounded-full font-bold">
               Live
             </span>
           )}
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {!isCameraOn ? (
-            <span className="text-xs text-slate-400">Waiting for interview start...</span>
+            <span className="text-[10px] text-slate-400">Waiting...</span>
           ) : (
             <>
               <button
                 onClick={stopAnalysis}
-                className="flex items-center gap-2 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs rounded-lg transition-colors"
+                className="flex items-center gap-1 px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold rounded-md transition-colors"
               >
-                <CameraOff size={14} />
+                <CameraOff size={12} />
                 Stop
               </button>
               <button
                 onClick={stopCamera}
-                className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors"
+                className="p-1 hover:bg-slate-700 rounded-md transition-colors"
               >
-                <X size={16} className="text-slate-400" />
+                <X size={14} className="text-slate-400" />
               </button>
             </>
           )}
         </div>
       </div>
 
-      {/* Video Display */}
-      <div className={`relative bg-slate-900 transition-all duration-300 ${
-        isCameraOn 
-          ? isCompact ? 'h-32 w-full' : 'aspect-video' 
-          : isCompact 
-            ? 'h-[75px]' 
-            : 'aspect-video'
-      }`}>
-        {isCameraOn ? (
-          <>
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover"
-              playsInline
-              muted
-            />
-            
-            {/* Overlay with annotated frame if available */}
-            {annotatedFrame && isAnalyzing && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                <img 
-                  src={`data:image/jpeg;base64,${annotatedFrame}`} 
-                  alt="Analysis"
-                  className="w-full h-full object-contain"
+      {/* Live 2-Column Analysis Grid (Candidate Camera Box on Left + Real AI Metrics on Right) */}
+      <div className="p-2">
+        <div className="grid grid-cols-12 gap-2">
+          {/* LEFT COLUMN: Real Candidate Webcam Video Feed (5 cols) */}
+          <div 
+            className="col-span-5 relative rounded-xl overflow-hidden border aspect-[3/4] max-h-36 flex items-center justify-center shadow-md border-slate-700/60 video-box-container"
+            style={{ background: '#090D16', backgroundColor: '#090D16' }}
+          >
+            {isCameraOn ? (
+              <>
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-cover scale-x-[-1]"
+                  style={{ background: '#090D16', backgroundColor: '#090D16' }}
+                  playsInline
+                  muted
+                  autoPlay
                 />
-              </div>
+
+                {/* 4 Clean Corner Brackets [ ] - Direct spans, zero box overlay */}
+                <div className="absolute inset-0 pointer-events-none p-2" style={{ background: 'transparent', backgroundColor: 'transparent' }}>
+                  <span className="absolute top-2 left-2 w-2.5 h-2.5 border-t-2 border-l-2 border-emerald-400" style={{ background: 'transparent' }} />
+                  <span className="absolute top-2 right-2 w-2.5 h-2.5 border-t-2 border-r-2 border-emerald-400" style={{ background: 'transparent' }} />
+                  <span className="absolute bottom-2 left-2 w-2.5 h-2.5 border-b-2 border-l-2 border-emerald-400" style={{ background: 'transparent' }} />
+                  <span className="absolute bottom-2 right-2 w-2.5 h-2.5 border-b-2 border-r-2 border-emerald-400" style={{ background: 'transparent' }} />
+                </div>
+
+                {/* Analysis indicator */}
+                {isAnalyzing && (
+                  <div 
+                    className="absolute top-1 right-1 flex items-center gap-1 px-1.5 py-0.2 rounded bg-black/80 border border-white/10"
+                  >
+                    <div className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
+                    <span className="text-white text-[8px] font-bold force-white">Analyzing...</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 p-1 text-center" style={{ background: '#090D16' }} />
             )}
-            
-            {/* Analysis indicator */}
-            {isAnalyzing && (
-              <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-full">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                <span className="text-white text-[10px] font-semibold">Analyzing...</span>
-              </div>
-            )}
-            
-            {/* Face detection indicator */}
-            {isAnalyzing && !metrics.face_detected && (
-              <div className="absolute top-2 left-2 flex items-center gap-1 bg-amber-500/80 px-2 py-1 rounded-full">
-                <AlertTriangle size={11} className="text-white" />
-                <span className="text-white text-[10px] font-medium">No face</span>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex items-center justify-center h-full text-slate-500 gap-2 px-3">
-            <CameraOff size={18} className="opacity-60" />
-            <p className="text-[11px] font-medium">Camera Feed Idle (Waiting for start)</p>
+
+            {/* Hidden canvas for frame processing */}
+            <canvas ref={canvasRef} className="hidden" />
           </div>
-        )}
-        
-        {/* Hidden canvas for frame processing */}
-        <canvas ref={canvasRef} className="hidden" />
+
+          {/* RIGHT COLUMN: Real-Time AI Score Metrics (7 cols) */}
+          <div className="col-span-7 space-y-1.5">
+            {/* Top Face Detection Badge */}
+            <div className="p-1.5 rounded-lg border border-slate-700/50 bg-slate-900/60 flex items-center gap-1.5">
+              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${isCameraOn && metrics.face_detected ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700/40 text-slate-400'}`}>
+                {isCameraOn && metrics.face_detected ? <Check size={11} strokeWidth={3} /> : <AlertTriangle size={11} />}
+              </div>
+              <div>
+                <p className="text-[8px] font-bold text-slate-400 leading-none">Face Detection</p>
+                <p className={`text-[11px] font-black mt-0.5 leading-none ${isCameraOn && metrics.face_detected ? 'text-emerald-400' : 'text-slate-400'}`}>
+                  {isCameraOn ? (metrics.face_detected ? 'Detected' : 'Searching...') : 'Camera Offline'}
+                </p>
+              </div>
+            </div>
+
+            {/* 2x2 Real-Time Score Metrics Grid */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <div className="p-1.5 rounded-lg border border-slate-700/50 bg-slate-900/60">
+                <p className="text-[8px] font-bold text-slate-400">Confidence</p>
+                <p className="text-xs font-black text-purple-400 mt-0.5">
+                  {isCameraOn && metrics.confidence > 0 ? `${metrics.confidence.toFixed(0)}%` : '--'}
+                </p>
+              </div>
+              <div className="p-1.5 rounded-lg border border-slate-700/50 bg-slate-900/60">
+                <p className="text-[8px] font-bold text-slate-400">Eye Contact</p>
+                <p className="text-xs font-black text-sky-400 mt-0.5">
+                  {isCameraOn && metrics.eye_contact > 0 ? `${metrics.eye_contact.toFixed(0)}%` : '--'}
+                </p>
+              </div>
+              <div className="p-1.5 rounded-lg border border-slate-700/50 bg-slate-900/60">
+                <p className="text-[8px] font-bold text-slate-400">Posture</p>
+                <p className="text-xs font-black text-emerald-400 mt-0.5">
+                  {isCameraOn && metrics.posture > 0 ? `${metrics.posture.toFixed(0)}%` : '--'}
+                </p>
+              </div>
+              <div className="p-1.5 rounded-lg border border-slate-700/50 bg-slate-900/60">
+                <p className="text-[8px] font-bold text-slate-400">Clarity</p>
+                <p className="text-xs font-black text-amber-400 mt-0.5">
+                  {isCameraOn && metrics.engagement > 0 ? `${metrics.engagement.toFixed(0)}%` : '--'}
+                </p>
+              </div>
+            </div>
+
+            {/* Bottom Stats: Smile & Stress Level */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <div className="p-1.5 rounded-lg border border-slate-700/50 bg-slate-900/60 flex items-center gap-1">
+                <Smile size={12} className="text-amber-400 shrink-0" />
+                <div>
+                  <p className="text-[7px] font-bold text-slate-400 leading-none">Smile</p>
+                  <p className="text-[11px] font-black text-amber-400 mt-0.5 leading-none">
+                    {isCameraOn && metrics.smile > 0 ? `${metrics.smile.toFixed(0)}%` : '--'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-1.5 rounded-lg border border-slate-700/50 bg-slate-900/60 flex items-center gap-1">
+                <Activity size={12} className="text-orange-400 shrink-0" />
+                <div>
+                  <p className="text-[7px] font-bold text-slate-400 leading-none">Stress Level</p>
+                  <p className="text-[11px] font-black text-orange-400 mt-0.5 leading-none">
+                    {isCameraOn && metrics.stress_level > 0 
+                      ? (metrics.stress_level > 50 ? 'High' : (metrics.stress_level > 20 ? 'Medium' : 'Low')) 
+                      : '--'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Metrics Display - Compact Mode */}
-      {isCameraOn && isCompact && (
-        <div className="p-1.5 bg-slate-900/60 border-t border-slate-700/40 grid grid-cols-4 gap-1.5 text-center">
-          <div className="bg-slate-950/60 rounded-md py-1 px-1.5 flex flex-col items-center">
-            <span className="text-[9px] text-slate-400 font-semibold tracking-tight">Conf.</span>
-            <span className={`text-xs font-black ${getScoreColor(metrics.confidence)}`}>
-              {metrics.confidence.toFixed(0)}%
-            </span>
-          </div>
-
-          <div className="bg-slate-950/60 rounded-md py-1 px-1.5 flex flex-col items-center">
-            <span className="text-[9px] text-slate-400 font-semibold tracking-tight">Eye</span>
-            <span className={`text-xs font-black ${getScoreColor(metrics.eye_contact)}`}>
-              {metrics.eye_contact.toFixed(0)}%
-            </span>
-          </div>
-
-          <div className="bg-slate-950/60 rounded-md py-1 px-1.5 flex flex-col items-center">
-            <span className="text-[9px] text-slate-400 font-semibold tracking-tight">Posture</span>
-            <span className={`text-xs font-black ${getScoreColor(metrics.posture)}`}>
-              {metrics.posture.toFixed(0)}%
-            </span>
-          </div>
-
-          <div className="bg-slate-950/60 rounded-md py-1 px-1.5 flex flex-col items-center">
-            <span className="text-[9px] text-slate-400 font-semibold tracking-tight">Smile</span>
-            <span className={`text-xs font-black ${getScoreColor(metrics.smile)}`}>
-              {metrics.smile.toFixed(0)}%
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Metrics Display - Full Mode */}
-      {isCameraOn && !isCompact && (
-        <div className="p-4 grid grid-cols-2 gap-3">
-          {/* Confidence */}
-          <div className="bg-slate-900/50 rounded-lg p-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-slate-400 text-xs flex items-center gap-1">
-                <TrendingUp size={12} />
-                Confidence
-              </span>
-            </div>
-            <div className={`text-2xl font-bold ${getScoreColor(metrics.confidence)}`}>
-              {metrics.confidence.toFixed(0)}%
-            </div>
-            <div className="mt-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full transition-all duration-300 ${
-                  metrics.confidence >= 70 ? 'bg-emerald-500' : 
-                  metrics.confidence >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${metrics.confidence}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Eye Contact */}
-          <div className="bg-slate-900/50 rounded-lg p-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-slate-400 text-xs flex items-center gap-1">
-                <Eye size={12} />
-                Eye Contact
-              </span>
-            </div>
-            <div className={`text-2xl font-bold ${getScoreColor(metrics.eye_contact)}`}>
-              {metrics.eye_contact.toFixed(0)}%
-            </div>
-            <div className="mt-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full transition-all duration-300 ${
-                  metrics.eye_contact >= 70 ? 'bg-emerald-500' : 
-                  metrics.eye_contact >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${metrics.eye_contact}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Posture */}
-          <div className="bg-slate-900/50 rounded-lg p-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-slate-400 text-xs flex items-center gap-1">
-                <Activity size={12} />
-                Posture
-              </span>
-            </div>
-            <div className={`text-2xl font-bold ${getScoreColor(metrics.posture)}`}>
-              {metrics.posture.toFixed(0)}%
-            </div>
-            <div className="mt-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full transition-all duration-300 ${
-                  metrics.posture >= 70 ? 'bg-emerald-500' : 
-                  metrics.posture >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${metrics.posture}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Smile */}
-          <div className="bg-slate-900/50 rounded-lg p-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-slate-400 text-xs flex items-center gap-1">
-                <Smile size={12} />
-                Smile
-              </span>
-            </div>
-            <div className={`text-2xl font-bold ${getScoreColor(metrics.smile)}`}>
-              {metrics.smile.toFixed(0)}%
-            </div>
-            <div className="mt-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full transition-all duration-300 ${
-                  metrics.smile >= 70 ? 'bg-emerald-500' : 
-                  metrics.smile >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${metrics.smile}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Stress Level */}
-          <div className="bg-slate-900/50 rounded-lg p-3 col-span-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-slate-400 text-xs flex items-center gap-1">
-                <AlertTriangle size={12} />
-                Stress Level
-              </span>
-            </div>
-            <div className={`text-2xl font-bold ${getStressColor(metrics.stress_level)}`}>
-              {metrics.stress_level.toFixed(0)}%
-            </div>
-            <div className="mt-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full transition-all duration-300 ${
-                  metrics.stress_level <= 30 ? 'bg-emerald-500' : 
-                  metrics.stress_level <= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${metrics.stress_level}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Alerts - Full Mode Only */}
       {isCameraOn && !isCompact && isAnalyzing && metrics.alerts && metrics.alerts.length > 0 && (

@@ -1,18 +1,19 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams, useParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Sparkles, Home, Link2, BarChart3, User, Target,
-  Video, Mic, MicOff, Camera, RefreshCw, Sun, Moon, Leaf, Coffee, Terminal,
-  ChevronRight, Volume2, ShieldCheck, CheckCircle2, Settings, X, Check
+  Settings, X, Check, Clock, Menu, Bell, CameraOff
 } from 'lucide-react';
-import { useTheme, ThemeName } from '@/contexts/ThemeContext';
-import Link from 'next/link';
+import { useTheme } from '@/contexts/ThemeContext';
 import VoiceAgent from '../../Learn_English/components/VoiceAgent';
 import VideoAnalysisPanel from './VideoAnalysisPanel';
-import { UserProfile, ModuleType } from '../../Learn_English/types';
+import { UserProfile } from '../../Learn_English/types';
 import { INITIAL_USER } from '../../Learn_English/constants';
+import { ThemeName } from '@/contexts/ThemeContext';
 import {
   InterviewSettings,
   VoiceSpeed,
@@ -20,7 +21,6 @@ import {
   PressureStyle,
   ResponseTiming,
   VOICE_SPEEDS,
-  VOICE_SPEED_LABELS,
   PRESSURE_STYLE_OPTIONS,
   RESPONSE_TIMING_OPTIONS,
   DEFAULT_SETTINGS,
@@ -41,25 +41,44 @@ const TABS = [
 export default function MobileSessionPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const params = useParams();
   const searchParams = useSearchParams();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
-  const company = searchParams.get('company') || 'Company';
+  const company = searchParams.get('company') || 'Google';
   const role = searchParams.get('role') || 'Software Engineer';
   const experience = searchParams.get('experience') || 'Fresher';
   const roundType = searchParams.get('roundType') || 'Technical';
 
+  // Initially set to FALSE (waiting for user to click START INTERVIEW)
   const [isInterviewActive, setIsInterviewActive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [settings, setSettings] = useState<InterviewSettings>(DEFAULT_SETTINGS);
+  
+  // Timer starts at 0 (Actual live calculated elapsed time)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
 
-  // Load settings on mount
+  // Load interview settings
   useEffect(() => {
     setSettings(getInterviewSettings());
   }, []);
+
+  // Timer interval - ticks ONLY when interview is active
+  useEffect(() => {
+    if (!isInterviewActive) return;
+    const interval = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isInterviewActive]);
+
+  const formatTimer = (totalSec: number) => {
+    const hrs = Math.floor(totalSec / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    const secs = totalSec % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const updateSetting = (patch: Partial<InterviewSettings>) => {
     const next = { ...settings, ...patch };
@@ -70,75 +89,16 @@ export default function MobileSessionPage() {
     }
   };
 
-  /* ── Per-theme colour tokens matching MobileTrainPage & MobileCompanyPage ── */
-  const ACCENT: Record<string, string> = {
-    light: '#5A2D82',
-    parchment: '#5A2D82',
-    dark: '#7C3AED',
-    midnight: '#7C3AED',
-    forest: '#F59E0B',
-    codeterm: '#CC4125',
-  };
-  const CARD_BG: Record<string, string> = {
-    light: '#F8FAFC',
-    parchment: '#FFFFFF',
-    dark: '#161B2E',
-    midnight: 'rgba(15,39,68,0.9)',
-    forest: 'rgba(17,28,20,0.9)',
-    codeterm: '#141414',
-  };
-  const PAGE_BG: Record<string, string> = {
-    light: '#FFFFFF',
-    parchment: 'hsl(42 18% 93%)',
-    dark: '#0D0F1A',
-    midnight: '#0a1929',
-    forest: '#0b140e',
-    codeterm: '#0D0D0D',
-  };
-  const TILE_BG: Record<string, string> = {
-    light: '#F1F5F9',
-    parchment: '#FCFBF8',
-    dark: '#1E243B',
-    midnight: '#112240',
-    forest: '#142318',
-    codeterm: '#1E1E1E',
-  };
-  const TEXT_HEX: Record<string, string> = {
-    light: '#0F0B2E',
-    parchment: '#1C1917',
-    dark: '#F1F5F9',
-    midnight: '#F1F5F9',
-    forest: '#e8e4d9',
-    codeterm: '#F0EDE8',
-  };
-  const MUTED_HEX: Record<string, string> = {
-    light: '#6B7280',
-    parchment: '#57534E',
-    dark: '#94A3B8',
-    midnight: '#94A3B8',
-    forest: '#9aad8e',
-    codeterm: '#888580',
-  };
-  const BORDER_HEX: Record<string, string> = {
-    light: '#E5E7EB',
-    parchment: '#E6E2D8',
-    dark: 'rgba(255,255,255,0.08)',
-    midnight: 'rgba(255,255,255,0.08)',
-    forest: 'rgba(180,120,30,0.2)',
-    codeterm: 'rgba(204,65,37,0.25)',
-  };
-
-  const t = (resolvedTheme as string) || 'dark';
-
-  const accentHex = ACCENT[t] || '#7C3AED';
-  const cardBgHex = CARD_BG[t] || '#FFFFFF';
-  const pageBgHex = PAGE_BG[t] || '#FFFFFF';
-  const tileBgHex = TILE_BG[t] || '#FFFFFF';
-  const textHex = TEXT_HEX[t] || '#1C1917';
-  const mutedHex = MUTED_HEX[t] || '#57534E';
-  const borderHex = BORDER_HEX[t] || '#E5E7EB';
+  /* Theme tokens */
   const isDarkTheme = resolvedTheme === 'dark' || resolvedTheme === 'midnight' || resolvedTheme === 'forest' || resolvedTheme === 'codeterm';
   const isLight = !isDarkTheme;
+
+  const cardBgHex = isDarkTheme ? '#111827' : (resolvedTheme === 'parchment' ? '#FCFBF8' : '#FFFFFF');
+  const pageBgHex = isDarkTheme ? '#0A0F1D' : (resolvedTheme === 'parchment' ? 'hsl(42 18% 93%)' : '#F8FAFC');
+  const textHex = isDarkTheme ? '#F8FAFC' : '#1C1917';
+  const mutedHex = isDarkTheme ? '#94A3B8' : '#57534E';
+  const borderHex = isDarkTheme ? 'rgba(255,255,255,0.08)' : (resolvedTheme === 'parchment' ? '#E6E2D8' : '#E2E8F0');
+  const accentHex = isDarkTheme ? '#7C3AED' : '#5A2D82';
 
   const user: UserProfile = {
     ...INITIAL_USER,
@@ -147,13 +107,6 @@ export default function MobileSessionPage() {
     email: session?.user?.email || 'user@example.com',
     picture: session?.user?.image || undefined,
   };
-
-  const VOICE_OPTIONS: { id: VoiceId; name: string }[] = [
-    { id: 'priya', name: 'Priya' },
-    { id: 'arjun', name: 'Arjun' },
-    { id: 'sarah', name: 'Sarah' },
-    { id: 'marcus', name: 'Marcus' },
-  ];
 
   const getPillStyle = (isSelected: boolean) => {
     const textColor = isSelected ? '#FFFFFF' : (isDarkTheme ? '#F1F5F9' : '#1C1917');
@@ -165,123 +118,210 @@ export default function MobileSessionPage() {
     };
   };
 
-  // Helper for safe navigation: if interview is active, end & save session first!
   const triggerSafeNavigate = (targetUrl: string = '/train') => {
     if (isInterviewActive) {
-      console.log('[SAFE_NAV] Interview is active — triggering end session & save before navigating to:', targetUrl);
       window.dispatchEvent(new CustomEvent('fluenzy_end_session_and_save', { detail: { targetUrl } }));
+    }
+    if (targetUrl === 'back') {
+      router.back();
     } else {
-      if (targetUrl === 'back') {
-        router.back();
-      } else {
-        router.push(targetUrl);
-      }
+      router.push(targetUrl);
     }
   };
 
-  // Intercept hardware / browser back button when interview is active
-  useEffect(() => {
-    if (!isInterviewActive) return;
+  const handleStartInterview = () => {
+    setElapsedSeconds(0);
+    setIsInterviewActive(true);
+  };
 
-    const handlePopState = () => {
-      console.log('[SAFE_POPSTATE] Browser back pressed during active interview — saving session');
-      window.dispatchEvent(new CustomEvent('fluenzy_end_session_and_save', { detail: { targetUrl: '/train' } }));
-    };
+  const handleEndInterview = () => {
+    // 1. Dispatch custom save & cleanup event to VoiceAgent & VideoAnalysisPanel
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('fluenzy_end_interview'));
+    }
 
-    window.history.pushState(null, '', window.location.href);
-    window.addEventListener('popstate', handlePopState);
+    // 2. Set interview inactive
+    setIsInterviewActive(false);
 
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [isInterviewActive]);
+    // 3. Navigate user directly back to Mobile Train Page (/train)
+    triggerSafeNavigate('/train');
+  };
 
   return (
     <div
       className="fixed inset-0 z-[200] flex flex-col sm:hidden overflow-hidden"
-      style={{ background: pageBgHex }}
+      style={{ background: pageBgHex, color: textHex }}
     >
-      {/* ── TOP HEADER (With Settings Gear Button) ─────────────────────────── */}
+      {/* ── 1. TOP BAR (Menu Icon, Fluenzy AI Logo, Settings Gear, Bell, Avatar) ── */}
       <div
-        className="px-4 pt-4 pb-3 shrink-0 flex items-center justify-between border-b"
+        className="px-4 pt-3 pb-2.5 shrink-0 flex items-center justify-between border-b"
         style={{ background: pageBgHex, borderColor: borderHex }}
       >
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => triggerSafeNavigate('back')}
-            className="p-1.5 -ml-1 rounded-full flex items-center justify-center active:opacity-60"
+            type="button"
+            onClick={() => triggerSafeNavigate('/train')}
+            className="p-1 -ml-1 active:opacity-60"
             style={{ color: textHex }}
-            aria-label="Back"
           >
-            <ArrowLeft size={20} style={{ color: textHex, stroke: textHex }} />
+            <Menu size={22} style={{ color: textHex, stroke: textHex }} />
           </button>
-          <div>
-            <h1 className="font-extrabold text-sm tracking-tight leading-tight" style={{ color: textHex }}>
-              {company} Interview Session
-            </h1>
-            <p className="text-[10px] font-medium leading-none mt-0.5" style={{ color: mutedHex }}>
-              {role} • {roundType} • {experience}
-            </p>
-          </div>
-        </div>
-
-        {/* Settings Gear Button */}
-        <button
-          onClick={() => setSettingsModalOpen(true)}
-          className="w-9 h-9 rounded-xl active:opacity-60 flex items-center justify-center border shadow-sm transition-transform active:scale-95"
-          style={{
-            color: textHex,
-            background: cardBgHex,
-            borderColor: borderHex,
-          }}
-          aria-label="Interview Settings"
-        >
-          <Settings size={18} style={{ color: textHex, stroke: textHex, fill: 'none' }} />
-        </button>
-      </div>
-
-      {/* ── MAIN SCROLLABLE CONTENT AREA ────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto px-3.5 pt-2.5 pb-32 space-y-3">
-        {/* AI Video & Expression Analysis Panel (Top - Compact Design) */}
-        <div
-          className="rounded-2xl border p-2.5 shadow-md overflow-hidden"
-          style={{ background: cardBgHex, borderColor: borderHex }}
-        >
-          <div className="flex items-center justify-between mb-1.5 px-0.5">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${isInterviewActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-              <span className="text-xs font-extrabold" style={{ color: textHex }}>
-                AI Video & Expression Analysis
-              </span>
-            </div>
-            <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full text-white" style={{ background: accentHex }}>
-              {isInterviewActive ? 'Live Stream' : 'Ready'}
+          <div className="flex items-center gap-2">
+            <img
+              src="/white-removebg-preview1.png"
+              alt="Fluenzy AI Logo"
+              className="w-8 h-8 object-contain filter drop-shadow-sm active:scale-95 transition-transform shrink-0"
+            />
+            <span
+              className="font-black text-lg tracking-tight"
+              style={{ background: 'linear-gradient(90deg,#7C3AED,#4F46E5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+            >
+              Fluenzy AI
             </span>
           </div>
-
-          <VideoAnalysisPanel
-            sessionId={sessionId}
-            isActive={isInterviewActive}
-            isCompact={true}
-          />
         </div>
 
-        {/* Voice Agent & Live Interview Workspace (Directly Below Compact Video Panel) */}
+        <div className="flex items-center gap-2.5">
+          {/* Settings Gear Button */}
+          <button
+            type="button"
+            onClick={() => setSettingsModalOpen(true)}
+            className="p-1.5 rounded-full active:opacity-60 transition-transform active:scale-95"
+            style={{ color: textHex }}
+            aria-label="Interview Settings"
+          >
+            <Settings size={20} style={{ color: textHex, stroke: textHex, fill: 'none' }} />
+          </button>
+
+          {/* Notification Bell */}
+          <button
+            type="button"
+            onClick={() => setSettingsModalOpen(true)}
+            className="relative p-1.5 rounded-full active:opacity-60"
+            style={{ color: textHex }}
+          >
+            <Bell size={20} style={{ color: textHex, stroke: textHex }} />
+            <span className="absolute top-0 right-0 w-4 h-4 bg-purple-600 text-white rounded-full text-[9px] font-black flex items-center justify-center">
+              3
+            </span>
+          </button>
+
+          {/* User Avatar */}
+          <div className="w-8 h-8 rounded-full overflow-hidden border border-purple-500/40">
+            <img
+              src={user.picture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop'}
+              alt="User Avatar"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN SCROLLABLE CONTAINER ────────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto px-3.5 pt-3 pb-28 space-y-3.5">
+        
+        {/* ── 2. CONDITIONAL TOP TIMER & COMPANY BANNER ─────────────────────── */}
+        <AnimatePresence>
+          {isInterviewActive && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-1.5 overflow-hidden"
+            >
+              {/* Google Interview Header Tile */}
+              <div
+                className="rounded-xl p-2.5 border flex items-center justify-between shadow-md"
+                style={{ background: cardBgHex, borderColor: borderHex }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm shrink-0 p-1 border border-slate-200">
+                    <svg viewBox="0 0 24 24" className="w-full h-full">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-sm tracking-tight leading-tight" style={{ color: textHex }}>
+                      {company} Interview
+                    </h2>
+                    <p className="text-[9px] font-semibold" style={{ color: mutedHex }}>
+                      {role} • {roundType} • {experience}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleEndInterview}
+                  className="px-3 py-1 rounded-full text-xs font-black text-white bg-red-600 hover:bg-red-700 active:scale-95 transition-all shadow-md force-white shrink-0"
+                  style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}
+                >
+                  End Interview
+                </button>
+              </div>
+
+              {/* Status & Actual Live Timer Row */}
+              <div className="flex items-center justify-between px-1 text-[11px] font-bold">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span style={{ color: textHex }}>
+                    Interview in Progress
+                  </span>
+                </div>
+                <div className="flex items-center gap-1" style={{ color: textHex }}>
+                  <Clock size={13} style={{ color: textHex }} />
+                  <span className="font-mono font-extrabold tracking-wide">
+                    {formatTimer(elapsedSeconds)}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── 3. SINGLE PRIMARY WORKSPACE: AI HR VOICE AGENT & START INTERVIEW ─ */}
         <div
-          className="rounded-2xl border p-3.5 shadow-md overflow-hidden"
+          className="rounded-xl border p-2 shadow-md overflow-hidden"
           style={{ background: cardBgHex, borderColor: borderHex }}
         >
           <VoiceAgent
             user={user}
-            onSessionEnd={() => setIsInterviewActive(false)}
-            onInterviewStart={() => setIsInterviewActive(true)}
+            onSessionEnd={handleEndInterview}
+            onInterviewStart={handleStartInterview}
             showSettings={showSettings}
             onShowSettingsChange={setShowSettings}
+            hideEndButton={true}
+          />
+        </div>
+
+        {/* ── 4. LIVE ANALYSIS SECTION HEADER ───────────────────────────────── */}
+        <div className="pt-0 flex items-center justify-between">
+          <h3 className="font-extrabold text-xs tracking-tight" style={{ color: textHex }}>
+            Original AI Video & Expression Analysis
+          </h3>
+          <span className="text-[8px] font-extrabold px-2 py-0.5 rounded-full text-white force-white" style={{ background: isInterviewActive ? '#10B981' : accentHex, color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}>
+            {isInterviewActive ? 'Live Stream' : 'Idle'}
+          </span>
+        </div>
+
+        {/* ── 5. ORIGINAL REAL-TIME CANDIDATE AI VIDEO ANALYSIS PANEL ───────── */}
+        <div
+          className="rounded-xl border shadow-md overflow-hidden"
+          style={{ background: cardBgHex, borderColor: borderHex }}
+        >
+          <VideoAnalysisPanel
+            sessionId={sessionId}
+            isActive={isInterviewActive}
+            isCompact={false}
           />
         </div>
       </div>
 
-      {/* ── FLOATING ASK AI BUTTON ─────────────────────────────────────────── */}
+      {/* ── 8. FLOATING ASK AI BUTTON ─────────────────────────────────────── */}
       <motion.button
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -298,7 +338,7 @@ export default function MobileSessionPage() {
         <span className="text-white font-black tracking-wide" style={{ fontSize: '8px' }}>Ask AI</span>
       </motion.button>
 
-      {/* ── BOTTOM TAB BAR (Downward Concave Scoop Curve around Home Tab) ──── */}
+      {/* ── 9. BOTTOM TAB BAR (Downward Concave Scoop Curve around Home Tab) ──── */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-[210] sm:hidden flex items-end justify-around"
         style={{
@@ -387,6 +427,7 @@ export default function MobileSessionPage() {
           })}
         </div>
       </nav>
+
       {/* ── INTERVIEW SETTINGS MODAL SHEET ───────────────────────────────────── */}
       <AnimatePresence>
         {settingsModalOpen && (
@@ -433,7 +474,7 @@ export default function MobileSessionPage() {
 
               {/* Setting 1: Speed */}
               <div>
-                <label className="text-xs font-black uppercase tracking-wider block mb-2" style={{ color: textHex }}>
+                <label className="text-xs font-black uppercase tracking-wider block mb-1.5" style={{ color: textHex }}>
                   Speed
                 </label>
                 <div className="grid grid-cols-5 gap-1.5">
@@ -448,39 +489,39 @@ export default function MobileSessionPage() {
                         className="h-10 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center shadow-sm"
                         style={styleObj}
                       >
-                        <span style={{ color: styleObj.color, WebkitTextFillColor: styleObj.WebkitTextFillColor }}>
-                          {speed === 1 ? '● 1x' : `${speed}x`}
-                        </span>
+                        {speed === 1 ? '● 1x' : `${speed}x`}
                       </button>
                     );
                   })}
                 </div>
-                <p className="text-[11px] font-medium mt-1.5" style={{ color: mutedHex }}>
-                  {VOICE_SPEED_LABELS[settings.voiceSpeed] || 'Normal interview pace'}
+                <p className="text-[10px] font-medium mt-1" style={{ color: mutedHex }}>
+                  Normal interview pace
                 </p>
               </div>
 
               {/* Setting 2: Voice */}
               <div>
-                <label className="text-xs font-black uppercase tracking-wider block mb-2" style={{ color: textHex }}>
+                <label className="text-xs font-black uppercase tracking-wider block mb-1.5" style={{ color: textHex }}>
                   Voice
                 </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {VOICE_OPTIONS.map((v) => {
+                <div className="grid grid-cols-4 gap-1.5">
+                  {[
+                    { id: 'Priya', label: 'Priya ✓' },
+                    { id: 'Arjun', label: 'Arjun' },
+                    { id: 'Sarah', label: 'Sarah' },
+                    { id: 'Marcus', label: 'Marcus' },
+                  ].map((v) => {
                     const isSelected = settings.voiceId === v.id;
                     const styleObj = getPillStyle(isSelected);
                     return (
                       <button
                         key={v.id}
                         type="button"
-                        onClick={() => updateSetting({ voiceId: v.id })}
-                        className="h-10 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1 shadow-sm"
+                        onClick={() => updateSetting({ voiceId: v.id as VoiceId })}
+                        className="h-10 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center shadow-sm"
                         style={styleObj}
                       >
-                        <span style={{ color: styleObj.color, WebkitTextFillColor: styleObj.WebkitTextFillColor }}>
-                          {v.name}
-                        </span>
-                        {isSelected && <Check size={13} style={{ color: '#FFFFFF' }} />}
+                        {v.label}
                       </button>
                     );
                   })}
@@ -489,10 +530,10 @@ export default function MobileSessionPage() {
 
               {/* Setting 3: Style */}
               <div>
-                <label className="text-xs font-black uppercase tracking-wider block mb-2" style={{ color: textHex }}>
+                <label className="text-xs font-black uppercase tracking-wider block mb-1.5" style={{ color: textHex }}>
                   Style
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   {PRESSURE_STYLE_OPTIONS.map((opt) => {
                     const isSelected = settings.pressureStyle === opt.id;
                     const styleObj = getPillStyle(isSelected);
@@ -501,18 +542,11 @@ export default function MobileSessionPage() {
                         key={opt.id}
                         type="button"
                         onClick={() => updateSetting({ pressureStyle: opt.id as PressureStyle })}
-                        className="h-11 px-2 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                        className="h-10 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1 shadow-sm px-1 truncate"
                         style={styleObj}
                       >
-                        <span style={{ color: styleObj.color, WebkitTextFillColor: styleObj.WebkitTextFillColor }}>
-                          {opt.emoji}
-                        </span>
-                        <span
-                          className="truncate"
-                          style={{ color: styleObj.color, WebkitTextFillColor: styleObj.WebkitTextFillColor }}
-                        >
-                          {opt.label}
-                        </span>
+                        <span>{opt.emoji}</span>
+                        <span className="truncate">{opt.label}</span>
                       </button>
                     );
                   })}
@@ -521,10 +555,10 @@ export default function MobileSessionPage() {
 
               {/* Setting 4: AI Response Time */}
               <div>
-                <label className="text-xs font-black uppercase tracking-wider block mb-2" style={{ color: textHex }}>
+                <label className="text-xs font-black uppercase tracking-wider block mb-1.5" style={{ color: textHex }}>
                   AI Response Time
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   {RESPONSE_TIMING_OPTIONS.map((opt) => {
                     const isSelected = settings.responseTiming === opt.id;
                     const styleObj = getPillStyle(isSelected);
@@ -533,55 +567,45 @@ export default function MobileSessionPage() {
                         key={opt.id}
                         type="button"
                         onClick={() => updateSetting({ responseTiming: opt.id as ResponseTiming })}
-                        className="h-11 px-2 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                        className="h-10 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1 shadow-sm px-1 truncate"
                         style={styleObj}
                       >
-                        <span style={{ color: styleObj.color, WebkitTextFillColor: styleObj.WebkitTextFillColor }}>
-                          {opt.emoji}
-                        </span>
-                        <span
-                          className="truncate"
-                          style={{ color: styleObj.color, WebkitTextFillColor: styleObj.WebkitTextFillColor }}
-                        >
-                          {opt.label}
-                        </span>
+                        <span>{opt.emoji}</span>
+                        <span className="truncate">{opt.label}</span>
                       </button>
                     );
                   })}
                 </div>
-                <p className="text-[11px] font-medium mt-1.5 leading-snug" style={{ color: mutedHex }}>
+                <p className="text-[10px] font-medium mt-1 leading-snug" style={{ color: mutedHex }}>
                   Controls if the AI replies immediately as soon as you speak, or takes a pause.
                 </p>
               </div>
 
-              {/* Setting 5: Theme Option Selector */}
-              <div className="pt-3 border-t" style={{ borderColor: borderHex }}>
-                <label className="text-xs font-black uppercase tracking-wider block mb-2" style={{ color: textHex }}>
+              {/* Setting 5: App Theme */}
+              <div>
+                <label className="text-xs font-black uppercase tracking-wider block mb-1.5" style={{ color: textHex }}>
                   App Theme
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   {[
-                    { label: 'Light', value: 'light', icon: Sun },
-                    { label: 'Dark', value: 'dark', icon: Moon },
-                    { label: 'Night', value: 'midnight', icon: Sparkles },
-                    { label: 'Forest', value: 'forest', icon: Leaf },
-                    { label: 'Parchment', value: 'parchment', icon: Coffee },
-                    { label: 'Code', value: 'codeterm', icon: Terminal },
-                  ].map((opt) => {
-                    const active = theme === opt.value;
-                    const styleObj = getPillStyle(active);
+                    { id: 'light', label: '☀️ Light' },
+                    { id: 'dark', label: '🌙 Dark' },
+                    { id: 'midnight', label: '✨ Night' },
+                    { id: 'forest', label: '🍃 Forest' },
+                    { id: 'parchment', label: '☕ Parchment' },
+                    { id: 'codeterm', label: '>_ Code' },
+                  ].map((t) => {
+                    const isSelected = resolvedTheme === t.id;
+                    const styleObj = getPillStyle(isSelected);
                     return (
                       <button
-                        key={opt.value}
+                        key={t.id}
                         type="button"
-                        onClick={() => setTheme(opt.value as ThemeName)}
-                        className="h-10 px-2 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                        onClick={() => setTheme(t.id as ThemeName)}
+                        className="h-10 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center shadow-sm"
                         style={styleObj}
                       >
-                        <opt.icon size={13} style={{ color: styleObj.color }} />
-                        <span style={{ color: styleObj.color, WebkitTextFillColor: styleObj.WebkitTextFillColor }}>
-                          {opt.label}
-                        </span>
+                        {t.label}
                       </button>
                     );
                   })}

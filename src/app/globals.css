@@ -12,6 +12,7 @@
   The MobileLandingPage renders at ≤ 640px and must never create horizontal scroll.
 */
 @media (max-width: 640px) {
+
   html,
   body {
     overflow-x: hidden;
@@ -19,7 +20,7 @@
   }
 
   /* Ensure every direct child of body respects viewport width */
-  body > * {
+  body>* {
     max-width: 100vw;
     box-sizing: border-box;
   }
@@ -29,6 +30,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
@@ -1192,9 +1194,30 @@ html.parchment .force-white *,
 .force-white * {
   color: #ffffff !important;
   stroke: #ffffff !important;
-  fill: none !important;
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
+}
+
+/* Force WHITE text & stroke on any purple background button/badge in Parchment theme */
+html.parchment [style*="5B21E6"],
+html.parchment [style*="7C3AED"],
+html.parchment [style*="6C2BD9"],
+html.parchment [style*="5A2D82"],
+[data-theme="parchment"] [style*="5B21E6"],
+[data-theme="parchment"] [style*="7C3AED"],
+[data-theme="parchment"] [style*="6C2BD9"],
+[data-theme="parchment"] [style*="5A2D82"],
+html.parchment [style*="5B21E6"] *,
+html.parchment [style*="7C3AED"] *,
+html.parchment [style*="6C2BD9"] *,
+html.parchment [style*="5A2D82"] *,
+[data-theme="parchment"] [style*="5B21E6"] *,
+[data-theme="parchment"] [style*="7C3AED"] *,
+[data-theme="parchment"] [style*="6C2BD9"] *,
+[data-theme="parchment"] [style*="5A2D82"] * {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 html.parchment .force-purple-bg,
@@ -1238,6 +1261,26 @@ html.parchment .force-purple-bg,
 [data-theme="parchment"] .border-slate-700\/50,
 [data-theme="parchment"] .border-slate-800\/70 {
   border-color: hsl(38 14% 85% / 0.6) !important;
+}
+
+/* Prevent Parchment theme background overrides on candidate webcam video feed & corner overlays */
+html.parchment .video-box-container,
+html.parchment .video-box-container div,
+html.parchment .video-box-container span,
+[data-theme="parchment"] .video-box-container,
+[data-theme="parchment"] .video-box-container div,
+[data-theme="parchment"] .video-box-container span {
+  background-color: transparent !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+
+html.parchment video,
+[data-theme="parchment"] video,
+html.parchment .video-box-container,
+[data-theme="parchment"] .video-box-container {
+  background-color: #090D16 !important;
+  background: #090D16 !important;
 }
 
 /* Theme Toggle Menu Overrides for Parchment Theme - Ultra High Specificity */
