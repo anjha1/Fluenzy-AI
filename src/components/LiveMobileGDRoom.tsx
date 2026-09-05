@@ -130,29 +130,40 @@ export default function LiveMobileGDRoom({
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden pb-28 pt-14 sm:pt-0" style={{ background: pageBg, color: text }}>
       <TrainNavigation />
 
-      <main className="px-4 pt-7">
-        <div className="mb-6 flex min-w-0 items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <button onClick={onEndSession} aria-label="Leave discussion"><span className="text-4xl leading-none">‹</span></button>
-            <span className="flex min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-sm font-bold sm:px-4 sm:text-base" style={{ color: danger, borderColor: `${danger}66`, background: `${danger}18` }}>
-              <span className="h-3 w-3 animate-pulse rounded-full" style={{ background: danger }} /> Live Discussion
+      <main className="px-4 pt-[220px] sm:pt-7">
+        <div className="fixed left-0 right-0 top-14 z-40 px-4 pb-2 pt-3" style={{ background: pageBg }}>
+          <div className="mb-4 flex min-w-0 items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <button onClick={onEndSession} aria-label="Leave discussion"><span className="text-4xl leading-none">‹</span></button>
+              <span className="flex min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-sm font-bold sm:px-4 sm:text-base" style={{ color: danger, borderColor: `${danger}66`, background: `${danger}18` }}>
+                <span className="h-3 w-3 animate-pulse rounded-full" style={{ background: danger }} /> Live Discussion
+              </span>
+            </div>
+            <span className="flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-2 text-xs font-semibold" style={{ color: muted, borderColor: border, background: card }}>
+              <Users size={16} /> {remoteUsers.length + 1}
             </span>
           </div>
-          <span className="flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-2 text-xs font-semibold" style={{ color: muted, borderColor: border, background: card }}>
-            <Users size={16} /> {remoteUsers.length + 1}
-          </span>
-        </div>
 
-        <section className="mb-5 rounded-[24px] border p-3 sm:p-4" style={{ background: panel, borderColor: border }}>
-          <div className="mb-4 flex items-center gap-2.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl" style={{ background: `${accent}22`, color: accent }}><Clock3 size={25} /></div>
-            <div><div className="font-mono text-3xl font-bold leading-none" style={{ color: accent }}>{formatTime(phaseTimer)}</div><div className="mt-1 text-[10px] font-semibold" style={{ color: muted }}>TIME REMAINING</div></div>
+          <section className="grid grid-cols-2 gap-3">
+          <div className="min-w-0 rounded-[22px] border p-3" style={{ background: panel, borderColor: border }}>
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: `${accent}22`, color: accent }}>
+              <Clock3 size={23} />
+            </div>
+            <div className="font-mono text-2xl font-bold leading-none" style={{ color: accent }}>{formatTime(phaseTimer)}</div>
+            <div className="mt-1 text-[9px] font-semibold uppercase tracking-wide" style={{ color: muted }}>Time remaining</div>
           </div>
-          <div className="grid min-w-0 grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] items-start gap-3">
-            <div className="min-w-0"><div className="mb-1 text-[10px] uppercase tracking-wider" style={{ color: muted }}>Current phase</div><div className="truncate text-lg font-black capitalize">{currentPhase}</div></div>
-            <div className="min-w-0 text-right"><div className="mb-1 text-[10px] uppercase tracking-wider" style={{ color: muted }}>Topic</div><div className="flex min-w-0 items-start justify-end gap-1 text-sm font-bold leading-tight"><FileText size={14} className="mt-0.5 shrink-0" /><span className="break-words">{topic}</span><ChevronDown size={14} className="mt-0.5 shrink-0" /></div></div>
+          <div className="min-w-0 rounded-[22px] border p-3" style={{ background: panel, borderColor: border }}>
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: `${accent}22`, color: accent }}>
+              <FileText size={22} />
+            </div>
+            <div className="mb-1 text-[9px] font-semibold uppercase tracking-wide" style={{ color: muted }}>Topic</div>
+            <div className="flex min-w-0 items-start gap-1 text-xs font-bold leading-tight">
+              <span className="line-clamp-2 min-w-0 break-words [overflow-wrap:anywhere]">{topic}</span>
+              <ChevronDown size={14} className="mt-0.5 shrink-0" />
+            </div>
           </div>
-        </section>
+          </section>
+        </div>
 
         <section className="grid grid-cols-2 gap-3">
           <div className="relative aspect-[4/3] min-w-0 overflow-hidden rounded-2xl border-2 shadow-[0_0_14px_rgba(124,58,237,0.55)] sm:rounded-3xl sm:border-4" style={{ borderColor: accent, boxShadow: `0 0 14px ${accent}88` }}>
