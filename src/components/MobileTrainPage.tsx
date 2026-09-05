@@ -6,7 +6,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Menu, Bell, ChevronRight, Home, Link2,
+  Menu, Bell, ChevronRight, Home, Link2, Heart,
   BarChart3, User, Target, Users, Code,
   Building2, History, GraduationCap, Radio,
   Trophy, Sparkles, Brain, BookOpen, X,
@@ -593,7 +593,7 @@ export default function MobileTrainPage() {
             </Link>
           </div>
           <div
-            className="rounded-2xl p-4 flex items-center gap-3"
+            className="relative overflow-visible rounded-2xl p-4 pb-8 flex items-center gap-3"
             style={{
               background: cardBgHex,
               border: `1px solid ${borderHex}`,
@@ -613,9 +613,9 @@ export default function MobileTrainPage() {
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm leading-tight" style={{ color: textHex }}>Technical Interview</p>
               <div className="mt-1.5 h-1.5 w-full rounded-full overflow-hidden" style={{ background: isLight ? '#E9ECEF' : 'rgba(255,255,255,0.1)' }}>
-                <div className="h-full rounded-full" style={{ width: '72%', background: 'linear-gradient(90deg,#7C3AED,#4F46E5)' }} />
+                <div className="h-full rounded-full" style={{ width: '50%', background: 'linear-gradient(90deg,#7C3AED,#4F46E5)' }} />
               </div>
-              <p className="mt-1" style={{ fontSize: '11px', color: mutedHex }}>72% Completed · 6 of 10 sessions</p>
+              <p className="mt-1" style={{ fontSize: '11px', color: mutedHex }}>50% Completed · 5 of 10 sessions</p>
             </div>
             {/* Resume button: Coral-Orange gradient in Light/Parchment, Royal Purple in Dark themes */}
             <Link
@@ -635,6 +635,22 @@ export default function MobileTrainPage() {
               }}
             >
               <span>Resume</span> <ChevronRight size={14} style={{ color: '#FFFFFF', stroke: '#FFFFFF' }} />
+            </Link>
+            <Link
+              href="/train/live-red-heart"
+              aria-label="Open Red Heart live discussion"
+              className="absolute -bottom-5 left-1/2 z-10 flex h-14 w-[190px] -translate-x-1/2 items-center justify-center"
+            >
+              <svg viewBox="0 0 190 42" className="absolute left-0 top-1/2 h-10 w-full -translate-y-1/2" aria-hidden="true">
+                <path d="M0 22H25L31 20L36 25L42 8L48 34L54 22H76" fill="none" stroke="#FF3B81" strokeWidth="2" />
+                <path d="M114 22H136L142 20L148 25L154 8L160 34L166 22H190" fill="none" stroke="#FF3B81" strokeWidth="2" />
+              </svg>
+              <span
+                className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2"
+                style={{ background: cardBgHex, borderColor: '#FF3B81', boxShadow: '0 0 14px rgba(255,59,129,0.45)' }}
+              >
+                <Heart size={27} fill="#FF334F" stroke="#FF334F" />
+              </span>
             </Link>
           </div>
         </section>

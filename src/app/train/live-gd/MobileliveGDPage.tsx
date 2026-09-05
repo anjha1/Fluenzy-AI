@@ -81,7 +81,11 @@ const TABS = [
   { label: 'Profile', icon: User, href: '/profile' },
 ];
 
-export default function LiveGDPage() {
+export interface MobileliveGDPageProps {
+  fixedParticipantCount?: number;
+}
+
+export default function LiveGDPage({ fixedParticipantCount }: MobileliveGDPageProps = {}) {
   const { data: session, status: authStatus } = useSession();
   const router = useRouter();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -131,7 +135,7 @@ export default function LiveGDPage() {
   const [socketConnected, setSocketConnected] = useState(false);
 
   // Form state
-  const [participantCount, setParticipantCount] = useState(4);
+  const [participantCount, setParticipantCount] = useState(fixedParticipantCount ?? 4);
   const difficulty = 'Medium';
   const mode = 'Random';
 
@@ -797,19 +801,25 @@ export default function LiveGDPage() {
           <div className="mb-5">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: mutedHex }}>Participants</label>
-              <select
-                value={participantCount}
-                onChange={(e) => setParticipantCount(parseInt(e.target.value))}
-                className="w-full rounded-2xl px-4 py-3.5 text-sm font-semibold focus:outline-none"
-                style={{ background: pageBgHex, color: textHex, border: `1px solid ${borderHex}` }}
-              >
-                <option value={3}>3 Participants</option>
-                <option value={4}>4 Participants</option>
-                <option value={5}>5 Participants</option>
-                <option value={6}>6 Participants</option>
-                <option value={7}>7 Participants</option>
-                <option value={8}>8 Participants</option>
-              </select>
+              {fixedParticipantCount ? (
+                <div className="w-full rounded-2xl px-4 py-3.5 text-sm font-semibold" style={{ background: pageBgHex, color: textHex, border: `1px solid ${borderHex}` }}>
+                  2 Participants
+                </div>
+              ) : (
+                <select
+                  value={participantCount}
+                  onChange={(e) => setParticipantCount(parseInt(e.target.value))}
+                  className="w-full rounded-2xl px-4 py-3.5 text-sm font-semibold focus:outline-none"
+                  style={{ background: pageBgHex, color: textHex, border: `1px solid ${borderHex}` }}
+                >
+                  <option value={3}>3 Participants</option>
+                  <option value={4}>4 Participants</option>
+                  <option value={5}>5 Participants</option>
+                  <option value={6}>6 Participants</option>
+                  <option value={7}>7 Participants</option>
+                  <option value={8}>8 Participants</option>
+                </select>
+              )}
             </div>
           </div>
 
