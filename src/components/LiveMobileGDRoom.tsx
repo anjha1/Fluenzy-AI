@@ -137,13 +137,13 @@ export default function LiveMobileGDRoom({
 
   return (
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden pb-28" style={{ background: pageBg, color: text }}>
-      <header className="mx-3 mt-3 flex min-w-0 items-center justify-between gap-2 rounded-3xl border px-3 py-3 sm:px-4 sm:py-4" style={{ background: surface, borderColor: border, boxShadow: `0 4px 16px ${border}` }}>
+      <header className="flex min-h-[76px] w-full min-w-0 items-center justify-between gap-2 border-b px-3 py-3 sm:px-5" style={{ background: surface, borderColor: border }}>
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl sm:h-12 sm:w-12" style={{ background: control, color: text }} aria-label="Open menu"><Menu size={25} /></button>
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:h-14 sm:w-14" style={{ background: resolvedTheme === 'forest' ? '#28543A' : '#295D60' }}>
+          <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full sm:h-12 sm:w-12" style={{ background: control, color: text }} aria-label="Open menu"><Menu size={25} /></button>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg sm:h-14 sm:w-14" style={{ background: resolvedTheme === 'forest' ? '#28543A' : '#295D60' }}>
             <img src="/white-removebg-preview1.png" alt="Fluenzy AI" className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
           </div>
-          <span className="text-[21px] leading-none font-black bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-transparent sm:text-[25px]">Fluenzy<br />AI</span>
+          <span className="truncate whitespace-nowrap text-[20px] font-black tracking-tight bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-transparent sm:text-[25px]">Fluenzy AI</span>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <div className="relative">

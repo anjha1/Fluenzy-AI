@@ -11,7 +11,6 @@ import AgoraRTC, {
   IRemoteAudioTrack,
   UID,
 } from 'agora-rtc-sdk-ng';
-import GDSessionReport from './GDSessionReport';
 import LiveMobileGDRoom from './LiveMobileGDRoom';
 import { useSession } from 'next-auth/react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -122,8 +121,6 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
   const [networkQuality, setNetworkQuality] = useState<NetworkQuality | null>(null);
   const [currentPhase, setCurrentPhase] = useState('waiting');
   const [phaseTimer, setPhaseTimer] = useState(0);
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [sessionEnded, setSessionEnded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -330,38 +327,11 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
   };
 
   const endSession = async () => {
-    const mockAnalytics = {
-      overallScore: 78,
-      communicationScore: 82,
-      confidenceScore: 75,
-      grammarScore: 80,
-      relevanceScore: 70,
-      leadershipScore: 75,
-      rolePerformance: 85,
-      speakingTime: 180,
-      interruptions: 2,
-      strengths: ['Great articulation', 'Maintained eye contact'],
-      improvements: ['Invite others to speak more']
-    };
-
-    setAnalytics(mockAnalytics);
-    setSessionEnded(true);
     await cleanup();
+    window.location.href = '/train/live-gd';
   };
 
   // --- Render ---
-
-  if (sessionEnded && analytics) {
-    return (
-      <GDSessionReport
-        sessionId={initialRoomData.roomId}
-        topic={initialRoomData.topic}
-        role={userRole}
-        analytics={analytics}
-        onRetry={() => { window.location.href = '/train/live-gd'; }}
-      />
-    );
-  }
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
