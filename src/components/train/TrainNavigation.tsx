@@ -19,28 +19,28 @@ export function TrainNavigation() {
           Train
         </span>
       </div>
-      <div className="flex h-[76px] items-center justify-between gap-2 px-3 sm:hidden" style={{ color: textColor }}>
+      <div className="flex h-14 items-center justify-between gap-1.5 px-3 sm:hidden" style={{ color: textColor }}>
         <div className="flex min-w-0 items-center gap-2">
-          <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style={{ background: controlBackground }} aria-label="Open menu">
-            <Menu size={25} />
+          <button className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: controlBackground }} aria-label="Open menu">
+            <Menu size={23} />
           </button>
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#295D60]">
-            <img src="/white-removebg-preview1.png" alt="Fluenzy AI" className="h-10 w-10 object-contain" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#295D60]">
+            <img src="/white-removebg-preview1.png" alt="Fluenzy AI" className="h-8 w-8 object-contain" />
           </div>
-          <span className="truncate whitespace-nowrap bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-[20px] font-black tracking-tight text-transparent">
+          <span className="max-w-[120px] truncate whitespace-nowrap bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-[18px] font-black tracking-tight text-transparent">
             Fluenzy AI
           </span>
         </div>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <button className="flex h-11 w-11 items-center justify-center rounded-2xl" style={{ background: controlBackground }} aria-label="Change theme">
-            {isLight ? <Sun size={21} /> : <Moon size={21} />}
+        <div className="flex shrink-0 items-center gap-1">
+          <button className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: controlBackground }} aria-label="Change theme">
+            {isLight ? <Sun size={19} /> : <Moon size={19} />}
           </button>
-          <button className="relative flex h-11 w-11 items-center justify-center rounded-2xl" style={{ background: controlBackground }} aria-label="Notifications">
-            <Bell size={23} />
-            <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#7C3AED] text-xs font-bold text-white">3</span>
+          <button className="relative flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: controlBackground }} aria-label="Notifications">
+            <Bell size={21} />
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#7C3AED] text-[10px] font-bold text-white">3</span>
           </button>
-          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border-2 border-[#A78BFA] bg-[#253454]">
-            {session?.user?.image ? <img src={session.user.image} alt={session.user.name || 'Profile'} className="h-full w-full object-cover" /> : <UserRound size={23} />}
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border-2 border-[#A78BFA] bg-[#253454]">
+            {session?.user?.image ? <img src={session.user.image} alt={session.user.name || 'Profile'} className="h-full w-full object-cover" /> : <UserRound size={20} />}
           </div>
         </div>
       </div>
