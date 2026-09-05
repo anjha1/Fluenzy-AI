@@ -106,6 +106,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const { data: session } = useSession();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
+  const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -122,6 +123,17 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   const currentTheme = themeConfig[resolvedTheme] || themeConfig.dark;
   const isLight = resolvedTheme === 'parchment' || resolvedTheme === 'light';
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)');
+    const updateViewport = (event?: MediaQueryListEvent) => {
+      setIsMobileViewport(event ? event.matches : mediaQuery.matches);
+    };
+
+    updateViewport();
+    mediaQuery.addEventListener('change', updateViewport);
+    return () => mediaQuery.removeEventListener('change', updateViewport);
+  }, []);
 
   // Extract user info from planInfo
   const userData = planInfo?.user ? {
@@ -213,7 +225,12 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     ['/train', '/history', '/features', '/pricing', '/analytics', '/interview-guide'].some(path => pathname.startsWith(path)) ||
     pathname.startsWith('/analytics/report') ||
     isEmbedded;
-  const hideNav = isEmbedded || isReportPrintMode;
+  const isLiveTrainingRoute =
+    pathname.startsWith('/train/live') || pathname.startsWith('/train/live-gd');
+  const hideNav =
+    isEmbedded ||
+    isReportPrintMode ||
+    (isLiveTrainingRoute && isMobileViewport !== false);
   const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
   const isSuperAdminPage = pathname.startsWith('/superadmin');
   const isCollegePage = pathname.startsWith('/college');
@@ -973,4 +990,3 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     </div>
   );
 }
-

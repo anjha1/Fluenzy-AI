@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { io, Socket } from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -442,7 +443,7 @@ export default function LiveGDPage() {
 
   /* ── Shared chrome: top header + bottom nav + Ask AI FAB (MobileTrainPage) */
   const AppChrome = ({ children }: { children: React.ReactNode }) => (
-    <div className="min-h-screen flex flex-col" style={{ background: pageBgHex }}>
+    <div className="fixed inset-0 z-[200] flex flex-col sm:hidden" style={{ background: pageBgHex }}>
       {/* TOP HEADER */}
       <header
         className="flex items-center justify-between px-4 shrink-0"
@@ -501,7 +502,11 @@ export default function LiveGDPage() {
                           key={opt.value}
                           onClick={() => { setTheme(opt.value); setThemeMenuOpen(false); }}
                           className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-extrabold transition-colors"
-                          style={{ color: itemTextColor, background: active ? (isLight ? '#F3E8FF' : `${accentHex}25`) : 'transparent' }}
+                          style={{
+                            color: itemTextColor,
+                            WebkitTextFillColor: itemTextColor,
+                            background: active ? (isLight ? '#F3E8FF' : `${accentHex}25`) : 'transparent',
+                          }}
                         >
                           <opt.icon size={16} style={{ color: itemIconColor, stroke: itemIconColor }} />
                           <span>{opt.label}</span>
@@ -526,7 +531,7 @@ export default function LiveGDPage() {
       </header>
 
       {/* BODY */}
-      <div className="flex-1 overflow-y-auto" style={{ paddingBottom: '84px' }}>
+      <div className="flex-1 overflow-y-auto" style={{ paddingBottom: isLight ? '96px' : '80px' }}>
         {children}
       </div>
 
@@ -545,7 +550,7 @@ export default function LiveGDPage() {
       </motion.button>
 
       {/* BOTTOM TAB BAR */}
-      <nav className="fixed bottom-0 left-0 right-0 z-[210] flex items-end justify-around" style={{ height: '64px', paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}>
+      <nav className="fixed bottom-0 left-0 right-0 z-[210] sm:hidden flex items-end justify-around" style={{ height: '64px', paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}>
         <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
           <svg viewBox="0 0 375 64" preserveAspectRatio="none" className="w-full h-full" style={{ filter: isLight ? 'drop-shadow(0px -4px 12px rgba(0,0,0,0.08))' : 'drop-shadow(0px -4px 16px rgba(0,0,0,0.3))' }}>
             <path d="M 0,0 L 132,0 C 152,0 160,24 187.5,24 C 215,24 223,0 243,0 L 375,0 L 375,64 L 0,64 Z" fill={isLight ? '#FFFFFF' : cardBgHex} stroke={isLight ? '#E2E8F0' : borderHex} strokeWidth="1" />
@@ -560,21 +565,21 @@ export default function LiveGDPage() {
             const iconColor = isHome ? activeColor : inactiveIconColor;
             const textColor = isHome ? activeColor : inactiveTextColor;
             return (
-              <button
+              <Link
                 key={tab.label}
-                onClick={() => router.push(tab.href)}
+                href={tab.href}
                 className={`flex flex-col items-center justify-center gap-0.5 min-w-[54px] flex-1 active:opacity-75 ${isHome ? '-mt-5' : 'pb-1'}`}
                 aria-label={tab.label}
               >
                 {isHome ? (
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0" style={{ background: '#7C3AED', boxShadow: '0 6px 16px rgba(124, 58, 237, 0.45)' }}>
-                    <Home size={22} strokeWidth={2.2} style={{ color: '#FFFFFF', stroke: '#FFFFFF', fill: 'none' }} />
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0 force-purple-bg force-white" style={{ backgroundColor: '#7C3AED', background: '#7C3AED', boxShadow: '0 6px 16px rgba(124, 58, 237, 0.45)' }}>
+                    <Home size={22} className="force-white" strokeWidth={2.2} style={{ color: '#FFFFFF', stroke: '#FFFFFF', fill: 'none' }} />
                   </div>
                 ) : (
                   <tab.icon size={22} style={{ color: iconColor, stroke: iconColor }} />
                 )}
-                <span className="font-extrabold" style={{ fontSize: '10px', color: textColor, marginTop: isHome ? '1px' : '0px' }}>{tab.label}</span>
-              </button>
+                <span className="font-extrabold" style={{ fontSize: '10px', color: textColor, WebkitTextFillColor: textColor, marginTop: isHome ? '1px' : '0px' }}>{tab.label}</span>
+              </Link>
             );
           })}
         </div>
