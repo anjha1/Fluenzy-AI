@@ -1778,6 +1778,38 @@ html.parchment button.border-purple-500\/40,
   color: #1C1917 !important;
 }
 
+/* Live mobile cards keep their readable dark palette on light themes. */
+html.parchment .mobile-live-card,
+[data-theme="parchment"] .mobile-live-card {
+  color: #1C1917 !important;
+}
+
+html.parchment .mobile-live-card *,
+[data-theme="parchment"] .mobile-live-card * {
+  color: #1C1917 !important;
+  -webkit-text-fill-color: #1C1917 !important;
+}
+
+html.parchment .mobile-live-card .mobile-live-badge *,
+[data-theme="parchment"] .mobile-live-card .mobile-live-badge * {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html.parchment .mobile-live-card .mobile-live-badge[data-status="Live"],
+[data-theme="parchment"] .mobile-live-card .mobile-live-badge[data-status="Live"] {
+  color: #168653 !important;
+  background-color: #D8F7E7 !important;
+  border-color: #B6EACF !important;
+}
+
+html.parchment .mobile-live-card .mobile-live-badge[data-status="Invite-Only"],
+[data-theme="parchment"] .mobile-live-card .mobile-live-badge[data-status="Invite-Only"] {
+  color: #F0447C !important;
+  background-color: #FCE5F0 !important;
+  border-color: #F6BBD3 !important;
+}
+
 /* Claude Code Terminal theme specific overrides */
 [data-theme="codeterm"] body,
 [data-theme="codeterm"] .min-h-screen {

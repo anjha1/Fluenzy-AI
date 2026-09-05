@@ -145,7 +145,7 @@ export default function MobileLiveTrainPage() {
   /* ── Per-theme colour tokens (matches desktop LiveTrainPage) ─────────── */
   const ACCENT: Record<string, string> = {
     light: '#5A2D82',
-    parchment: '#5A2D82',
+    parchment: '#5B3FE8',
     dark: '#7C3AED',
     midnight: '#7C3AED',
     forest: '#F59E0B',
@@ -161,7 +161,7 @@ export default function MobileLiveTrainPage() {
   };
   const PAGE_BG: Record<string, string> = {
     light: '#FFFFFF',
-    parchment: 'hsl(42 18% 93%)',
+    parchment: '#F3F0EB',
     dark: '#0D0F1A',
     midnight: '#0a1929',
     forest: '#0b140e',
@@ -169,7 +169,7 @@ export default function MobileLiveTrainPage() {
   };
   const TEXT_HEX: Record<string, string> = {
     light: '#0F0B2E',
-    parchment: '#212529',
+    parchment: '#221F1D',
     dark: '#F1F5F9',
     midnight: '#F1F5F9',
     forest: '#e8e4d9',
@@ -177,7 +177,7 @@ export default function MobileLiveTrainPage() {
   };
   const MUTED_HEX: Record<string, string> = {
     light: '#6B7280',
-    parchment: '#6C757D',
+    parchment: '#514D49',
     dark: '#94A3B8',
     midnight: '#94A3B8',
     forest: '#9aad8e',
@@ -185,7 +185,7 @@ export default function MobileLiveTrainPage() {
   };
   const BORDER_HEX: Record<string, string> = {
     light: '#E5E7EB',
-    parchment: '#E9ECEF',
+    parchment: '#E4DED5',
     dark: 'rgba(255,255,255,0.08)',
     midnight: 'rgba(255,255,255,0.08)',
     forest: 'rgba(180,120,30,0.2)',
@@ -361,7 +361,6 @@ export default function MobileLiveTrainPage() {
         {/* Heading */}
         <div className="px-4 pt-5 pb-2">
           <h1 className="text-2xl font-black" style={{ color: textHex }}>Live Practice Modes</h1>
-          <p className="text-xs mt-1" style={{ color: mutedHex }}>Choose a mode to start practicing with real participants.</p>
         </div>
 
         {/* ── LIVE CARDS GRID (2 columns) ───────────────────────────────── */}
@@ -376,7 +375,7 @@ export default function MobileLiveTrainPage() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                  className={`relative flex flex-col items-start p-3.5 rounded-2xl border text-left transition-all duration-150 active:scale-[0.98] ${card.borderColor}`}
+                  className={`mobile-live-card relative flex flex-col items-start p-3.5 rounded-2xl border text-left transition-all duration-150 active:scale-[0.98] ${card.borderColor}`}
                   style={{
                     background: cardBgHex,
                     boxShadow: isLight ? '0 2px 12px rgba(0,0,0,0.06)' : '0 2px 8px rgba(0,0,0,0.2)',
@@ -389,16 +388,19 @@ export default function MobileLiveTrainPage() {
                     >
                       <Icon size={20} style={{ color: card.accent, stroke: card.accent }} />
                     </div>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold border ${card.badgeColor}`}>
+                    <span
+                      data-status={card.badge}
+                      className={`mobile-live-badge px-1.5 py-0.5 rounded-full text-[9px] font-bold border ${card.badgeColor}`}
+                    >
                       {card.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-[13px] font-bold mb-1 leading-tight" style={{ color: textHex }}>
+                  <h3 className="text-[13px] font-black mb-1 leading-tight" style={{ color: textHex }}>
                     {card.title}
                   </h3>
                   <p
-                    className="text-[10.5px] leading-relaxed line-clamp-3 mb-3"
+                    className="text-[10.5px] font-semibold leading-relaxed line-clamp-3 mb-3"
                     style={{ color: mutedHex }}
                   >
                     {card.description}
@@ -442,30 +444,29 @@ export default function MobileLiveTrainPage() {
                 <path d="M9 12l2 2 4-4" />
               </svg>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-bold leading-tight" style={{ color: textHex }}>
+            <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+              <p className="text-[13px] font-bold leading-tight min-w-0" style={{ color: textHex }}>
                 Real people. Real conversations. Real growth.
               </p>
-              <div className="mt-2 flex items-center gap-2">
+              <div className="shrink-0 flex items-center gap-1">
                 <div className="flex -space-x-2">
-                  {[0, 1, 2].map((i) => (
+                  {[
+                    'https://randomuser.me/api/portraits/women/44.jpg',
+                    'https://randomuser.me/api/portraits/men/32.jpg',
+                    'https://randomuser.me/api/portraits/women/68.jpg',
+                  ].map((src) => (
                     <div
-                      key={i}
-                      className="w-6 h-6 rounded-full border-2 flex items-center justify-center"
+                      key={src}
+                      className="w-8 h-8 rounded-full border-2 flex items-center justify-center"
                       style={{
                         borderColor: isLight ? '#FFFFFF' : cardBgHex,
                         background: 'linear-gradient(135deg,#7C3AED,#4F46E5)',
                       }}
                     >
-                      <span className="text-white text-[8px] font-black">
-                        {String.fromCharCode(65 + i)}
-                      </span>
+                      <img src={src} alt="Live participant" className="w-full h-full rounded-full object-cover" />
                     </div>
                   ))}
                 </div>
-                <span className="text-[9px] font-bold text-white bg-[#7C3AED] px-1.5 py-0.5 rounded-full">
-                  +24
-                </span>
               </div>
             </div>
           </div>
@@ -521,7 +522,7 @@ export default function MobileLiveTrainPage() {
               >
                 {isHome ? (
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0"
+                    className="force-purple-bg force-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0"
                     style={{
                       backgroundColor: '#7C3AED',
                       background: '#7C3AED',
@@ -529,6 +530,7 @@ export default function MobileLiveTrainPage() {
                     }}
                   >
                     <Home
+                      className="force-white"
                       size={22}
                       strokeWidth={2.2}
                       style={{
