@@ -139,7 +139,7 @@ export default function LiveMobileGDRoom({
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden pb-28 pt-14 sm:pt-0" style={{ background: pageBg, color: text }}>
       <TrainNavigation />
 
-      <main className="px-4 pt-[160px] sm:pt-7">
+      <main className={`px-4 ${largeVideoLayout ? 'pt-[100px]' : 'pt-[160px]'} sm:pt-7`}>
         <div className="fixed left-0 right-0 top-14 z-40 px-4 pb-2 pt-3" style={{ background: pageBg }}>
           <div className="mb-4 flex min-w-0 items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
@@ -154,11 +154,13 @@ export default function LiveMobileGDRoom({
             </span>
           </div>
 
-          <section>
-          <div className="min-w-0 rounded-[22px] border px-4 py-3 text-center" style={{ background: panel, borderColor: border }}>
-            <span className="line-clamp-2 break-words text-sm font-bold leading-tight [overflow-wrap:anywhere]" style={{ color: text }}>{topic}</span>
-          </div>
-          </section>
+          {!largeVideoLayout && (
+            <section>
+              <div className="min-w-0 rounded-[22px] border px-4 py-3 text-center" style={{ background: panel, borderColor: border }}>
+                <span className="line-clamp-2 break-words text-sm font-bold leading-tight [overflow-wrap:anywhere]" style={{ color: text }}>{topic}</span>
+              </div>
+            </section>
+          )}
         </div>
 
         <section className={largeVideoLayout ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-2 gap-3'}>
