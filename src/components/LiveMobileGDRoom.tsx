@@ -128,19 +128,19 @@ export default function LiveMobileGDRoom({
   const accent = isLight ? '#6D3FE8' : '#7C3AED';
 
   return (
-    <div className="min-h-screen pb-24 overflow-x-hidden" style={{ background: pageBg, color: text }}>
-      <header className="mx-3 mt-3 rounded-3xl border px-4 py-4 flex items-center justify-between" style={{ background: surface, borderColor: isLight ? '#E4DED5' : 'rgba(129,140,248,0.2)' }}>
-        <div className="flex items-center gap-3">
-          <button className="w-12 h-12 rounded-2xl bg-[#17243d] flex items-center justify-center" aria-label="Open menu"><Menu size={27} /></button>
-          <div className="w-14 h-14 rounded-xl bg-[#295d60] flex items-center justify-center overflow-hidden">
-            <img src="/white-removebg-preview1.png" alt="Fluenzy AI" className="w-12 h-12 object-contain" />
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden pb-28" style={{ background: pageBg, color: text }}>
+      <header className="mx-3 mt-3 flex min-w-0 items-center justify-between gap-2 rounded-3xl border px-3 py-3 sm:px-4 sm:py-4" style={{ background: surface, borderColor: isLight ? '#E4DED5' : 'rgba(129,140,248,0.2)' }}>
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#17243d] sm:h-12 sm:w-12" aria-label="Open menu"><Menu size={25} /></button>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#295d60] sm:h-14 sm:w-14">
+            <img src="/white-removebg-preview1.png" alt="Fluenzy AI" className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
           </div>
-          <span className="text-[25px] leading-none font-black bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-transparent">Fluenzy<br />AI</span>
+          <span className="text-[21px] leading-none font-black bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-transparent sm:text-[25px]">Fluenzy<br />AI</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <div className="relative">
-            <button onClick={() => setThemeMenuOpen((open) => !open)} className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: isLight ? 'rgba(0,0,0,0.06)' : '#17243d', color: text }} aria-label="Change theme">
-              {resolvedTheme === 'light' || resolvedTheme === 'parchment' ? <Sun size={23} /> : <Moon size={23} />}
+            <button onClick={() => setThemeMenuOpen((open) => !open)} className="flex h-11 w-11 items-center justify-center rounded-2xl" style={{ background: isLight ? 'rgba(0,0,0,0.06)' : '#17243d', color: text }} aria-label="Change theme">
+              {resolvedTheme === 'light' || resolvedTheme === 'parchment' ? <Sun size={21} /> : <Moon size={21} />}
             </button>
             {themeMenuOpen && (
               <>
@@ -154,74 +154,74 @@ export default function LiveMobileGDRoom({
               </>
             )}
           </div>
-          <button className="relative w-12 h-12 rounded-2xl bg-[#17243d] flex items-center justify-center" aria-label="Notifications">
-            <Bell size={26} /><span className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-[#7C3AED] text-xs font-bold flex items-center justify-center">3</span>
+          <button className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-[#17243d]" aria-label="Notifications">
+            <Bell size={23} /><span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#7C3AED] text-xs font-bold">3</span>
           </button>
-          <div className="w-12 h-12 rounded-2xl border-2 border-[#A78BFA] bg-[#253454] overflow-hidden flex items-center justify-center">
+          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border-2 border-[#A78BFA] bg-[#253454]">
             {avatarUrl ? <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" /> : <UserRound size={23} />}
           </div>
         </div>
       </header>
 
       <main className="px-4 pt-7">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+        <div className="mb-6 flex min-w-0 items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <button onClick={onEndSession} aria-label="Leave discussion"><span className="text-4xl leading-none">‹</span></button>
-            <span className="px-4 py-2 rounded-full border border-rose-500/40 bg-rose-500/10 text-rose-400 font-bold flex items-center gap-2">
+            <span className="flex min-w-0 items-center gap-2 rounded-full border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm font-bold text-rose-400 sm:px-4 sm:text-base">
               <span className="w-3 h-3 rounded-full bg-rose-500 animate-pulse" /> Live Discussion
             </span>
           </div>
-          <span className="px-3 py-2 rounded-full border border-indigo-400/20 bg-[#0f1b32] text-indigo-200 text-xs font-semibold flex items-center gap-1">
+          <span className="flex shrink-0 items-center gap-1 rounded-full border border-indigo-400/20 bg-[#0f1b32] px-2.5 py-2 text-xs font-semibold text-indigo-200">
             <Users size={16} /> {remoteUsers.length + 1}
           </span>
         </div>
 
-        <section className="rounded-[28px] border border-indigo-400/20 bg-[#0c172b] p-5 mb-6">
+        <section className="mb-6 rounded-[28px] border border-indigo-400/20 bg-[#0c172b] p-4 sm:p-5">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-14 h-14 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center"><Clock3 size={31} /></div>
             <div><div className="text-4xl font-mono font-bold text-blue-400">{formatTime(phaseTimer)}</div><div className="text-xs font-semibold text-indigo-200">TIME REMAINING</div></div>
           </div>
-          <div className="flex items-start justify-between gap-3">
-            <div><div className="text-xs uppercase tracking-wider text-indigo-200 mb-2">Current phase</div><div className="text-xl font-black capitalize">{currentPhase}</div></div>
-            <div className="text-right"><div className="text-xs uppercase tracking-wider text-indigo-200 mb-2">Your role</div><div className="font-bold flex items-center gap-1"><FileText size={16} />{topic}<ChevronDown size={16} /></div></div>
+          <div className="grid min-w-0 grid-cols-2 gap-4">
+            <div className="min-w-0"><div className="mb-2 text-xs uppercase tracking-wider text-indigo-200">Current phase</div><div className="truncate text-xl font-black capitalize">{currentPhase}</div></div>
+            <div className="min-w-0 text-right"><div className="mb-2 text-xs uppercase tracking-wider text-indigo-200">Topic</div><div className="flex min-w-0 items-center justify-end gap-1 font-bold"><FileText size={16} className="shrink-0" /><span className="truncate">{topic}</span><ChevronDown size={16} className="shrink-0" /></div></div>
           </div>
         </section>
 
-        <section className="space-y-4">
-          <div className="relative aspect-video rounded-3xl overflow-hidden border-4 border-[#7437ff] shadow-[0_0_18px_rgba(124,58,237,0.55)]">
+        <section className="grid grid-cols-2 gap-3">
+          <div className="relative aspect-[4/3] min-w-0 overflow-hidden rounded-2xl border-2 border-[#7437ff] shadow-[0_0_14px_rgba(124,58,237,0.55)] sm:rounded-3xl sm:border-4">
             <MediaPlayer videoTrack={localVideoTrack} audioTrack={localAudioTrack} uid={agoraUid} local />
             {isVideoOff && <div className="absolute inset-0 bg-[#16233b] flex items-center justify-center z-10"><div className="w-20 h-20 rounded-full bg-purple-600 flex items-center justify-center text-3xl font-black">{userName[0]?.toUpperCase()}</div></div>}
-            <span className="absolute top-4 right-4 px-4 py-2 rounded-xl bg-slate-600/90 font-bold">You</span>
-            <span className="absolute left-4 bottom-4 px-4 py-2 rounded-xl bg-[#071021]/85 font-semibold">{userName}</span>
-            <div className="absolute right-4 bottom-4 flex gap-2">
-              <span className="w-11 h-11 rounded-full bg-[#07152d]/90 flex items-center justify-center">
-                {isMuted ? <MicOff size={20} className="text-rose-400" /> : <Mic size={20} className="text-emerald-400" />}
+            <span className="absolute right-2 top-2 rounded-lg bg-purple-600/90 px-2 py-1 text-[10px] font-bold sm:right-4 sm:top-4 sm:px-4 sm:py-2 sm:text-base sm:rounded-xl">You</span>
+            <span className="absolute bottom-2 left-2 max-w-[calc(100%-4.5rem)] truncate rounded-lg bg-[#071021]/85 px-2 py-1 text-[10px] font-semibold sm:bottom-4 sm:left-4 sm:px-4 sm:py-2 sm:text-base sm:rounded-xl">{userName}</span>
+            <div className="absolute bottom-2 right-2 flex gap-1 sm:bottom-4 sm:right-4 sm:gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#07152d]/90 sm:h-11 sm:w-11">
+                {isMuted ? <MicOff size={16} className="text-rose-400 sm:h-5 sm:w-5" /> : <Mic size={16} className="text-emerald-400 sm:h-5 sm:w-5" />}
               </span>
-              <span className="w-11 h-11 rounded-full bg-[#07152d]/90 flex items-center justify-center"><Video size={20} /></span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#07152d]/90 sm:h-11 sm:w-11"><Video size={16} className="sm:h-5 sm:w-5" /></span>
             </div>
           </div>
           {remoteUsers.slice(0, 3).map((user, index) => (
-            <div key={user.uid} className="relative aspect-video rounded-3xl overflow-hidden border border-indigo-500/50">
+            <div key={user.uid} className="relative aspect-[4/3] min-w-0 overflow-hidden rounded-2xl border border-indigo-500/50 sm:rounded-3xl">
               <MediaPlayer videoTrack={user.videoTrack} audioTrack={user.audioTrack} uid={user.uid} />
               {!user.hasVideo && <div className="absolute inset-0 bg-[#16233b] flex items-center justify-center z-10"><div className="w-20 h-20 rounded-full bg-slate-600 flex items-center justify-center text-3xl font-black">P</div></div>}
-              <span className="absolute left-4 bottom-4 px-4 py-2 rounded-xl bg-[#071021]/85 font-semibold">{participantNames[index + 1] || `Participant ${index + 2}`}</span>
-              <div className="absolute right-4 bottom-4 flex gap-2">
-                <span className="w-11 h-11 rounded-full bg-[#07152d]/90 flex items-center justify-center">
-                  {user.hasAudio ? <Mic size={20} /> : <MicOff size={20} className="text-rose-400" />}
+              <span className="absolute bottom-2 left-2 max-w-[calc(100%-4.5rem)] truncate rounded-lg bg-[#071021]/85 px-2 py-1 text-[10px] font-semibold sm:bottom-4 sm:left-4 sm:px-4 sm:py-2 sm:text-base sm:rounded-xl">{participantNames[index + 1] || `Participant ${index + 2}`}</span>
+              <div className="absolute bottom-2 right-2 flex gap-1 sm:bottom-4 sm:right-4 sm:gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#07152d]/90 sm:h-11 sm:w-11">
+                  {user.hasAudio ? <Mic size={16} className="sm:h-5 sm:w-5" /> : <MicOff size={16} className="text-rose-400 sm:h-5 sm:w-5" />}
                 </span>
-                <span className="w-11 h-11 rounded-full bg-[#07152d]/90 flex items-center justify-center"><Video size={20} /></span>
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#07152d]/90 sm:h-11 sm:w-11"><Video size={16} className="sm:h-5 sm:w-5" /></span>
               </div>
             </div>
           ))}
         </section>
       </main>
 
-      <div className="fixed bottom-[76px] left-1/2 -translate-x-1/2 z-40 rounded-3xl border border-indigo-400/10 bg-[#0b1427]/95 backdrop-blur-xl px-3 py-3 flex items-center gap-3 shadow-2xl">
-        <button onClick={onToggleMute} className="w-14 h-14 rounded-full bg-[#152440] flex items-center justify-center">{isMuted ? <MicOff className="text-rose-400" /> : <Mic />}</button>
-        <button onClick={onToggleVideo} className="w-14 h-14 rounded-full bg-[#152440] flex items-center justify-center">{isVideoOff ? <Video className="text-rose-400" /> : <Video />}</button>
-        <button className="w-14 h-14 rounded-full bg-[#152440] flex items-center justify-center"><Volume2 /></button>
-        <button onClick={onEndSession} className="h-14 px-5 rounded-full bg-gradient-to-r from-rose-500 to-red-500 font-bold flex items-center gap-2"><PhoneOff size={18} /> End</button>
-        <button onClick={() => { window.location.href = '/train/chat'; }} className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex flex-col items-center justify-center shadow-[0_0_20px_rgba(124,58,237,0.65)]"><Sparkles size={18} /><span className="text-[8px] font-bold">Ask AI</span></button>
+      <div className="fixed bottom-[76px] left-2 right-2 z-40 flex items-center justify-between gap-2 rounded-3xl border border-indigo-400/10 bg-[#0b1427]/95 px-2.5 py-3 shadow-2xl backdrop-blur-xl sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:gap-3 sm:px-3">
+        <button onClick={onToggleMute} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#152440] sm:h-14 sm:w-14">{isMuted ? <MicOff className="text-rose-400" /> : <Mic />}</button>
+        <button onClick={onToggleVideo} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#152440] sm:h-14 sm:w-14">{isVideoOff ? <Video className="text-rose-400" /> : <Video />}</button>
+        <button className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#152440] sm:h-14 sm:w-14"><Volume2 /></button>
+        <button onClick={onEndSession} className="flex h-12 min-w-0 flex-1 items-center justify-center gap-1 rounded-full bg-gradient-to-r from-rose-500 to-red-500 px-3 font-bold sm:h-14 sm:flex-none sm:px-5"><PhoneOff size={18} /> <span>End</span></button>
+        <button onClick={() => { window.location.href = '/train/chat'; }} className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 shadow-[0_0_20px_rgba(124,58,237,0.65)] sm:h-14 sm:w-14"><Sparkles size={18} /><span className="text-[8px] font-bold">Ask AI</span></button>
       </div>
 
       <nav className="fixed bottom-0 left-0 right-0 z-30 h-16 flex items-end justify-around" style={{ paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}>
