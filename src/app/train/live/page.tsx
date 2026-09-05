@@ -14,6 +14,7 @@ import {
   UserCheck,
   Users,
 } from 'lucide-react';
+import MobilelivePage from './MobilelivePage';
 
 interface CardDef {
   id: string;
@@ -93,6 +94,19 @@ interface UsageData {
   isUnlimited: Record<string, boolean>;
 }
 
+/* ── Mobile breakpoint detection (≤ 640 px) ── */
+function useMobileBreakpoint() {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
+
 export default function LiveGDPage() {
   const { data: session } = useSession();
   const { resolvedTheme } = useTheme();
@@ -100,6 +114,7 @@ export default function LiveGDPage() {
   const currentTheme = themeConfig[resolvedTheme] ?? themeConfig['dark'];
   const [usageData, setUsageData] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useMobileBreakpoint();
 
   useEffect(() => {
     if (!session?.user) return;
@@ -119,6 +134,9 @@ export default function LiveGDPage() {
     if (rem !== undefined) return `${rem} ${Number(rem) === 1 ? 'session' : 'sessions'}`;
     return '—';
   };
+
+  if (isMobile === null) return null;
+  if (isMobile) return <MobilelivePage />;
 
   const gdCards = [
     {

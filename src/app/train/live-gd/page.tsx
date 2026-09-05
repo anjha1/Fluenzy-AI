@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { io, Socket } from 'socket.io-client';
 import GDMatchingUI from '@/components/GDMatchingUI';
 import GDHistory from '@/components/GDHistory';
+import MobileliveGDPage from './MobileliveGDPage';
 
 // Dynamic import for LiveGDRoom to avoid SSR issues with Agora
 const LiveGDRoom = dynamic(() => import('@/components/LiveGDRoom'), {
@@ -56,8 +57,22 @@ function getStableUserId(sessionUserId: string | undefined): string {
   return newId;
 }
 
+/* ── Mobile breakpoint detection (≤ 640 px) ── */
+function useMobileBreakpoint() {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
+
 export default function LiveGDPage() {
   const { data: session, status: authStatus } = useSession();
+  const isMobile = useMobileBreakpoint();
 
   // Generate stable user ID that persists during session (client-side only)
   const [userId, setUserId] = useState<string>(() => 
@@ -117,6 +132,8 @@ export default function LiveGDPage() {
 
   // Initialize socket connection
   useEffect(() => {
+    if (isMobile !== false) return;
+
     console.log('[Page] Initializing socket connection...');
     
     const socketInstance = io({
@@ -147,11 +164,11 @@ export default function LiveGDPage() {
       console.log('[Page] Cleaning up socket...');
       socketInstance.disconnect();
     };
-  }, []);
+  }, [isMobile]);
 
   // Socket event handlers
   useEffect(() => {
-    if (!socket) return;
+    if (isMobile !== false || !socket) return;
 
     const handleQueueStatus = (data: { status: string; position: number; message: string }) => {
       console.log('[Page] Queue status:', data);
@@ -195,7 +212,7 @@ export default function LiveGDPage() {
       socket.off('queue-status', handleQueueStatus);
       socket.off('match-found', handleMatchFound);
     };
-  }, [socket, userId]);
+  }, [isMobile, socket, userId]);
 
   // Join queue via socket
   const joinQueueSocket = useCallback(() => {
@@ -357,6 +374,10 @@ export default function LiveGDPage() {
     setError(null);
     setShowHistory(false);
   }, []);
+
+  // Mobile layout: render dedicated mobile dashboard (≤ 640 px)
+  if (isMobile === null) return null;
+  if (isMobile) return <MobileliveGDPage />;
 
   if (authStatus === 'loading') {
     return (
