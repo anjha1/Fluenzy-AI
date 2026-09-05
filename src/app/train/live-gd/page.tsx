@@ -120,8 +120,8 @@ export default function LiveGDPage() {
 
   // Form state
   const [participantCount, setParticipantCount] = useState(4);
-  const [difficulty, setDifficulty] = useState('Medium');
-  const [mode, setMode] = useState('Random');
+  const difficulty = 'Medium';
+  const mode = 'Random';
 
   // Log userId on mount for debugging
   useEffect(() => {
@@ -236,7 +236,7 @@ export default function LiveGDPage() {
       difficulty,
       mode,
     });
-  }, [socket, socketConnected, userId, userName, participantCount, difficulty, mode]);
+  }, [socket, socketConnected, userId, userName, participantCount]);
 
   // Leave queue via socket
   const leaveQueueSocket = useCallback(() => {
@@ -347,7 +347,7 @@ export default function LiveGDPage() {
       setError('Failed to connect to matchmaking server');
       setGdStatus('idle');
     }
-  }, [session, socketConnected, joinQueueSocket, userId, participantCount, difficulty, mode, isClearing]);
+  }, [session, socketConnected, joinQueueSocket, userId, participantCount, isClearing]);
 
   const handleLeaveQueue = useCallback(async () => {
     if (socketConnected) {
@@ -456,7 +456,7 @@ export default function LiveGDPage() {
           <div className="bg-slate-800 rounded-xl p-6 mb-8">
             <h2 className="text-xl font-semibold text-white mb-6">Configure Your GD Session</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="mb-6">
               {/* Participant Count */}
               <div>
                 <label className="block text-gray-400 mb-2">Participants</label>
@@ -474,36 +474,6 @@ export default function LiveGDPage() {
                 </select>
               </div>
 
-              {/* Difficulty */}
-              <div>
-                <label className="block text-gray-400 mb-2">Difficulty</label>
-                <select
-                  value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value)}
-                  className="w-full bg-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="Easy">Easy</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Hard">Hard</option>
-                </select>
-              </div>
-
-              {/* Mode */}
-              <div>
-                <label className="block text-gray-400 mb-2">Topic Mode</label>
-                <select
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value)}
-                  className="w-full bg-slate-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="Random">Random Topics</option>
-                  <option value="Corporate">Corporate</option>
-                  <option value="CurrentAffairs">Current Affairs</option>
-                  <option value="Abstract">Abstract</option>
-                  <option value="BusinessEthics">Business Ethics</option>
-                  <option value="Technology">Technology</option>
-                </select>
-              </div>
             </div>
 
             {/* Join Button */}

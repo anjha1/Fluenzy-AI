@@ -132,8 +132,8 @@ export default function LiveGDPage() {
 
   // Form state
   const [participantCount, setParticipantCount] = useState(4);
-  const [difficulty, setDifficulty] = useState('Medium');
-  const [mode, setMode] = useState('Random');
+  const difficulty = 'Medium';
+  const mode = 'Random';
 
   // UI-only state (nav chrome) — does not affect matchmaking logic
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -250,7 +250,7 @@ export default function LiveGDPage() {
       difficulty,
       mode,
     });
-  }, [socket, socketConnected, userId, userName, participantCount, difficulty, mode]);
+  }, [socket, socketConnected, userId, userName, participantCount]);
 
   // Leave queue via socket
   const leaveQueueSocket = useCallback(() => {
@@ -361,7 +361,7 @@ export default function LiveGDPage() {
       setError('Failed to connect to matchmaking server');
       setGdStatus('idle');
     }
-  }, [session, socketConnected, joinQueueSocket, userId, participantCount, difficulty, mode, isClearing]);
+  }, [session, socketConnected, joinQueueSocket, userId, participantCount, isClearing]);
 
   const handleLeaveQueue = useCallback(async () => {
     if (socketConnected) {
@@ -394,7 +394,7 @@ export default function LiveGDPage() {
   const t = resolvedTheme as string;
 
   const ACCENT: Record<string, string> = {
-    light: '#5A2D82', parchment: '#5A2D82', dark: '#7C3AED',
+    light: '#6D3FE8', parchment: '#6D3FE8', dark: '#7C3AED',
     midnight: '#7C3AED', forest: '#F59E0B', codeterm: '#CC4125',
   };
   const CARD_BG: Record<string, string> = {
@@ -402,7 +402,7 @@ export default function LiveGDPage() {
     midnight: 'rgba(15,39,68,0.9)', forest: 'rgba(17,28,20,0.9)', codeterm: '#141414',
   };
   const PAGE_BG: Record<string, string> = {
-    light: '#FFFFFF', parchment: 'hsl(42 18% 93%)', dark: '#0D0F1A',
+    light: '#F8F7F4', parchment: '#F3F0EB', dark: '#0D0F1A',
     midnight: '#0a1929', forest: '#0b140e', codeterm: '#0D0D0D',
   };
   const TEXT_HEX: Record<string, string> = {
@@ -753,15 +753,19 @@ export default function LiveGDPage() {
 
   return (
     <AppChrome>
-      <div className="px-5 pt-6">
+      <div className="px-4 pt-5 pb-3">
         {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-extrabold mb-1" style={{ color: textHex }}>Live Group Discussion</h1>
-          <p className="text-sm" style={{ color: mutedHex }}>
+        <div className="text-center mb-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 text-[10px] font-black uppercase tracking-[0.16em]" style={{ color: accentHex, background: `${accentHex}14` }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: accentHex }} />
+            Practice room
+          </div>
+          <h1 className="text-[25px] font-black tracking-tight mb-1" style={{ color: textHex }}>Live Group Discussion</h1>
+          <p className="text-[13px]" style={{ color: mutedHex }}>
             Join random GD sessions with real participants
           </p>
 
-          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border" style={{
+          <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold border shadow-sm" style={{
             background: socketConnected ? '#22C55E20' : '#EF444420',
             color: socketConnected ? '#22C55E' : '#EF4444',
             borderColor: socketConnected ? '#22C55E40' : '#EF444440',
@@ -779,16 +783,24 @@ export default function LiveGDPage() {
         )}
 
         {/* GD Setup Card */}
-        <div className="rounded-2xl p-5 mb-5 border" style={{ background: cardBgHex, borderColor: borderHex }}>
-          <h2 className="text-base font-bold mb-4" style={{ color: textHex }}>Configure Your GD Session</h2>
+        <div className="rounded-[24px] p-4 mb-5 border shadow-sm" style={{ background: cardBgHex, borderColor: borderHex, boxShadow: isLight ? '0 10px 28px rgba(43,35,25,0.08)' : undefined }}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] mb-1" style={{ color: accentHex }}>Session setup</p>
+              <h2 className="text-[17px] font-black" style={{ color: textHex }}>Configure your GD</h2>
+            </div>
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: `${accentHex}14`, color: accentHex }}>
+              <Target size={19} />
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 gap-4 mb-5">
+          <div className="mb-5">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: mutedHex }}>Participants</label>
               <select
                 value={participantCount}
                 onChange={(e) => setParticipantCount(parseInt(e.target.value))}
-                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
+                className="w-full rounded-2xl px-4 py-3.5 text-sm font-semibold focus:outline-none"
                 style={{ background: pageBgHex, color: textHex, border: `1px solid ${borderHex}` }}
               >
                 <option value={3}>3 Participants</option>
@@ -799,43 +811,12 @@ export default function LiveGDPage() {
                 <option value={8}>8 Participants</option>
               </select>
             </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: mutedHex }}>Difficulty</label>
-              <select
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
-                style={{ background: pageBgHex, color: textHex, border: `1px solid ${borderHex}` }}
-              >
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: mutedHex }}>Topic Mode</label>
-              <select
-                value={mode}
-                onChange={(e) => setMode(e.target.value)}
-                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
-                style={{ background: pageBgHex, color: textHex, border: `1px solid ${borderHex}` }}
-              >
-                <option value="Random">Random Topics</option>
-                <option value="Corporate">Corporate</option>
-                <option value="CurrentAffairs">Current Affairs</option>
-                <option value="Abstract">Abstract</option>
-                <option value="BusinessEthics">Business Ethics</option>
-                <option value="Technology">Technology</option>
-              </select>
-            </div>
           </div>
 
           <button
             onClick={handleJoinQueue}
             disabled={!socketConnected}
-            className="w-full py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
+            className="w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
             style={{ background: 'linear-gradient(135deg,#7C3AED,#4F46E5)', color: '#FFFFFF', boxShadow: '0 8px 20px rgba(124,58,237,0.35)' }}
           >
             <Search size={16} />
@@ -843,36 +824,6 @@ export default function LiveGDPage() {
           </button>
         </div>
 
-        {/* Info Cards */}
-        <div className="grid grid-cols-1 gap-3 mb-6">
-          <div className="rounded-xl p-4 border" style={{ background: cardBgHex, borderColor: borderHex }}>
-            <h3 className="text-sm font-bold mb-1" style={{ color: textHex }}>Random Matching</h3>
-            <p className="text-xs" style={{ color: mutedHex }}>
-              Get matched with real participants automatically based on your preferences.
-            </p>
-          </div>
-
-          <div className="rounded-xl p-4 border" style={{ background: cardBgHex, borderColor: borderHex }}>
-            <h3 className="text-sm font-bold mb-1" style={{ color: textHex }}>Dynamic Roles</h3>
-            <p className="text-xs" style={{ color: mutedHex }}>
-              Each session assigns unique roles like Initiator, Moderator, Analyzer, etc.
-            </p>
-          </div>
-
-          <div className="rounded-xl p-4 border" style={{ background: cardBgHex, borderColor: borderHex }}>
-            <h3 className="text-sm font-bold mb-1" style={{ color: textHex }}>Performance Report</h3>
-            <p className="text-xs" style={{ color: mutedHex }}>
-              Get detailed analytics and feedback after each session.
-            </p>
-          </div>
-        </div>
-
-        {/* History Button */}
-        <div className="text-center mb-4">
-          <button onClick={() => setShowHistory(true)} className="font-semibold text-sm" style={{ color: accentHex }}>
-            View Past GD Sessions
-          </button>
-        </div>
       </div>
 
       {/* History Modal */}
