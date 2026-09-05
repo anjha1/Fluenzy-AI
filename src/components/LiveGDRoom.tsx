@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import Link from 'next/link';
 import AgoraRTC, {
   IAgoraRTCClient,
   ICameraVideoTrack,
@@ -12,6 +13,16 @@ import AgoraRTC, {
 } from 'agora-rtc-sdk-ng';
 import GDSessionReport from './GDSessionReport';
 import { useSession } from 'next-auth/react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { ArrowLeft, BarChart3, Bell, ChevronDown, Clock3, FileText, Home, Link2, Menu, Mic, MicOff, Moon, PhoneOff, Sparkles, Target, User, UserRound, Users, Video, VideoOff, Volume2 } from 'lucide-react';
+
+const ROOM_TABS = [
+  { label: 'Quick Links', icon: Link2, href: '/train' },
+  { label: 'Practice', icon: Target, href: '/train/hr' },
+  { label: 'Home', icon: Home, href: '/train' },
+  { label: 'Analytics', icon: BarChart3, href: '/analytics' },
+  { label: 'Profile', icon: User, href: '/profile' },
+];
 
 // --- Interfaces ---
 
@@ -89,7 +100,18 @@ const MediaPlayer = ({
 
 export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid }: LiveGDRoomProps) {
   const { data: session } = useSession();
+  const { resolvedTheme } = useTheme();
   const userName = session?.user?.name || 'Guest';
+  const isLight = resolvedTheme === 'light' || resolvedTheme === 'parchment';
+  const roomColors = {
+    page: isLight ? (resolvedTheme === 'parchment' ? '#F3F0EB' : '#F8FAFC') : '#050914',
+    surface: isLight ? '#FFFFFF' : '#0B1324',
+    panel: isLight ? '#FFFFFF' : '#0E1A31',
+    text: isLight ? '#221F1D' : '#FFFFFF',
+    muted: isLight ? '#64748B' : '#A5B4FC',
+    border: isLight ? '#E4DED5' : 'rgba(129,140,248,0.2)',
+    accent: isLight ? '#6D3FE8' : '#7C3AED',
+  };
 
   // State
   const [state, setState] = useState<SessionState>('ready');
@@ -338,17 +360,20 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-4 md:p-6">
+    <div className="min-h-screen p-4 md:p-6 pb-28" style={{ background: roomColors.page, color: roomColors.text }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-7 rounded-3xl border px-4 py-3" style={{ background: roomColors.surface, borderColor: roomColors.border }}>
           <div className="flex items-center gap-3">
-             <div className="bg-red-500 w-3 h-3 rounded-full animate-pulse"></div>
-             <h1 className="text-2xl font-bold text-white">Live Discussion</h1>
+             <button className="w-11 h-11 rounded-2xl bg-[#17243d] flex items-center justify-center"><Menu size={24} /></button>
+             <div className="w-11 h-11 rounded-xl bg-[#295d60] flex items-center justify-center overflow-hidden">
+               <img src="/white-removebg-preview1.png" alt="Fluenzy AI" className="w-10 h-10 object-contain" />
+             </div>
+             <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-transparent">Fluenzy AI</span>
           </div>
           
           {networkQuality && (
-             <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700">
+             <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#101d35] border border-indigo-400/20">
                <span className="text-xs text-gray-400">Connection:</span>
                <div className={`w-2 h-2 rounded-full ${
                   networkQuality.downlinkNetworkQuality <= 2 ? 'bg-green-500' : 
@@ -356,6 +381,11 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
                }`} />
              </div>
           )}
+          <div className="flex items-center gap-2">
+            <button className="hidden sm:flex w-11 h-11 rounded-2xl bg-[#17243d] items-center justify-center"><Moon size={21} /></button>
+            <button className="relative w-11 h-11 rounded-2xl bg-[#17243d] flex items-center justify-center"><Bell size={21} /><span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#7C3AED] text-[10px] flex items-center justify-center">3</span></button>
+            <div className="w-11 h-11 rounded-xl border-2 border-[#A78BFA] bg-[#253454] flex items-center justify-center overflow-hidden">{session?.user?.image ? <img src={session.user.image} alt={userName} className="w-full h-full object-cover" /> : <UserRound size={20} />}</div>
+          </div>
         </div>
 
         {error ? (
@@ -374,28 +404,28 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
         ) : (
           <>
             {/* Info Bar */}
-            <div className="bg-slate-800/50 backdrop-blur rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center gap-4 border border-slate-700">
+            <div className="bg-gradient-to-r from-[#0e1a31] to-[#0a1223] backdrop-blur rounded-3xl p-5 mb-7 flex flex-wrap justify-between items-center gap-5 border border-indigo-400/20">
               <div>
                 <span className="text-gray-400 text-sm uppercase tracking-wider">Current Phase</span>
                 <h3 className="text-xl font-bold text-white capitalize">{currentPhase}</h3>
               </div>
               
               <div className="flex flex-col items-center">
-                 <span className="text-3xl font-mono font-bold text-blue-400">{formatTime(phaseTimer)}</span>
+                 <span className="text-4xl font-mono font-bold text-blue-400 flex items-center gap-2"><Clock3 size={28} />{formatTime(phaseTimer)}</span>
                  <span className="text-xs text-gray-500">REMAINING</span>
               </div>
 
               <div className="text-right">
                 <span className="text-gray-400 text-sm uppercase tracking-wider">Your Role</span>
-                <p className="text-white font-medium text-indigo-400">{userRole}</p>
+                <p className="text-white font-medium text-indigo-400 flex items-center gap-2"><FileText size={17} />{initialRoomData.topic || userRole}<ChevronDown size={16} /></p>
               </div>
             </div>
 
             {/* Video Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5 mb-8">
               
               {/* Local User */}
-              <div className="relative aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-indigo-500/30 shadow-lg">
+              <div className="relative aspect-video bg-[#16233b] rounded-3xl overflow-hidden border-4 border-[#7437ff] shadow-[0_0_18px_rgba(124,58,237,0.55)]">
                  <MediaPlayer 
                     videoTrack={localVideoTrack} 
                     audioTrack={localAudioTrack} 
@@ -428,8 +458,8 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
               </div>
 
               {/* Remote Users */}
-              {remoteUsers.map(user => (
-                 <div key={user.uid} className="relative aspect-video bg-slate-800 rounded-xl overflow-hidden shadow-lg border border-slate-700">
+              {remoteUsers.slice(0, 3).map(user => (
+                 <div key={user.uid} className="relative aspect-video bg-[#16233b] rounded-3xl overflow-hidden shadow-lg border border-indigo-500/50">
                     <MediaPlayer 
                        videoTrack={user.videoTrack} 
                        audioTrack={user.audioTrack} 
@@ -459,10 +489,10 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
             </div>
 
             {/* Controls */}
-            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 z-50">
+            <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 flex items-center gap-3 md:gap-5 z-50 rounded-3xl border border-indigo-400/10 bg-[#0b1427]/95 backdrop-blur-xl px-4 py-3 shadow-2xl">
                <button
                   onClick={toggleMute}
-                  className={`p-4 rounded-full transition-all shadow-lg ${
+                  className={`p-4 rounded-full transition-all shadow-lg bg-[#152440] ${
                      isMuted ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-white'
                   }`}
                >
@@ -475,7 +505,7 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
 
                <button
                   onClick={toggleVideo}
-                  className={`p-4 rounded-full transition-all shadow-lg ${
+                  className={`p-4 rounded-full transition-all shadow-lg bg-[#152440] ${
                      isVideoOff ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-white'
                   }`}
                >
@@ -488,14 +518,42 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
 
                <button
                   onClick={endSession}
-                  className="px-6 py-4 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold shadow-lg transition-colors"
+                  className="px-6 md:px-10 py-4 bg-gradient-to-r from-rose-500 to-red-500 text-white rounded-full font-bold shadow-lg transition-colors flex items-center gap-2"
                >
+                  <PhoneOff size={19} />
                   End Session
                </button>
             </div>
+            <button
+              onClick={() => { window.location.href = '/train/chat'; }}
+              className="fixed right-5 md:right-10 bottom-8 z-50 w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 shadow-[0_0_25px_rgba(124,58,237,0.7)] flex flex-col items-center justify-center font-bold"
+            >
+              <Sparkles size={22} />
+              <span className="text-[10px]">Ask AI</span>
+            </button>
           </>
         )}
       </div>
+      <nav className="fixed bottom-0 left-0 right-0 z-[210] sm:hidden h-16 flex items-end justify-around border-t" style={{ background: roomColors.surface, borderColor: roomColors.border, paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}>
+        <div className="flex items-center justify-around w-full h-full px-1">
+          {ROOM_TABS.map((tab) => {
+            const isHome = tab.label === 'Home';
+            const Icon = tab.icon;
+            return (
+              <Link key={tab.label} href={tab.href} aria-label={tab.label} className={`flex flex-col items-center justify-center gap-0.5 min-w-[54px] flex-1 ${isHome ? '-mt-5' : 'pb-1'}`}>
+                {isHome ? (
+                  <span className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg" style={{ background: roomColors.accent, boxShadow: `0 6px 18px ${roomColors.accent}70` }}>
+                    <Home size={22} color="#FFFFFF" strokeWidth={2.2} />
+                  </span>
+                ) : (
+                  <Icon size={22} style={{ color: isLight ? '#475569' : '#A5B4FC' }} />
+                )}
+                <span className="font-extrabold text-[10px]" style={{ color: isHome ? roomColors.accent : (isLight ? '#334155' : '#A5B4FC') }}>{tab.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }
