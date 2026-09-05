@@ -12,9 +12,10 @@ import AgoraRTC, {
   UID,
 } from 'agora-rtc-sdk-ng';
 import GDSessionReport from './GDSessionReport';
+import LiveMobileGDRoom from './LiveMobileGDRoom';
 import { useSession } from 'next-auth/react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { ArrowLeft, BarChart3, Bell, ChevronDown, Clock3, FileText, Home, Link2, Menu, Mic, MicOff, Moon, PhoneOff, Sparkles, Target, User, UserRound, Users, Video, VideoOff, Volume2 } from 'lucide-react';
+import { BarChart3, ChevronDown, Clock3, FileText, Home, Link2, PhoneOff, Sparkles, Target, User } from 'lucide-react';
 
 const ROOM_TABS = [
   { label: 'Quick Links', icon: Link2, href: '/train' },
@@ -126,6 +127,7 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   // Refs
   const clientRef = useRef<IAgoraRTCClient | null>(null);
@@ -134,6 +136,14 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
   const isCleanupRef = useRef(false); // Guard against double cleanup
 
   const userRole = initialRoomData.participants.find(p => p.odlUserId === userId)?.role || 'Participant';
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)');
+    const updateViewport = () => setIsMobile(mediaQuery.matches);
+    updateViewport();
+    mediaQuery.addEventListener('change', updateViewport);
+    return () => mediaQuery.removeEventListener('change', updateViewport);
+  }, []);
 
   // --- Agora Initialization ---
   useEffect(() => {
@@ -359,35 +369,33 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  if (isMobile === null) return null;
+
+  if (isMobile) {
+    return (
+      <LiveMobileGDRoom
+        userName={userName}
+        avatarUrl={session?.user?.image}
+        topic={initialRoomData.topic || userRole}
+        currentPhase={currentPhase}
+        phaseTimer={phaseTimer}
+        participantNames={initialRoomData.participants.map((participant) => participant.odlUserName)}
+        agoraUid={agoraUid}
+        localVideoTrack={localVideoTrack}
+        localAudioTrack={localAudioTrack}
+        remoteUsers={remoteUsers}
+        isMuted={isMuted}
+        isVideoOff={isVideoOff}
+        onToggleMute={toggleMute}
+        onToggleVideo={toggleVideo}
+        onEndSession={endSession}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen p-4 md:p-6 pb-28" style={{ background: roomColors.page, color: roomColors.text }}>
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-7 rounded-3xl border px-4 py-3" style={{ background: roomColors.surface, borderColor: roomColors.border }}>
-          <div className="flex items-center gap-3">
-             <button className="w-11 h-11 rounded-2xl bg-[#17243d] flex items-center justify-center"><Menu size={24} /></button>
-             <div className="w-11 h-11 rounded-xl bg-[#295d60] flex items-center justify-center overflow-hidden">
-               <img src="/white-removebg-preview1.png" alt="Fluenzy AI" className="w-10 h-10 object-contain" />
-             </div>
-             <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-transparent">Fluenzy AI</span>
-          </div>
-          
-          {networkQuality && (
-             <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#101d35] border border-indigo-400/20">
-               <span className="text-xs text-gray-400">Connection:</span>
-               <div className={`w-2 h-2 rounded-full ${
-                  networkQuality.downlinkNetworkQuality <= 2 ? 'bg-green-500' : 
-                  networkQuality.downlinkNetworkQuality <= 4 ? 'bg-yellow-500' : 'bg-red-500'
-               }`} />
-             </div>
-          )}
-          <div className="flex items-center gap-2">
-            <button className="hidden sm:flex w-11 h-11 rounded-2xl bg-[#17243d] items-center justify-center"><Moon size={21} /></button>
-            <button className="relative w-11 h-11 rounded-2xl bg-[#17243d] flex items-center justify-center"><Bell size={21} /><span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#7C3AED] text-[10px] flex items-center justify-center">3</span></button>
-            <div className="w-11 h-11 rounded-xl border-2 border-[#A78BFA] bg-[#253454] flex items-center justify-center overflow-hidden">{session?.user?.image ? <img src={session.user.image} alt={userName} className="w-full h-full object-cover" /> : <UserRound size={20} />}</div>
-          </div>
-        </div>
-
         {error ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-center">
              <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-6 max-w-md">
