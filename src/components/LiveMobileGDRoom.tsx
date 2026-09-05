@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
-  BarChart3, Bell, ChevronDown, Clock3, FileText, Home, Link2, Menu,
-  Coffee, Leaf, Mic, MicOff, Moon, PhoneOff, Sparkles, Sun, Target, Terminal, User, UserRound, Users, Video, Volume2,
+  BarChart3, ChevronDown, Clock3, FileText, Home, Link2,
+  Mic, MicOff, PhoneOff, Sparkles, Target, User, Users, Video, Volume2,
 } from 'lucide-react';
-import { useTheme, ThemeName } from '@/contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { TrainNavigation } from './train/TrainNavigation';
 import type {
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
@@ -47,15 +48,6 @@ const TABS = [
   { label: 'Home', icon: Home, href: '/train' },
   { label: 'Analytics', icon: BarChart3, href: '/analytics' },
   { label: 'Profile', icon: User, href: '/profile' },
-];
-
-const THEME_OPTIONS: { value: ThemeName; label: string; icon: typeof Moon }[] = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'midnight', label: 'Night', icon: Sparkles },
-  { value: 'forest', label: 'Forest', icon: Leaf },
-  { value: 'parchment', label: 'Parchment', icon: Coffee },
-  { value: 'codeterm', label: 'Code', icon: Terminal },
 ];
 
 function MediaPlayer({
@@ -103,8 +95,7 @@ export default function LiveMobileGDRoom({
   onToggleVideo,
   onEndSession,
 }: LiveMobileGDRoomProps) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+  const { resolvedTheme } = useTheme();
   const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -137,39 +128,7 @@ export default function LiveMobileGDRoom({
 
   return (
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden pb-28" style={{ background: pageBg, color: text }}>
-      <header className="flex min-h-[76px] w-full min-w-0 items-center justify-between gap-2 border-b px-3 py-3 sm:px-5" style={{ background: surface, borderColor: border }}>
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <button className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full sm:h-12 sm:w-12" style={{ background: control, color: text }} aria-label="Open menu"><Menu size={25} /></button>
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg sm:h-14 sm:w-14" style={{ background: resolvedTheme === 'forest' ? '#28543A' : '#295D60' }}>
-            <img src="/white-removebg-preview1.png" alt="Fluenzy AI" className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
-          </div>
-          <span className="truncate whitespace-nowrap text-[20px] font-black tracking-tight bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text text-transparent sm:text-[25px]">Fluenzy AI</span>
-        </div>
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <div className="relative">
-            <button onClick={() => setThemeMenuOpen((open) => !open)} className="flex h-11 w-11 items-center justify-center rounded-2xl" style={{ background: control, color: text }} aria-label="Change theme">
-              {resolvedTheme === 'light' || resolvedTheme === 'parchment' ? <Sun size={21} /> : <Moon size={21} />}
-            </button>
-            {themeMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-[300]" onClick={() => setThemeMenuOpen(false)} />
-                <div className="absolute right-0 top-14 z-[301] w-44 rounded-2xl border p-2 shadow-2xl" style={{ background: surface, borderColor: border }}>
-                  {THEME_OPTIONS.map((option) => {
-                    const Icon = option.icon;
-                    return <button key={option.value} onClick={() => { setTheme(option.value); setThemeMenuOpen(false); }} className="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-semibold" style={{ color: text, background: theme === option.value ? `${accent}18` : 'transparent' }}><Icon size={15} />{option.label}</button>;
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-          <button className="relative flex h-11 w-11 items-center justify-center rounded-2xl" style={{ background: control, color: text }} aria-label="Notifications">
-            <Bell size={23} /><span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold" style={{ background: accent, color: '#FFFFFF' }}>3</span>
-          </button>
-          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border-2" style={{ borderColor: accent, background: card }}>
-            {avatarUrl ? <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" /> : <UserRound size={23} />}
-          </div>
-        </div>
-      </header>
+      <TrainNavigation />
 
       <main className="px-4 pt-7">
         <div className="mb-6 flex min-w-0 items-center justify-between gap-2">
