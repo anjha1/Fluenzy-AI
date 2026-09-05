@@ -13,7 +13,7 @@ export function TrainNavigation() {
   const controlBackground = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
 
   return (
-    <div className={`sticky top-0 z-[200] border-b ${currentTheme.cardBorder} ${isLight ? 'bg-white/80' : 'bg-slate-900/50'} backdrop-blur-sm`}>
+    <div className={`fixed inset-x-0 top-0 z-[200] border-b ${currentTheme.cardBorder} ${isLight ? 'bg-white/80' : 'bg-slate-900/50'} backdrop-blur-sm sm:relative sm:inset-auto`}>
       <div className="hidden max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-12 items-center sm:flex">
         <span className={`text-lg font-bold ${isLight ? 'text-[#5B21E6]' : 'bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent'}`}>
           Train

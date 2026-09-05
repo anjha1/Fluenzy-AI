@@ -127,7 +127,7 @@ export default function LiveMobileGDRoom({
   const { page: pageBg, surface, panel, card, text, muted, border, accent, control, danger } = colors;
 
   return (
-    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden pb-28" style={{ background: pageBg, color: text }}>
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden pb-28 pt-14 sm:pt-0" style={{ background: pageBg, color: text }}>
       <TrainNavigation />
 
       <main className="px-4 pt-7">
