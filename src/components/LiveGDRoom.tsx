@@ -42,6 +42,7 @@ interface LiveGDRoomProps {
   roomData: RoomData;
   userId: string;
   agoraUid: number;
+  largeVideoLayout?: boolean;
 }
 
 type SessionState = 'ready' | 'active' | 'ended';
@@ -98,7 +99,7 @@ const MediaPlayer = ({
 
 // --- Main Component ---
 
-export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid }: LiveGDRoomProps) {
+export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid, largeVideoLayout = false }: LiveGDRoomProps) {
   const { data: session } = useSession();
   const { resolvedTheme } = useTheme();
   const userName = session?.user?.name || 'Guest';
@@ -359,6 +360,7 @@ export default function LiveGDRoom({ roomData: initialRoomData, userId, agoraUid
         onToggleMute={toggleMute}
         onToggleVideo={toggleVideo}
         onEndSession={endSession}
+        largeVideoLayout={largeVideoLayout}
       />
     );
   }

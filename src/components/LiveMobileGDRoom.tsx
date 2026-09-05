@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
-  BarChart3, ChevronDown, Clock3, FileText, Home, Link2,
+  BarChart3, Home, Link2,
   Mic, MicOff, PhoneOff, Sparkles, Target, User, Users, Video, Volume2,
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -40,6 +40,7 @@ interface LiveMobileGDRoomProps {
   onToggleMute: () => void;
   onToggleVideo: () => void;
   onEndSession: () => void;
+  largeVideoLayout?: boolean;
 }
 
 const TABS = [
@@ -94,6 +95,7 @@ export default function LiveMobileGDRoom({
   onToggleMute,
   onToggleVideo,
   onEndSession,
+  largeVideoLayout = false,
 }: LiveMobileGDRoomProps) {
   const { resolvedTheme } = useTheme();
   const [isMobileViewport, setIsMobileViewport] = useState<boolean | null>(null);
@@ -108,7 +110,14 @@ export default function LiveMobileGDRoom({
 
   if (isMobileViewport !== true) return null;
 
-  const formatTime = (seconds: number) =>
+  const phaseDurations: Record<string, number> = {
+    initiation: 120,
+    discussion: 600,
+    summary: 120,
+  };
+  const phaseStartTime = currentPhase === 'discussion' ? 120 : currentPhase === 'summary' ? 720 : 0;
+  const elapsedTime = Math.max(0, phaseStartTime + (phaseDurations[currentPhase] ?? 0) - phaseTimer);
+  const formatElapsedTime = (seconds: number) =>
     `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 
   const isLight = resolvedTheme === 'light' || resolvedTheme === 'parchment';
@@ -130,13 +139,14 @@ export default function LiveMobileGDRoom({
     <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden pb-28 pt-14 sm:pt-0" style={{ background: pageBg, color: text }}>
       <TrainNavigation />
 
-      <main className="px-4 pt-[220px] sm:pt-7">
+      <main className="px-4 pt-[160px] sm:pt-7">
         <div className="fixed left-0 right-0 top-14 z-40 px-4 pb-2 pt-3" style={{ background: pageBg }}>
           <div className="mb-4 flex min-w-0 items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
               <button onClick={onEndSession} aria-label="Leave discussion"><span className="text-4xl leading-none">‹</span></button>
-              <span className="flex min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-sm font-bold sm:px-4 sm:text-base" style={{ color: danger, borderColor: `${danger}66`, background: `${danger}18` }}>
-                <span className="h-3 w-3 animate-pulse rounded-full" style={{ background: danger }} /> Live Discussion
+              <span className="flex min-w-0 items-center gap-2 rounded-full border px-3 py-2 text-sm font-bold" style={{ color: danger, borderColor: `${danger}66`, background: `${danger}18` }}>
+                <span className="h-3 w-3 animate-pulse rounded-full" style={{ background: danger }} />
+                Live Discussion · {formatElapsedTime(elapsedTime)}
               </span>
             </div>
             <span className="flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-2 text-xs font-semibold" style={{ color: muted, borderColor: border, background: card }}>
@@ -144,29 +154,15 @@ export default function LiveMobileGDRoom({
             </span>
           </div>
 
-          <section className="grid grid-cols-2 gap-3">
-          <div className="min-w-0 rounded-[22px] border p-3" style={{ background: panel, borderColor: border }}>
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: `${accent}22`, color: accent }}>
-              <Clock3 size={23} />
-            </div>
-            <div className="font-mono text-2xl font-bold leading-none" style={{ color: accent }}>{formatTime(phaseTimer)}</div>
-            <div className="mt-1 text-[9px] font-semibold uppercase tracking-wide" style={{ color: muted }}>Time remaining</div>
-          </div>
-          <div className="min-w-0 rounded-[22px] border p-3" style={{ background: panel, borderColor: border }}>
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: `${accent}22`, color: accent }}>
-              <FileText size={22} />
-            </div>
-            <div className="mb-1 text-[9px] font-semibold uppercase tracking-wide" style={{ color: muted }}>Topic</div>
-            <div className="flex min-w-0 items-start gap-1 text-xs font-bold leading-tight">
-              <span className="line-clamp-2 min-w-0 break-words [overflow-wrap:anywhere]">{topic}</span>
-              <ChevronDown size={14} className="mt-0.5 shrink-0" />
-            </div>
+          <section>
+          <div className="min-w-0 rounded-[22px] border px-4 py-3 text-center" style={{ background: panel, borderColor: border }}>
+            <span className="line-clamp-2 break-words text-sm font-bold leading-tight [overflow-wrap:anywhere]" style={{ color: text }}>{topic}</span>
           </div>
           </section>
         </div>
 
-        <section className="grid grid-cols-2 gap-3">
-          <div className="relative aspect-[4/3] min-w-0 overflow-hidden rounded-2xl border-2 shadow-[0_0_14px_rgba(124,58,237,0.55)] sm:rounded-3xl sm:border-4" style={{ borderColor: accent, boxShadow: `0 0 14px ${accent}88` }}>
+        <section className={largeVideoLayout ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-2 gap-3'}>
+          <div className={`relative ${largeVideoLayout ? 'aspect-video' : 'aspect-[4/3]'} min-w-0 overflow-hidden rounded-2xl border-2 shadow-[0_0_14px_rgba(124,58,237,0.55)] sm:rounded-3xl sm:border-4`} style={{ borderColor: accent, boxShadow: `0 0 14px ${accent}88` }}>
             <MediaPlayer videoTrack={localVideoTrack} audioTrack={localAudioTrack} uid={agoraUid} local />
             {isVideoOff && <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: card }}><div className="flex h-20 w-20 items-center justify-center rounded-full text-3xl font-black" style={{ background: accent, color: '#FFFFFF' }}>{userName[0]?.toUpperCase()}</div></div>}
             <span className="absolute right-2 top-2 rounded-lg px-2 py-1 text-[10px] font-bold sm:right-4 sm:top-4 sm:px-4 sm:py-2 sm:text-base sm:rounded-xl" style={{ background: accent, color: '#FFFFFF' }}>You</span>
@@ -179,7 +175,7 @@ export default function LiveMobileGDRoom({
             </div>
           </div>
           {remoteUsers.slice(0, 3).map((user, index) => (
-            <div key={user.uid} className="relative aspect-[4/3] min-w-0 overflow-hidden rounded-2xl border sm:rounded-3xl" style={{ borderColor: border }}>
+            <div key={user.uid} className={`relative ${largeVideoLayout ? 'aspect-video' : 'aspect-[4/3]'} min-w-0 overflow-hidden rounded-2xl border sm:rounded-3xl`} style={{ borderColor: border }}>
               <MediaPlayer videoTrack={user.videoTrack} audioTrack={user.audioTrack} uid={user.uid} />
               {!user.hasVideo && <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: card }}><div className="flex h-20 w-20 items-center justify-center rounded-full" style={{ background: control, color: muted }}><User size={30} /></div></div>}
               <span className="absolute bottom-2 left-2 max-w-[calc(100%-4.5rem)] truncate rounded-lg px-2 py-1 text-[10px] font-semibold sm:bottom-4 sm:left-4 sm:px-4 sm:py-2 sm:text-base sm:rounded-xl" style={{ background: `${pageBg}dd`, color: text }}>{participantNames[index + 1] || `Participant ${index + 2}`}</span>

@@ -667,6 +667,7 @@ export default function LiveGDPage({ fixedParticipantCount }: MobileliveGDPagePr
         roomData={roomData}
         userId={userId}
         agoraUid={agoraUid}
+        largeVideoLayout={fixedParticipantCount === 2}
       />
     );
   }
