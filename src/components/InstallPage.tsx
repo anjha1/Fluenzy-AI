@@ -4,10 +4,11 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Smartphone, Monitor, Share2, Copy, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useTheme, ThemeName } from "@/contexts/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
 import PWAInstallButton from "@/components/PWAInstallButton";
-import { Menu, Sun, Moon, Sparkles, Leaf, Coffee, Terminal } from "lucide-react";
+import { Menu, Bell, Sun, Moon, Sparkles, Leaf, Coffee, Terminal } from "lucide-react";
 
 const installButtonClass =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-bold shadow-lg transition";
@@ -40,6 +41,7 @@ const MOBILE_THEME_COLORS: Record<ThemeName, {
 
 export default function InstallPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [linkCopied, setLinkCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
@@ -156,14 +158,41 @@ export default function InstallPage() {
               )}
             </AnimatePresence>
           </div>
-          <button
-            type="button"
-            onClick={() => router.push("/login")}
-            className="rounded-full px-5 py-2 text-xs font-black tracking-[0.2em] shadow-sm"
-            style={signInStyles}
-          >
-            SIGN IN
-          </button>
+          {session?.user ? (
+            <>
+              <button
+                type="button"
+                onClick={() => router.push("/notifications")}
+                className="rounded-xl p-2"
+                style={{ color: colors.text, background: isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.08)" }}
+                aria-label="Notifications"
+              >
+                <Bell className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/profile")}
+                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl border-2 font-black"
+                style={{ borderColor: `${colors.accent}80`, background: `linear-gradient(135deg, ${colors.accent}, #4F46E5)`, color: "#FFFFFF" }}
+                aria-label="Open profile"
+              >
+                {session.user.image ? (
+                  <img src={session.user.image} alt="Profile" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  session.user.name?.charAt(0).toUpperCase() || "U"
+                )}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => router.push("/login")}
+              className="rounded-full px-5 py-2 text-xs font-black tracking-[0.2em] shadow-sm"
+              style={signInStyles}
+            >
+              SIGN IN
+            </button>
+          )}
         </div>
       </header>
       <div className="mx-auto max-w-4xl">
