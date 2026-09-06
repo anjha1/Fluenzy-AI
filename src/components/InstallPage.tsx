@@ -31,7 +31,7 @@ const MOBILE_THEME_COLORS: Record<ThemeName, {
   header: string;
 }> = {
   light: { page: "#FFFFFF", card: "#F8FAFC", border: "#E5E7EB", text: "#0F0B2E", muted: "#6B7280", accent: "#5A2D82", header: "#FFFFFF" },
-  parchment: { page: "hsl(42 18% 93%)", card: "#FFFFFF", border: "#E9ECEF", text: "#212529", muted: "#6C757D", accent: "#5A2D82", header: "hsl(42 18% 93%)" },
+  parchment: { page: "#E7E0D4", card: "#F1ECE3", border: "#D8D0C2", text: "#29241D", muted: "#665F54", accent: "#5A2D82", header: "#E7E0D4" },
   dark: { page: "#0D0F1A", card: "#161B2E", border: "rgba(255,255,255,0.08)", text: "#F1F5F9", muted: "#94A3B8", accent: "#7C3AED", header: "#161B2E" },
   midnight: { page: "#0a1929", card: "rgba(15,39,68,0.9)", border: "rgba(255,255,255,0.08)", text: "#F1F5F9", muted: "#94A3B8", accent: "#7C3AED", header: "rgba(15,39,68,0.9)" },
   forest: { page: "#0b140e", card: "rgba(17,28,20,0.9)", border: "rgba(180,120,30,0.2)", text: "#e8e4d9", muted: "#9aad8e", accent: "#F59E0B", header: "rgba(17,28,20,0.9)" },
@@ -80,7 +80,21 @@ export default function InstallPage() {
   };
 
   return (
-    <main className="min-h-screen px-5 py-8 sm:px-8" style={{ background: colors.page, color: colors.text }}>
+    <main
+      className="relative min-h-screen overflow-hidden px-5 py-8 sm:px-8"
+      style={{
+        background: `radial-gradient(circle at 50% -10%, ${colors.accent}18 0, transparent 38%), ${colors.page}`,
+        color: colors.text,
+      }}
+    >
+      <div
+        className="pointer-events-none absolute -left-24 top-40 h-64 w-64 rounded-full blur-3xl"
+        style={{ background: `${colors.accent}12` }}
+      />
+      <div
+        className="pointer-events-none absolute -right-24 bottom-20 h-72 w-72 rounded-full blur-3xl"
+        style={{ background: `${colors.accent}10` }}
+      />
       <header
         className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between px-4 shadow-lg backdrop-blur-xl sm:hidden"
         style={{ background: colors.header, borderBottom: isLight ? "none" : `1px solid ${colors.border}` }}
@@ -158,9 +172,14 @@ export default function InstallPage() {
           Back to FluenzyAI
         </Link>
 
-        <section className="mt-16 block rounded-3xl border p-6 text-center shadow-2xl min-[641px]:hidden" style={{ background: colors.card, borderColor: colors.border }}>
-          <Smartphone className="mx-auto h-12 w-12" style={{ color: colors.accent }} />
-          <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em]" style={{ color: colors.accent }}>Mobile installation</p>
+        <section
+          className="relative mt-16 block rounded-[2rem] border p-6 text-center shadow-2xl min-[641px]:hidden"
+          style={{ background: colors.card, borderColor: colors.border, boxShadow: "0 25px 50px rgba(15,23,42,0.16)" }}
+        >
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border shadow-inner" style={{ color: colors.accent, borderColor: `${colors.accent}35`, background: `${colors.accent}12` }}>
+            <Smartphone className="h-9 w-9" />
+          </div>
+          <p className="mt-5 text-xs font-bold uppercase tracking-[0.24em]" style={{ color: colors.accent }}>Mobile installation</p>
           <h1 className="mt-3 text-3xl font-extrabold">Install FluenzyAI</h1>
           <p className="mx-auto mt-4 max-w-sm text-sm leading-6" style={{ color: colors.muted }}>
             Get quick access to your interview practice from your home screen.
@@ -171,36 +190,60 @@ export default function InstallPage() {
               style={installStyles}
             />
           </div>
-          <p className="mt-6 text-xs leading-5" style={{ color: colors.muted }}>
+          <p className="mx-auto mt-6 max-w-sm text-xs leading-5" style={{ color: colors.muted }}>
             If no prompt appears, open your browser menu and tap <strong style={{ color: colors.text }}>Install app</strong> or{" "}
             <strong style={{ color: colors.text }}>Add to Home screen</strong>.
           </p>
         </section>
 
-        <section className="mt-20 hidden rounded-3xl border border-white/10 bg-gradient-to-br from-purple-950/60 to-slate-900 p-10 shadow-2xl min-[641px]:block">
+        <section
+          className={`relative mt-20 hidden p-10 min-[641px]:block ${
+            resolvedTheme === "light"
+              ? ""
+              : "rounded-[2rem] border shadow-2xl"
+          }`}
+          style={resolvedTheme === "light"
+            ? undefined
+            : { background: colors.card, borderColor: colors.border, boxShadow: "0 25px 50px rgba(15,23,42,0.16)" }}
+        >
           <div className="mx-auto max-w-2xl text-center">
-            <Monitor className="mx-auto h-12 w-12 text-purple-300" />
-            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">Desktop installation</p>
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border shadow-inner" style={{ color: colors.accent, borderColor: `${colors.accent}35`, background: `${colors.accent}12` }}>
+              <Monitor className="h-9 w-9" />
+            </div>
+            <p className="mt-5 text-xs font-bold uppercase tracking-[0.24em]" style={{ color: colors.accent }}>Desktop installation</p>
             <h1 className="mt-3 text-4xl font-extrabold">Install FluenzyAI on your desktop</h1>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-300">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7" style={{ color: colors.muted }}>
               Use the native browser install prompt to launch FluenzyAI like a desktop app, with the same account and features.
             </p>
             <div className="mt-8">
               <PWAInstallButton className={installButtonClass} style={installStyles} />
             </div>
-            <div className="mt-8 flex flex-wrap justify-center gap-5 text-sm text-slate-300">
-              <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" />No separate download</span>
-              <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" />Uses the existing PWA</span>
-              <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" />No new tab</span>
+            <div className="mt-8 flex flex-wrap justify-center gap-2.5 text-xs sm:text-sm" style={{ color: colors.muted }}>
+              <span className="inline-flex items-center gap-2 rounded-full border px-3 py-2" style={{ borderColor: colors.border, background: `${colors.accent}08` }}><CheckCircle2 className="h-4 w-4 text-emerald-400" />No separate download</span>
+              <span className="inline-flex items-center gap-2 rounded-full border px-3 py-2" style={{ borderColor: colors.border, background: `${colors.accent}08` }}><CheckCircle2 className="h-4 w-4 text-emerald-400" />Uses the existing PWA</span>
+              <span className="inline-flex items-center gap-2 rounded-full border px-3 py-2" style={{ borderColor: colors.border, background: `${colors.accent}08` }}><CheckCircle2 className="h-4 w-4 text-emerald-400" />No new tab</span>
             </div>
-            <p className="mt-7 text-xs text-slate-400">
-              If the prompt is unavailable, use your browser menu and choose <strong className="text-slate-200">Install FluenzyAI</strong> or{" "}
-              <strong className="text-slate-200">Install app</strong>.
+            <p className="mt-7 text-xs" style={{ color: colors.muted }}>
+              If the prompt is unavailable, use your browser menu and choose <strong style={{ color: colors.text }}>Install FluenzyAI</strong> or{" "}
+              <strong style={{ color: colors.text }}>Install app</strong>.
             </p>
           </div>
         </section>
 
-        <div className="mt-6 flex flex-col items-center gap-3 text-center">
+        <div
+          className={`mt-6 flex flex-col items-center gap-3 text-center ${
+            resolvedTheme === "light"
+              ? "min-[641px]:rounded-2xl min-[641px]:border min-[641px]:px-6 min-[641px]:py-5"
+              : ""
+          }`}
+          style={resolvedTheme === "light"
+            ? {
+                background: "linear-gradient(135deg, rgba(250,249,255,0.96), rgba(243,240,255,0.82))",
+                borderColor: "rgba(124,58,237,0.22)",
+                boxShadow: "0 8px 24px rgba(91,33,182,0.08), inset 0 1px 0 rgba(255,255,255,0.9)",
+              }
+            : undefined}
+        >
           <button
             type="button"
             onClick={shareInstallLink}
