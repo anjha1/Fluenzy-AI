@@ -20,6 +20,7 @@ import {
   ChevronDown,
   Building2,
 } from "lucide-react";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 /* ─── data ─────────────────────────────────────────────────── */
 const features = [
@@ -145,6 +146,9 @@ const MobileLandingPage = () => {
             Explore Features
             <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
+          <PWAInstallButton
+            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-purple-500/30 bg-white/5 px-6 py-3 text-sm font-semibold text-purple-200 active:scale-[0.97]"
+          />
         </motion.div>
 
         {/* trust badges */}

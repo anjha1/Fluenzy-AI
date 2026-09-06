@@ -7,6 +7,14 @@ export default function PWARegister() {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
 
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      (window as Window & { __fluenzyInstallPrompt?: Event }).__fluenzyInstallPrompt = event;
+      window.dispatchEvent(new CustomEvent("fluenzyai:beforeinstallprompt", { detail: event }));
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
     const registerSW = async () => {
       try {
         const registration = await navigator.serviceWorker.register("/sw.js", {
@@ -33,6 +41,10 @@ export default function PWARegister() {
     };
 
     registerSW();
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
   }, []);
 
   return null;

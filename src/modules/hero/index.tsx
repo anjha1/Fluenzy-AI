@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Sparkles, ArrowRight, ShieldCheck, Cpu, Zap } from "lucide-react";
 import Link from "next/link";
 import Card3D from "@/components/ui/Card3D";
+import PWAInstallButton from "@/components/PWAInstallButton";
 import TechParticleMesh from "@/components/ui/TechParticleMesh";
 
 const headlineWords = ["Train", "Smarter.", "Crack", "FAANG", "Interviews", "with", "AI."];
@@ -148,6 +149,8 @@ const Hero = () => {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </motion.div>
+
+            <PWAInstallButton className="touch-target inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-purple-400/40 bg-white/5 px-6 py-4 font-semibold text-purple-100 backdrop-blur-md transition hover:border-purple-300 hover:bg-purple-500/10 sm:w-auto" />
           </motion.div>
 
           <motion.div

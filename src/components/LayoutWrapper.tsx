@@ -230,7 +230,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const hideNav =
     isEmbedded ||
     isReportPrintMode ||
-    (isLiveTrainingRoute && isMobileViewport !== false);
+    (isLiveTrainingRoute && isMobileViewport !== false) ||
+    (pathname.startsWith('/install') && isMobileViewport !== false);
   const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
   const isSuperAdminPage = pathname.startsWith('/superadmin');
   const isCollegePage = pathname.startsWith('/college');
